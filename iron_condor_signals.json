@@ -1,0 +1,137 @@
+{
+  "strategy_name": "Iron_Condor_Strategy",
+  "last_updated": "2025-10-10T14:24:52.527479",
+  "total_symbols_analyzed": 9,
+  "signals_generated": 7,
+  "analysis_summary": {
+    "strong_buy": 2,
+    "buy": 5,
+    "hold": 0,
+    "no_signal": 2
+  },
+  "signals": {
+    "INTC": {
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "Market conditions not suitable for Iron Condor",
+      "timestamp": "2025-10-10T14:24:47.084900",
+      "market_condition": "HIGH_VOLATILITY",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": false
+    },
+    "GOOGL": {
+      "signal_type": "BUY",
+      "confidence": 0.6856203228635586,
+      "entry_reason": "Good Iron Condor setup - suitable market conditions",
+      "timestamp": "2025-10-10T14:24:47.747187",
+      "market_condition": "RANGE_BOUND",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 2.0,
+      "stop_loss": 212.913,
+      "profit_target": 239.52712499999998,
+      "auto_approve": false
+    },
+    "NVDA": {
+      "signal_type": "BUY",
+      "confidence": 0.5975291540582064,
+      "entry_reason": "Good Iron Condor setup - suitable market conditions",
+      "timestamp": "2025-10-10T14:24:47.750094",
+      "market_condition": "RANGE_BOUND",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 1.0,
+      "stop_loss": 164.943,
+      "profit_target": 185.560875,
+      "auto_approve": false
+    },
+    "PLTR": {
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "Market conditions not suitable for Iron Condor",
+      "timestamp": "2025-10-10T14:24:47.751101",
+      "market_condition": "HIGH_VOLATILITY",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": false
+    },
+    "AMZN": {
+      "signal_type": "BUY",
+      "confidence": 0.5886437995978632,
+      "entry_reason": "Good Iron Condor setup - suitable market conditions",
+      "timestamp": "2025-10-10T14:24:47.754857",
+      "market_condition": "RANGE_BOUND",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 2.0,
+      "stop_loss": 194.85,
+      "profit_target": 219.20624999999998,
+      "auto_approve": false
+    },
+    "QQQ": {
+      "signal_type": "STRONG_BUY",
+      "confidence": 0.9945031571396398,
+      "entry_reason": "Excellent Iron Condor conditions - range-bound low volatility market",
+      "timestamp": "2025-10-10T14:24:50.053574",
+      "market_condition": "RANGE_BOUND",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 2.0,
+      "stop_loss": 530.595,
+      "profit_target": 596.919375,
+      "auto_approve": false
+    },
+    "BAC": {
+      "signal_type": "BUY",
+      "confidence": 0.684273095830314,
+      "entry_reason": "Good Iron Condor setup - suitable market conditions",
+      "timestamp": "2025-10-10T14:24:50.054146",
+      "market_condition": "RANGE_BOUND",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 2.0,
+      "stop_loss": 43.785,
+      "profit_target": 49.258125,
+      "auto_approve": false
+    },
+    "AAPL": {
+      "signal_type": "BUY",
+      "confidence": 0.6920596363520519,
+      "entry_reason": "Good Iron Condor setup - suitable market conditions",
+      "timestamp": "2025-10-10T14:24:51.154710",
+      "market_condition": "RANGE_BOUND",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 2.0,
+      "stop_loss": 220.626,
+      "profit_target": 248.20424999999997,
+      "auto_approve": false
+    },
+    "SPY": {
+      "signal_type": "STRONG_BUY",
+      "confidence": 0.894177107322139,
+      "entry_reason": "Excellent Iron Condor conditions - range-bound low volatility market",
+      "timestamp": "2025-10-10T14:24:52.526088",
+      "market_condition": "RANGE_BOUND",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 3.0,
+      "stop_loss": 587.682,
+      "profit_target": 661.14225,
+      "auto_approve": false
+    }
+  },
+  "metadata": {
+    "strategy_type": "options_income_strategy",
+    "signal_types": [
+      "STRONG_BUY",
+      "BUY",
+      "HOLD",
+      "NO_SIGNAL"
+    ],
+    "analysis_method": "range_bound_low_volatility_detection",
+    "update_frequency": "on_demand",
+    "data_source": "schwab_options_chain",
+    "optimal_conditions": "range_bound_markets_with_medium_iv",
+    "auto_approve_last_updated": "2025-10-10T14:24:52.528148",
+    "auto_approve_status": false
+  }
+}

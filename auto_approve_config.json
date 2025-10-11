@@ -1,0 +1,25 @@
+{
+  "strategy_controls": {
+    "iron_condor": {
+      "auto_execute": false,
+      "manual_approval": false,
+      "auto_approve": false
+    },
+    "pml": {
+      "auto_execute": true,
+      "manual_approval": false,
+      "auto_approve": true
+    },
+    "divergence": {
+      "auto_execute": true,
+      "manual_approval": false,
+      "auto_approve": true
+    }
+  },
+  "metadata": {
+    "last_updated": "2025-10-09T16:04:30.733592",
+    "updated_by": "web_interface",
+    "version": "1.0.0",
+    "description": "Centralized auto-approve configuration for all trading strategies"
+  }
+}

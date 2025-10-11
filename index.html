@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VolFlow Options Breakout Screener</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <i class="fas fa-chart-line logo-icon"></i>
+                    <h1 class="app-title">VolFlow Options Breakout</h1>
+                </div>
+                <div class="account-info">
+                    <!-- Emergency Controls -->
+                    <div class="emergency-controls-header">
+                        <div class="emergency-controls-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Emergency Controls</span>
+                        </div>
+                        <div class="emergency-buttons-header">
+                            <button class="btn btn-danger btn-xs" id="emergency-stop">
+                                <i class="fas fa-stop"></i>
+                                Emergency Stop
+                            </button>
+                            <button class="btn btn-warning btn-xs" id="close-all-positions">
+                                <i class="fas fa-times-circle"></i>
+                                Close All
+                            </button>
+                            <button class="btn btn-secondary btn-xs" id="pause-trading">
+                                <i class="fas fa-pause"></i>
+                                Pause
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="account-card">
+                        <div class="account-details">
+                            <span class="account-label">Account</span>
+                            <span class="account-number">****1234</span>
+                        </div>
+                        <div class="equity-details">
+                            <span class="equity-label">Total Equity</span>
+                            <span class="equity-amount">$125,847.32</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Trading Controls -->
+                    <div class="trading-controls">
+                        <div class="toggle-group">
+                            <label class="toggle-label">Environment:</label>
+                            <div class="toggle-switch" id="environment-toggle">
+                                <input type="checkbox" id="env-toggle" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <span class="toggle-option" id="env-status">Live</span>
+                        </div>
+                        
+                        <div class="toggle-group">
+                            <label class="toggle-label">Trading:</label>
+                            <div class="toggle-switch" id="trading-toggle">
+                                <input type="checkbox" id="trade-toggle">
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <span class="toggle-option" id="trade-status">Stopped</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Bar -->
+        <nav class="section-nav">
+            <div class="nav-container">
+                <div class="nav-items">
+                    <a href="#positions" class="nav-item active" data-section="positions">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Current Positions</span>
+                    </a>
+                    <a href="#strategy" class="nav-item" data-section="strategy">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Strategy Dashboard</span>
+                    </a>
+                    <a href="#risk" class="nav-item" data-section="risk">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Risk Management</span>
+                    </a>
+                    <a href="#watchlist" class="nav-item" data-section="watchlist">
+                        <i class="fas fa-eye"></i>
+                        <span>Asset Watchlist</span>
+                    </a>
+                    <a href="#security" class="nav-item" data-section="security">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Account & Security</span>
+                    </a>
+                    <a href="#settings" class="nav-item" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Current Positions Panel -->
+            <section class="positions-panel" id="positions">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <i class="fas fa-chart-pie"></i>
+                        Current Positions
+                    </h2>
+                    <div class="panel-actions">
+                        <button class="btn btn-sm btn-outline" id="refresh-positions">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="positions-content">
+                    <!-- Summary Cards - Full Width Across Top -->
+                    <div class="positions-summary">
+                        <div class="summary-item">
+                            <div class="summary-icon positive">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="summary-details">
+                                <span class="summary-label">P/L Open</span>
+                                <span class="summary-value positive" id="pl-open">+$2,847.32</span>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <div class="summary-icon negative">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="summary-details">
+                                <span class="summary-label">P/L Day</span>
+                                <span class="summary-value negative" id="pl-day">-$156.78</span>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-item">
+                            <div class="summary-icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <div class="summary-details">
+                                <span class="summary-label">Total Positions</span>
+                                <span class="summary-value" id="total-positions">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Main Content Layout -->
+                    <div class="positions-layout">
+                        <!-- Left Side: Current Positions List -->
+                        <div class="positions-left">
+                            <div class="positions-list">
+                                <div class="position-item">
+                                    <div class="position-symbol">
+                                        <span class="symbol">AAPL</span>
+                                        <span class="position-type">Call</span>
+                                    </div>
+                                    <div class="position-details">
+                                        <div class="detail-row">
+                                            <span class="detail-label">Quantity:</span>
+                                            <span class="detail-value">+5</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">P/L Open:</span>
+                                            <span class="detail-value positive">+$1,250.00</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">P/L Day:</span>
+                                            <span class="detail-value negative">-$75.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="position-item">
+                                    <div class="position-symbol">
+                                        <span class="symbol">TSLA</span>
+                                        <span class="position-type">Put</span>
+                                    </div>
+                                    <div class="position-details">
+                                        <div class="detail-row">
+                                            <span class="detail-label">Quantity:</span>
+                                            <span class="detail-value">+3</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">P/L Open:</span>
+                                            <span class="detail-value positive">+$890.50</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">P/L Day:</span>
+                                            <span class="detail-value positive">+$45.25</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="position-item">
+                                    <div class="position-symbol">
+                                        <span class="symbol">NVDA</span>
+                                        <span class="position-type">Call</span>
+                                    </div>
+                                    <div class="position-details">
+                                        <div class="detail-row">
+                                            <span class="detail-label">Quantity:</span>
+                                            <span class="detail-value">+2</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">P/L Open:</span>
+                                            <span class="detail-value positive">+$706.82</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">P/L Day:</span>
+                                            <span class="detail-value negative">-$127.03</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="position-item">
+                                    <div class="position-symbol">
+                                        <span class="symbol">MSFT</span>
+                                        <span class="position-type">Call</span>
+                                    </div>
+                                    <div class="position-details">
+                                        <div class="detail-row">
+                                            <span class="detail-label">Quantity:</span>
+                                            <span class="detail-value">+4</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">P/L Open:</span>
+                                            <span class="detail-value positive">+$425.30</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">P/L Day:</span>
+                                            <span class="detail-value positive">+$12.50</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="position-item">
+                                    <div class="position-symbol">
+                                        <span class="symbol">GOOGL</span>
+                                        <span class="position-type">Put</span>
+                                    </div>
+                                    <div class="position-details">
+                                        <div class="detail-row">
+                                            <span class="detail-label">Quantity:</span>
+                                            <span class="detail-value">+1</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">P/L Open:</span>
+                                            <span class="detail-value negative">-$180.75</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">P/L Day:</span>
+                                            <span class="detail-value negative">-$25.40</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Side: Trading Performance Statistics -->
+                        <div class="positions-right">
+                            <div class="trading-stats">
+                                <h3 class="stats-title">
+                                    <i class="fas fa-chart-pie"></i>
+                                    Trading Performance
+                                </h3>
+                                
+                                <!-- Win/Loss Pie Chart -->
+                                <div class="stats-chart">
+                                    <canvas id="winLossChart" width="200" height="200"></canvas>
+                                </div>
+                                
+                                <!-- Trading Metrics -->
+                                <div class="stats-metrics">
+                                    <div class="metric-row">
+                                        <div class="metric-item">
+                                            <span class="metric-label">Win Rate</span>
+                                            <span class="metric-value" id="win-rate">0%</span>
+                                        </div>
+                                        <div class="metric-item">
+                                            <span class="metric-label">Total Trades</span>
+                                            <span class="metric-value" id="total-trades">0</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="metric-row">
+                                        <div class="metric-item">
+                                            <span class="metric-label">Avg Win</span>
+                                            <span class="metric-value positive" id="avg-win">$0</span>
+                                        </div>
+                                        <div class="metric-item">
+                                            <span class="metric-label">Avg Loss</span>
+                                            <span class="metric-value negative" id="avg-loss">$0</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="metric-row">
+                                        <div class="metric-item">
+                                            <span class="metric-label">Total P/L</span>
+                                            <span class="metric-value" id="total-pl">$0</span>
+                                        </div>
+                                        <div class="metric-item">
+                                            <span class="metric-label">W/L Ratio</span>
+                                            <span class="metric-value" id="wl-ratio">0.0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="positions-empty" style="display: none;">
+                        <i class="fas fa-inbox empty-icon"></i>
+                        <h4 class="empty-title">No Open Positions</h4>
+                        <p class="empty-description">Your current positions will appear here once you have active trades.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Strategy Dashboard -->
+            <section class="strategy-dashboard" id="strategy">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <i class="fas fa-chart-line"></i>
+                        Strategy Dashboard
+                    </h2>
+                    <div class="panel-actions">
+                        <button class="btn btn-sm btn-outline" id="refresh-strategies">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="strategy-grid">
+                    <!-- Iron Condor Strategy -->
+                    <div class="strategy-card" id="iron-condor-card">
+                        <div class="strategy-header">
+                            <div class="strategy-icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <div class="strategy-info">
+                                <h3 class="strategy-name">Iron Condor</h3>
+                                <span class="strategy-type">Options Strategy</span>
+                            </div>
+                            <div class="strategy-status" id="iron-condor-status">
+                                <span class="status-indicator buy"></span>
+                                <span class="status-text">BUY</span>
+                            </div>
+                            <div class="strategy-controls">
+                                <div class="strategy-control-item">
+                                    <label class="control-label">Auto Execute:</label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="iron_condor_auto_execute" checked>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </div>
+                                <div class="strategy-control-item">
+                                    <label class="control-label">Manual Approval:</label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="iron_condor_manual_approval">
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="strategy-signals" id="iron-condor-signals">
+                            <div class="signal-placeholder">
+                                <i class="fas fa-clock"></i>
+                                <span>Waiting for signals...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PML Strategy -->
+                    <div class="strategy-card" id="pml-card">
+                        <div class="strategy-header">
+                            <div class="strategy-icon">
+                                <i class="fas fa-mountain"></i>
+                            </div>
+                            <div class="strategy-info">
+                                <h3 class="strategy-name">PML Strategy</h3>
+                                <span class="strategy-type">Options Strategy</span>
+                            </div>
+                            <div class="strategy-status" id="pml-status">
+                                <span class="status-indicator buy"></span>
+                                <span class="status-text">BUY</span>
+                            </div>
+                            <div class="strategy-controls">
+                                <div class="strategy-control-item">
+                                    <label class="control-label">Auto Execute:</label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="pml_auto_execute" checked>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </div>
+                                <div class="strategy-control-item">
+                                    <label class="control-label">Manual Approval:</label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="pml_manual_approval">
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="strategy-signals" id="pml-signals">
+                            <div class="signal-placeholder">
+                                <i class="fas fa-clock"></i>
+                                <span>Waiting for signals...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Divergence Strategy -->
+                    <div class="strategy-card" id="divergence-card">
+                        <div class="strategy-header">
+                            <div class="strategy-icon">
+                                <i class="fas fa-wave-square"></i>
+                            </div>
+                            <div class="strategy-info">
+                                <h3 class="strategy-name">Divergence</h3>
+                                <span class="strategy-type">Stocks & Futures</span>
+                            </div>
+                            <div class="strategy-status" id="divergence-status">
+                                <span class="status-indicator sell"></span>
+                                <span class="status-text">STRONG_SELL</span>
+                            </div>
+                            <div class="strategy-controls">
+                                <div class="strategy-control-item">
+                                    <label class="control-label">Auto Execute:</label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="divergence_auto_execute" checked>
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </div>
+                                <div class="strategy-control-item">
+                                    <label class="control-label">Manual Approval:</label>
+                                    <div class="toggle-switch">
+                                        <input type="checkbox" id="divergence_manual_approval">
+                                        <span class="toggle-slider"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="strategy-signals" id="divergence-signals">
+                            <div class="signal-placeholder">
+                                <i class="fas fa-clock"></i>
+                                <span>Waiting for signals...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Risk Management Panel -->
+            <section class="risk-management-panel" id="risk">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <i class="fas fa-shield-alt"></i>
+                        Risk Management
+                    </h2>
+                    <div class="panel-actions">
+                        <div class="risk-status-indicator" id="risk-status">
+                            <span class="status-dot safe"></span>
+                            <span class="status-text">Safe</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Risk Overview Cards -->
+                <div class="risk-overview">
+                    <div class="risk-card">
+                        <div class="risk-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="risk-details">
+                            <span class="risk-label">Account Equity</span>
+                            <span class="risk-value" id="current-equity">$125,847.32</span>
+                            <span class="risk-change positive" id="equity-change">+2.3%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="risk-card">
+                        <div class="risk-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="risk-details">
+                            <span class="risk-label">Risk Utilization</span>
+                            <span class="risk-value" id="risk-utilization">15.2%</span>
+                            <span class="risk-limit">/ 25% Max</span>
+                        </div>
+                    </div>
+                    
+                    <div class="risk-card">
+                        <div class="risk-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="risk-details">
+                            <span class="risk-label">Active Positions</span>
+                            <span class="risk-value" id="active-positions">7</span>
+                            <span class="risk-limit">/ 15 Max</span>
+                        </div>
+                    </div>
+                    
+                    <div class="risk-card">
+                        <div class="risk-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="risk-details">
+                            <span class="risk-label">Daily Drawdown</span>
+                            <span class="risk-value negative" id="daily-drawdown">-0.12%</span>
+                            <span class="risk-limit">/ -5% Max</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Parameters Cards -->
+                <div class="risk-parameters-grid">
+                    <!-- Maximum Account Risk -->
+                    <div class="risk-parameter-card">
+                        <div class="parameter-header">
+                            <div class="parameter-info">
+                                <h4 class="parameter-title">Maximum Account Risk</h4>
+                                <span class="parameter-description">Max % of account equity at risk</span>
+                            </div>
+                            <div class="parameter-toggle">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="enable_max_account_risk" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parameter-control">
+                            <div class="input-group">
+                                <input type="number" id="max_account_risk" class="config-input" value="25" min="5" max="50" step="1">
+                                <span class="input-suffix">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Daily Loss Limit -->
+                    <div class="risk-parameter-card">
+                        <div class="parameter-header">
+                            <div class="parameter-info">
+                                <h4 class="parameter-title">Daily Loss Limit</h4>
+                                <span class="parameter-description">Stop trading if daily loss exceeds</span>
+                            </div>
+                            <div class="parameter-toggle">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="enable_daily_loss_limit" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parameter-control">
+                            <div class="input-group">
+                                <input type="number" id="daily_loss_limit" class="config-input" value="5" min="1" max="20" step="0.5">
+                                <span class="input-suffix">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Equity Buffer -->
+                    <div class="risk-parameter-card">
+                        <div class="parameter-header">
+                            <div class="parameter-info">
+                                <h4 class="parameter-title">Equity Buffer</h4>
+                                <span class="parameter-description">Minimum cash buffer to maintain</span>
+                            </div>
+                            <div class="parameter-toggle">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="enable_equity_buffer" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parameter-control">
+                            <div class="input-group">
+                                <input type="number" id="equity_buffer" class="config-input" value="10000" min="1000" max="50000" step="500">
+                                <span class="input-suffix">USD</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Max Position Size -->
+                    <div class="risk-parameter-card">
+                        <div class="parameter-header">
+                            <div class="parameter-info">
+                                <h4 class="parameter-title">Max Position Size</h4>
+                                <span class="parameter-description">Maximum equity per single position</span>
+                            </div>
+                            <div class="parameter-toggle">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="enable_max_position_size" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parameter-control">
+                            <div class="input-group">
+                                <input type="number" id="max_position_size" class="config-input" value="5" min="1" max="20" step="0.5">
+                                <span class="input-suffix">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Maximum Positions -->
+                    <div class="risk-parameter-card">
+                        <div class="parameter-header">
+                            <div class="parameter-info">
+                                <h4 class="parameter-title">Maximum Positions</h4>
+                                <span class="parameter-description">Max number of concurrent positions</span>
+                            </div>
+                            <div class="parameter-toggle">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="enable_max_positions" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parameter-control">
+                            <div class="input-group">
+                                <input type="number" id="max_positions" class="config-input" value="15" min="5" max="50" step="1">
+                                <span class="input-suffix">positions</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stop Loss Method -->
+                    <div class="risk-parameter-card">
+                        <div class="parameter-header">
+                            <div class="parameter-info">
+                                <h4 class="parameter-title">Stop Loss Method</h4>
+                                <span class="parameter-description">Method for calculating stop loss</span>
+                            </div>
+                            <div class="parameter-toggle">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="enable_stop_loss" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parameter-control">
+                            <select id="stop_loss_method" class="config-select">
+                                <option value="percentage">Percentage</option>
+                                <option value="atr" selected>ATR Multiple</option>
+                                <option value="technical">Technical Levels</option>
+                                <option value="volatility">Volatility Based</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Stop Loss Value -->
+                    <div class="risk-parameter-card">
+                        <div class="parameter-header">
+                            <div class="parameter-info">
+                                <h4 class="parameter-title">Stop Loss Value</h4>
+                                <span class="parameter-description">Stop loss distance</span>
+                            </div>
+                            <div class="parameter-toggle">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="enable_stop_loss_value" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parameter-control">
+                            <div class="input-group">
+                                <input type="number" id="stop_loss_value" class="config-input" value="2.0" min="0.5" max="10" step="0.1">
+                                <span class="input-suffix" id="stop-loss-unit">x ATR</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk/Reward Ratio -->
+                    <div class="risk-parameter-card">
+                        <div class="parameter-header">
+                            <div class="parameter-info">
+                                <h4 class="parameter-title">Risk/Reward Ratio</h4>
+                                <span class="parameter-description">Target profit as multiple of risk</span>
+                            </div>
+                            <div class="parameter-toggle">
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="enable_risk_reward_ratio" checked>
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parameter-control">
+                            <div class="input-group">
+                                <input type="number" id="take_profit_ratio" class="config-input" value="2.0" min="1.0" max="5.0" step="0.1">
+                                <span class="input-suffix">:1</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Risk Management Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="apply-risk-settings">
+                        <i class="fas fa-shield-alt"></i>
+                        Apply Risk Settings
+                    </button>
+                    <button class="btn btn-secondary" id="reset-risk-config">
+                        <i class="fas fa-undo"></i>
+                        Reset to Defaults
+                    </button>
+                    <button class="btn btn-outline" id="save-risk-config">
+                        <i class="fas fa-save"></i>
+                        Save Configuration
+                    </button>
+                    <button class="btn btn-outline" id="export-risk-report">
+                        <i class="fas fa-file-export"></i>
+                        Export Risk Report
+                    </button>
+                </div>
+            </section>
+
+            <!-- Asset Watchlist Panel -->
+            <section class="watchlist-panel" id="watchlist">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <i class="fas fa-eye"></i>
+                        Asset Watchlist
+                    </h2>
+                    <div class="panel-actions">
+                        <button class="btn btn-sm btn-outline" id="add-symbol">
+                            <i class="fas fa-plus"></i>
+                            Add Symbol
+                        </button>
+                        <button class="btn btn-sm btn-outline" id="refresh-watchlist">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="watchlist-content">
+                    <!-- Add Symbol Form -->
+                    <div class="add-symbol-form" id="add-symbol-form" style="display: none;">
+                        <div class="form-group">
+                            <input type="text" id="symbol-input" class="form-input" placeholder="Enter symbol (e.g., AAPL, TSLA)" maxlength="10">
+                            <div class="form-actions">
+                                <button class="btn btn-sm btn-primary" id="confirm-add-symbol">
+                                    <i class="fas fa-check"></i>
+                                    Add
+                                </button>
+                                <button class="btn btn-sm btn-secondary" id="cancel-add-symbol">
+                                    <i class="fas fa-times"></i>
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Watchlist Status Bar -->
+                    <div class="watchlist-status">
+                        <div class="status-item-horizontal">
+                            <div class="status-icon ready">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="status-details">
+                                <span class="status-label">System Status</span>
+                                <span class="status-value">Ready</span>
+                            </div>
+                        </div>
+                        
+                        <div class="status-item-horizontal">
+                            <div class="status-icon">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <div class="status-details">
+                                <span class="status-label">Symbols Monitored</span>
+                                <span class="status-value" id="symbols-count">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="status-item-horizontal">
+                            <div class="status-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="status-details">
+                                <span class="status-label">Last Update</span>
+                                <span class="status-value" id="last-update-time">--:--</span>
+                            </div>
+                        </div>
+                        
+                        <div class="status-item-horizontal">
+                            <div class="status-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="status-details">
+                                <span class="status-label">Market Status</span>
+                                <span class="status-value" id="market-status">Closed</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Watchlist Items -->
+                    <div class="watchlist-items">
+                        <div class="empty-state" id="watchlist-empty">
+                            <i class="fas fa-eye empty-icon"></i>
+                            <h3 class="empty-title">No Symbols in Watchlist</h3>
+                            <p class="empty-description">
+                                Click "Add Symbol" to start monitoring assets and their current prices.
+                            </p>
+                        </div>
+                        
+                        <!-- Watchlist will be populated here -->
+                        <div class="watchlist-list" id="watchlist-list" style="display: none;">
+                            <!-- Watchlist items will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Account & Security Panel -->
+            <section class="security-panel" id="security">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <i class="fas fa-user-shield"></i>
+                        Account & Security
+                    </h2>
+                    <div class="panel-actions">
+                        <button class="btn btn-sm btn-outline" id="save-security-settings">
+                            <i class="fas fa-save"></i>
+                            Save Settings
+                        </button>
+                        <button class="btn btn-sm btn-danger" id="logout-security-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="settings-content">
+                    <!-- Authentication Section -->
+                    <div class="settings-section">
+                        <div class="settings-section-header">
+                            <h3 class="settings-section-title">
+                                <i class="fas fa-key"></i>
+                                Authentication
+                            </h3>
+                            <p class="settings-section-description">Manage your login credentials and authentication methods</p>
+                        </div>
+                        
+                        <div class="settings-grid">
+                            <!-- Password Management -->
+                            <div class="settings-group">
+                                <h4 class="settings-group-title">Password Management</h4>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Change Password</label>
+                                        <span class="setting-description">Update your account password</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <button class="btn btn-sm btn-outline" id="change-password-btn">
+                                            <i class="fas fa-key"></i>
+                                            Change Password
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="password-change-form" style="display: none;">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Current Password</label>
+                                        <span class="setting-description">Enter your current password</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <input type="password" id="current-password" class="config-input" placeholder="Current password">
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="new-password-form" style="display: none;">
+                                    <div class="setting-info">
+                                        <label class="setting-label">New Password</label>
+                                        <span class="setting-description">Enter your new password (min 8 characters)</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <input type="password" id="new-password" class="config-input" placeholder="New password" minlength="8">
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="confirm-password-form" style="display: none;">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Confirm New Password</label>
+                                        <span class="setting-description">Confirm your new password</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <input type="password" id="confirm-password" class="config-input" placeholder="Confirm new password">
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="password-actions" style="display: none;">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Password Actions</label>
+                                        <span class="setting-description">Save or cancel password change</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <button class="btn btn-sm btn-primary" id="save-password-btn">
+                                            <i class="fas fa-save"></i>
+                                            Save Password
+                                        </button>
+                                        <button class="btn btn-sm btn-secondary" id="cancel-password-btn">
+                                            <i class="fas fa-times"></i>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Two-Factor Authentication -->
+                            <div class="settings-group">
+                                <h4 class="settings-group-title">Two-Factor Authentication</h4>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Enable 2FA</label>
+                                        <span class="setting-description">Add an extra layer of security to your account</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enable-2fa">
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="2fa-setup" style="display: none;">
+                                    <div class="setting-info">
+                                        <label class="setting-label">2FA Setup</label>
+                                        <span class="setting-description">Scan QR code with your authenticator app</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <button class="btn btn-sm btn-outline" id="setup-2fa-btn">
+                                            <i class="fas fa-qrcode"></i>
+                                            Setup 2FA
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Session Management Section -->
+                    <div class="settings-section">
+                        <div class="settings-section-header">
+                            <h3 class="settings-section-title">
+                                <i class="fas fa-clock"></i>
+                                Session Management
+                            </h3>
+                            <p class="settings-section-description">Control your login sessions and automatic logout settings</p>
+                        </div>
+                        
+                        <div class="settings-grid">
+                            <!-- Auto Logout Settings -->
+                            <div class="settings-group">
+                                <h4 class="settings-group-title">Auto Logout</h4>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Enable Auto Logout</label>
+                                        <span class="setting-description">Automatically logout after inactivity</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enable-auto-logout" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="auto-logout-settings">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Inactivity Timeout</label>
+                                        <span class="setting-description">Minutes of inactivity before logout</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select id="auto-logout-timeout" class="config-select">
+                                            <option value="15">15 minutes</option>
+                                            <option value="30" selected>30 minutes</option>
+                                            <option value="60">1 hour</option>
+                                            <option value="120">2 hours</option>
+                                            <option value="240">4 hours</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Session Actions -->
+                            <div class="settings-group">
+                                <h4 class="settings-group-title">Session Actions</h4>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Current Session</label>
+                                        <span class="setting-description">Manage your current login session</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <button class="btn btn-sm btn-danger" id="logout-current-session">
+                                            <i class="fas fa-sign-out-alt"></i>
+                                            Logout Now
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Login History</label>
+                                        <span class="setting-description">View recent login activity and security events</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <button class="btn btn-sm btn-outline" id="view-login-history">
+                                            <i class="fas fa-history"></i>
+                                            View History
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Panel -->
+            <section class="settings-panel" id="settings">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </h2>
+                    <div class="panel-actions">
+                        <button class="btn btn-sm btn-outline" id="save-all-settings">
+                            <i class="fas fa-save"></i>
+                            Save All
+                        </button>
+                        <button class="btn btn-sm btn-danger" id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="settings-content">
+                    <!-- Alerts & Notifications Section -->
+                    <div class="settings-section">
+                        <div class="settings-section-header">
+                            <h3 class="settings-section-title">
+                                <i class="fas fa-bell"></i>
+                                Alerts & Notifications
+                            </h3>
+                            <p class="settings-section-description">Configure alerts and notification preferences for trading events</p>
+                        </div>
+                        
+                        <div class="settings-grid">
+                            <!-- Alert Types -->
+                            <div class="settings-group">
+                                <h4 class="settings-group-title">Alert Types</h4>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Maximum Loss Alert</label>
+                                        <span class="setting-description">Alert when position loss exceeds threshold</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enable-max-loss-alert" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="max-loss-settings">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Loss Threshold</label>
+                                        <span class="setting-description">Trigger alert when loss exceeds this amount</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="input-group">
+                                            <input type="number" id="max-loss-threshold" class="config-input" value="1000" min="100" max="10000" step="100">
+                                            <span class="input-suffix">USD</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Volatility Spike Alert</label>
+                                        <span class="setting-description">Alert when market volatility spikes</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enable-volatility-alert" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="volatility-settings">
+                                    <div class="setting-info">
+                                        <label class="setting-label">VIX Threshold</label>
+                                        <span class="setting-description">Alert when VIX exceeds this level</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="input-group">
+                                            <input type="number" id="vix-alert-threshold" class="config-input" value="30" min="15" max="80" step="5">
+                                            <span class="input-suffix">VIX</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Position Size Alert</label>
+                                        <span class="setting-description">Alert when position size exceeds limit</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enable-position-size-alert" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Strategy Signal Alert</label>
+                                        <span class="setting-description">Alert when new trading signals are generated</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enable-signal-alert" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Notification Channels -->
+                            <div class="settings-group">
+                                <h4 class="settings-group-title">Notification Channels</h4>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Email Notifications</label>
+                                        <span class="setting-description">Send alerts via email</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enable-email-notifications" checked>
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="email-settings">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Email Address</label>
+                                        <span class="setting-description">Email address for notifications</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <input type="email" id="notification-email" class="config-input" placeholder="your.email@example.com">
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Telegram Notifications</label>
+                                        <span class="setting-description">Send alerts via Telegram bot</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enable-telegram-notifications">
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="telegram-settings" style="display: none;">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Telegram Bot Token</label>
+                                        <span class="setting-description">Bot token from @BotFather</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <input type="text" id="telegram-bot-token" class="config-input" placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz">
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="telegram-chat-settings" style="display: none;">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Telegram Chat ID</label>
+                                        <span class="setting-description">Your Telegram chat ID</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <input type="text" id="telegram-chat-id" class="config-input" placeholder="123456789">
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Slack Notifications</label>
+                                        <span class="setting-description">Send alerts via Slack webhook</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enable-slack-notifications">
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="slack-settings" style="display: none;">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Slack Webhook URL</label>
+                                        <span class="setting-description">Incoming webhook URL from Slack</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <input type="url" id="slack-webhook-url" class="config-input" placeholder="https://hooks.slack.com/services/...">
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="slack-channel-settings" style="display: none;">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Slack Channel</label>
+                                        <span class="setting-description">Channel to send notifications to</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <input type="text" id="slack-channel" class="config-input" placeholder="#trading-alerts">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Notification Preferences -->
+                            <div class="settings-group">
+                                <h4 class="settings-group-title">Notification Preferences</h4>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Alert Frequency</label>
+                                        <span class="setting-description">How often to send repeated alerts</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <select id="alert-frequency" class="config-select">
+                                            <option value="immediate">Immediate</option>
+                                            <option value="5min" selected>Every 5 minutes</option>
+                                            <option value="15min">Every 15 minutes</option>
+                                            <option value="30min">Every 30 minutes</option>
+                                            <option value="1hour">Every hour</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Quiet Hours</label>
+                                        <span class="setting-description">Suppress notifications during these hours</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="toggle-switch">
+                                            <input type="checkbox" id="enable-quiet-hours">
+                                            <span class="toggle-slider"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item" id="quiet-hours-settings" style="display: none;">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Quiet Hours Range</label>
+                                        <span class="setting-description">Time range to suppress notifications</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <div class="time-range-inputs">
+                                            <input type="time" id="quiet-hours-start" class="config-input" value="22:00">
+                                            <span class="time-separator">to</span>
+                                            <input type="time" id="quiet-hours-end" class="config-input" value="08:00">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <label class="setting-label">Test Notifications</label>
+                                        <span class="setting-description">Send test notifications to verify setup</span>
+                                    </div>
+                                    <div class="setting-control">
+                                        <button class="btn btn-sm btn-outline" id="test-notifications">
+                                            <i class="fas fa-paper-plane"></i>
+                                            Send Test
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </section>
+        </main>
+
+        <!-- Progress Modal -->
+        <div class="modal-overlay" id="progress-modal" style="display: none;">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">Screening in Progress</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="progress-current">0</span> / <span id="progress-total">0</span> stocks analyzed
+                        </div>
+                    </div>
+                    <div class="progress-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Qualifying:</span>
+                            <span class="stat-value" id="qualifying-count">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Elapsed:</span>
+                            <span class="stat-value" id="elapsed-time">00:00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">ETA:</span>
+                            <span class="stat-value" id="eta-time">--:--</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancel-screening">
+                        <i class="fas fa-stop"></i>
+                        Cancel Screening
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

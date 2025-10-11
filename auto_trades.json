@@ -1,0 +1,44 @@
+[
+  {
+    "timestamp": "2025-10-08T10:49:45.516219",
+    "order_id": "divergence_AAPL_1759945785",
+    "symbol": "AAPL",
+    "strategy": "divergence",
+    "signal_type": "STRONG_SELL",
+    "confidence": 0.9,
+    "quantity": 2,
+    "entry_price": 257.785,
+    "stop_loss": 264.2381953306813,
+    "profit_target": 244.8786093386374,
+    "risk_amount": 12.906390661362593,
+    "entry_reason": "Strong bearish divergence detected in technical indicators"
+  },
+  {
+    "timestamp": "2025-10-08T12:45:25.607766",
+    "order_id": "iron_condor_ITUB_1759952725",
+    "symbol": "ITUB",
+    "strategy": "iron_condor",
+    "signal_type": "BUY",
+    "confidence": 0.689516652750719,
+    "quantity": 1,
+    "entry_price": 6.96,
+    "stop_loss": 6.612,
+    "profit_target": 7.0992,
+    "risk_amount": 0.34799999999999986,
+    "entry_reason": "Good Iron Condor setup - suitable market conditions"
+  },
+  {
+    "timestamp": "2025-10-08T12:45:26.011715",
+    "order_id": "iron_condor_F_1759952725",
+    "symbol": "F",
+    "strategy": "iron_condor",
+    "signal_type": "BUY",
+    "confidence": 0.6956928248765627,
+    "quantity": 1,
+    "entry_price": 11.745,
+    "stop_loss": 11.157749999999998,
+    "profit_target": 11.979899999999999,
+    "risk_amount": 0.5872500000000009,
+    "entry_reason": "Good Iron Condor setup - suitable market conditions"
+  }
+]

@@ -1,0 +1,65 @@
+{
+  "strategy_name": "PnL_Statistics",
+  "last_updated": "2025-10-10T14:08:08.240810",
+  "total_statistics": 1,
+  "statistics": {
+    "overall_performance": {
+      "account": "All_Accounts",
+      "total_pnl": 202.49119913994184,
+      "realized_pnl": 202.49119913994184,
+      "unrealized_pnl": 0.0,
+      "total_trades": 56,
+      "winning_trades": 54,
+      "losing_trades": 2,
+      "win_rate": 96.42857142857143,
+      "avg_win": 4.371943983019754,
+      "avg_loss": 16.806887971562446,
+      "profit_factor": 0.26012810880974285,
+      "max_drawdown": 0.0,
+      "sharpe_ratio": 0.0,
+      "sortino_ratio": 0.0,
+      "calmar_ratio": 0.0
+    },
+    "long_performance": {
+      "account": "Long_Strategy",
+      "total_pnl": -2.2887011922942975,
+      "realized_pnl": -2.2887011922942975,
+      "unrealized_pnl": 0.0,
+      "total_trades": 53,
+      "winning_trades": 51,
+      "losing_trades": 2,
+      "win_rate": 96.22641509433963,
+      "avg_win": 0.6138249951143258,
+      "avg_loss": 16.806887971562446,
+      "profit_factor": 0.03652222803846426,
+      "max_drawdown": 0.0,
+      "sharpe_ratio": 0.0,
+      "sortino_ratio": 0.0,
+      "calmar_ratio": 0.0
+    },
+    "short_performance": {
+      "account": "Short_Strategy",
+      "total_pnl": 204.77990033223614,
+      "realized_pnl": 204.77990033223614,
+      "unrealized_pnl": 0.0,
+      "total_trades": 3,
+      "winning_trades": 3,
+      "losing_trades": 0,
+      "win_rate": 100.0,
+      "avg_win": 68.25996677741205,
+      "avg_loss": 0,
+      "profit_factor": 0,
+      "max_drawdown": 0.0,
+      "sharpe_ratio": 0.0,
+      "sortino_ratio": 0.0,
+      "calmar_ratio": 0.0
+    }
+  },
+  "metadata": {
+    "strategy_type": "pnl_analysis",
+    "analysis_method": "transaction_based_win_loss_calculation",
+    "update_frequency": "on_demand",
+    "data_source": "schwab_transactions",
+    "calculation_date": "2025-10-10T14:08:08.240826"
+  }
+}

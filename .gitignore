@@ -1,0 +1,84 @@
+# Environment variables and sensitive data
+.env
+*.env
+.env.local
+.env.production
+
+# API keys and credentials
+config.yaml
+ssl/
+*.key
+*.crt
+*.pem
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+*.log
+logs/
+trading_engine.log
+
+# Account and transaction data (sensitive)
+account_data/
+transaction_data/
+orders/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Node modules (if any)
+node_modules/
+
+# JSON data files with sensitive information
+live_monitor.json
+current_positions.json
+account_data.json

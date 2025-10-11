@@ -1,0 +1,33 @@
+{
+  "risk_management": {
+    "account_limits": {
+      "max_account_risk": 25,
+      "daily_loss_limit": 5,
+      "equity_buffer": 10500
+    },
+    "position_sizing": {
+      "max_position_size": 5,
+      "max_positions": 15
+    },
+    "stop_loss_settings": {
+      "method": "atr",
+      "value": 2,
+      "take_profit_ratio": 2
+    },
+    "parameter_states": {
+      "enable_max_account_risk": true,
+      "enable_daily_loss_limit": false,
+      "enable_equity_buffer": false,
+      "enable_max_position_size": true,
+      "enable_max_positions": true,
+      "enable_stop_loss": true,
+      "enable_stop_loss_value": true,
+      "enable_risk_reward_ratio": true
+    },
+    "metadata": {
+      "last_updated": "2025-10-08T11:05:02.911730",
+      "updated_by": "web_interface",
+      "version": "1.0.0"
+    }
+  }
+}

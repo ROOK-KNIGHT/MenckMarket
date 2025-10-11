@@ -1,0 +1,13 @@
+{
+  "watchlist": {
+    "symbols": [
+      "NVDA"
+    ],
+    "metadata": {
+      "created": "2025-10-06T19:55:41.000000",
+      "last_updated": "2025-10-10T14:51:49.483645",
+      "total_symbols": 1,
+      "managed_by": "watchlist_api_server"
+    }
+  }
+}
