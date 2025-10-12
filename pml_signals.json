@@ -1,68 +1,20 @@
 {
   "strategy_name": "PML_Strategy",
-  "last_updated": "2025-10-10T14:24:47.086129",
-  "total_symbols_analyzed": 9,
+  "last_updated": "2025-10-11T18:09:47.864437",
+  "total_symbols_analyzed": 7,
   "signals_generated": 0,
   "analysis_summary": {
     "strong_buy": 0,
     "buy": 0,
     "hold": 0,
-    "no_signal": 9
+    "no_signal": 7
   },
   "signals": {
-    "GOOGL": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-10T14:24:47.078965",
-      "market_condition": "PML_CROSS_BEARISH",
-      "volatility_environment": "Medium Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": true
-    },
-    "QQQ": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-10T14:24:47.078612",
-      "market_condition": "UNCERTAIN",
-      "volatility_environment": "Medium Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": true
-    },
-    "NVDA": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-10T14:24:47.079339",
-      "market_condition": "PML_CROSS_BEARISH",
-      "volatility_environment": "High Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": true
-    },
-    "SPY": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-10T14:24:47.080086",
-      "market_condition": "UNCERTAIN",
-      "volatility_environment": "Low Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": true
-    },
     "INTC": {
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-10T14:24:47.080808",
+      "timestamp": "2025-10-11T18:09:47.854509",
       "market_condition": "PML_CROSS_BEARISH",
       "volatility_environment": "High Volatility",
       "position_size": 0.0,
@@ -74,7 +26,31 @@
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-10T14:24:47.083409",
+      "timestamp": "2025-10-11T18:09:47.855154",
+      "market_condition": "PML_CROSS_BEARISH",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": true
+    },
+    "GOOGL": {
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "Price has not crossed above PML",
+      "timestamp": "2025-10-11T18:09:47.853559",
+      "market_condition": "PML_CROSS_BEARISH",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": true
+    },
+    "AAPL": {
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "Price has not crossed above PML",
+      "timestamp": "2025-10-11T18:09:47.856176",
       "market_condition": "PML_CROSS_BEARISH",
       "volatility_environment": "Medium Volatility",
       "position_size": 0.0,
@@ -86,7 +62,7 @@
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-10T14:24:47.082499",
+      "timestamp": "2025-10-11T18:09:47.850007",
       "market_condition": "PML_CROSS_BEARISH",
       "volatility_environment": "High Volatility",
       "position_size": 0.0,
@@ -98,7 +74,7 @@
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-10T14:24:47.082168",
+      "timestamp": "2025-10-11T18:09:47.862848",
       "market_condition": "PML_CROSS_BEARISH",
       "volatility_environment": "High Volatility",
       "position_size": 0.0,
@@ -106,13 +82,13 @@
       "profit_target": 0.0,
       "auto_approve": true
     },
-    "AAPL": {
+    "NVDA": {
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-10T14:24:47.085464",
+      "timestamp": "2025-10-11T18:09:47.861460",
       "market_condition": "PML_CROSS_BEARISH",
-      "volatility_environment": "Medium Volatility",
+      "volatility_environment": "High Volatility",
       "position_size": 0.0,
       "stop_loss": 0.0,
       "profit_target": 0.0,
@@ -130,7 +106,7 @@
     "analysis_method": "pml_cross_with_delta_confirmation",
     "update_frequency": "on_demand",
     "data_source": "schwab_options_chain",
-    "auto_approve_last_updated": "2025-10-10T14:24:47.086589",
+    "auto_approve_last_updated": "2025-10-11T18:09:47.865283",
     "auto_approve_status": true
   }
 }

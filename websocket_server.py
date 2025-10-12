@@ -14,12 +14,15 @@ import time
 import os
 from typing import Dict, List, Any
 
+# Import the new database query handler
+from db_query_handler import DatabaseQueryHandler
+
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-class JSONFileWebSocketStreamer:
-    """WebSocket server that streams JSON file data in real-time"""
+class DatabaseWebSocketStreamer:
+    """WebSocket server that streams data from PostgreSQL database in real-time"""
     
     def __init__(self, port=8765):
         """Initialize the WebSocket streamer"""
@@ -27,196 +30,151 @@ class JSONFileWebSocketStreamer:
         self.clients = set()
         self.running = False
         self.latest_data = {}
-        self.file_timestamps = {}
         
-        # Define JSON files to monitor
-        self.json_files = {
-            'pml_signals': 'pml_signals.json',
-            'iron_condor_signals': 'iron_condor_signals.json',
-            'divergence_signals': 'divergence_signals.json',
-            'technical_indicators': 'technical_indicators.json',
-            'options_data': 'options_data.json',
-            'live_monitor': 'live_monitor.json'
-        }
+        # Initialize database query handler
+        self.db_query_handler = DatabaseQueryHandler()
+        
+        # Data polling interval (seconds)
+        self.polling_interval = 3
         
         # Start data polling thread
         self.data_thread = None
         self.start_data_polling()
     
     def get_latest_data(self) -> Dict[str, Any]:
-        """Get latest data from JSON files"""
+        """Get latest data from PostgreSQL database"""
         try:
+            logger.info("🔄 Fetching latest data from PostgreSQL database...")
+            
+            # Get comprehensive dashboard data from database
+            dashboard_data = self.db_query_handler.get_comprehensive_dashboard_data()
+            
+            if dashboard_data.get('error'):
+                logger.error(f"❌ Database error: {dashboard_data.get('metadata', {}).get('error', 'Unknown error')}")
+                return {
+                    'timestamp': datetime.now().isoformat(),
+                    'error': 'Database connection failed',
+                    'data_types': [],
+                    'data_source': 'postgresql'
+                }
+            
+            # Transform database data to WebSocket format
             data = {
                 'timestamp': datetime.now().isoformat(),
+                'data_source': 'postgresql',
                 'data_types': []
             }
             
-            # Load PML signals
-            pml_signals = []
-            if os.path.exists(self.json_files['pml_signals']):
-                try:
-                    with open(self.json_files['pml_signals'], 'r') as f:
-                        pml_data = json.load(f)
-                        if isinstance(pml_data, dict) and 'signals' in pml_data:
-                            # Convert dict format to list format for WebSocket
-                            pml_signals = [
-                                {**signal_data, 'symbol': symbol} 
-                                for symbol, signal_data in pml_data['signals'].items()
-                            ]
-                        elif isinstance(pml_data, list):
-                            pml_signals = pml_data
-                except Exception as e:
-                    logger.warning(f"⚠️ Error loading PML signals: {e}")
+            # Trading statistics (for analytics)
+            if dashboard_data.get('trading_statistics'):
+                data['trading_statistics'] = dashboard_data['trading_statistics']
+                data['data_types'].append('trading_statistics')
+                logger.info(f"📊 Trading stats: {dashboard_data['trading_statistics'].get('total_trades', 0)} trades")
             
-            data['pml_signals'] = pml_signals
-            data['data_types'].append('pml_signals')
+            # Current positions
+            if dashboard_data.get('positions'):
+                positions_data = dashboard_data['positions']
+                if positions_data.get('positions'):
+                    data['positions'] = list(positions_data['positions'].values())
+                    data['data_types'].append('positions')
+                    logger.info(f"📈 Positions: {len(data['positions'])} symbols")
             
-            # Load Iron Condor signals
-            iron_condor_signals = []
-            if os.path.exists(self.json_files['iron_condor_signals']):
-                try:
-                    with open(self.json_files['iron_condor_signals'], 'r') as f:
-                        ic_data = json.load(f)
-                        if isinstance(ic_data, dict) and 'signals' in ic_data:
-                            # Convert dict format to list format for WebSocket
-                            iron_condor_signals = [
-                                {**signal_data, 'symbol': symbol} 
-                                for symbol, signal_data in ic_data['signals'].items()
-                            ]
-                        elif isinstance(ic_data, list):
-                            iron_condor_signals = ic_data
-                except Exception as e:
-                    logger.warning(f"⚠️ Error loading Iron Condor signals: {e}")
+            # Strategy signals
+            if dashboard_data.get('iron_condor_signals'):
+                data['iron_condor_signals'] = dashboard_data['iron_condor_signals']
+                data['data_types'].append('iron_condor_signals')
+                logger.info(f"🎯 Iron Condor signals: {len(data['iron_condor_signals'])}")
             
-            data['iron_condor_signals'] = iron_condor_signals
-            data['data_types'].append('iron_condor_signals')
+            if dashboard_data.get('pml_signals'):
+                data['pml_signals'] = dashboard_data['pml_signals']
+                data['data_types'].append('pml_signals')
+                logger.info(f"📊 PML signals: {len(data['pml_signals'])}")
             
-            # Load Divergence signals
-            divergence_signals = []
-            if os.path.exists(self.json_files['divergence_signals']):
-                try:
-                    with open(self.json_files['divergence_signals'], 'r') as f:
-                        div_data = json.load(f)
-                        if isinstance(div_data, dict) and 'signals' in div_data:
-                            # Convert dict format to list format for WebSocket
-                            divergence_signals = [
-                                {**signal_data, 'symbol': symbol} 
-                                for symbol, signal_data in div_data['signals'].items()
-                            ]
-                        elif isinstance(div_data, list):
-                            divergence_signals = div_data
-                except Exception as e:
-                    logger.warning(f"⚠️ Error loading Divergence signals: {e}")
+            if dashboard_data.get('divergence_signals'):
+                data['divergence_signals'] = dashboard_data['divergence_signals']
+                data['data_types'].append('divergence_signals')
+                logger.info(f"📈 Divergence signals: {len(data['divergence_signals'])}")
             
-            data['divergence_signals'] = divergence_signals
-            data['data_types'].append('divergence_signals')
+            # Technical indicators
+            if dashboard_data.get('technical_indicators'):
+                data['technical_indicators'] = dashboard_data['technical_indicators']
+                data['data_types'].append('technical_indicators')
+                logger.info(f"📊 Technical indicators: {len(data['technical_indicators'])} symbols")
             
-            # Load live monitor data (contains positions, account data, etc.)
-            if os.path.exists(self.json_files['live_monitor']):
-                try:
-                    with open(self.json_files['live_monitor'], 'r') as f:
-                        live_data = json.load(f)
-                    
-                    # Extract positions data
-                    positions_data = live_data.get('positions', {})
-                    if 'positions' in positions_data:
-                        positions = list(positions_data['positions'].values())
-                        data['positions'] = positions
-                        data['data_types'].append('positions')
-                    
-                    # Extract account data
-                    if 'account_data' in live_data:
-                        data['account_data'] = live_data['account_data']
-                        data['data_types'].append('account_data')
-                    
-                    # Extract market status
-                    if 'market_status' in live_data:
-                        data['market_status'] = live_data['market_status']
-                        data['data_types'].append('market_status')
-                    
-                    # Extract watchlist data
-                    if 'integrated_watchlist' in live_data:
-                        watchlist_info = live_data['integrated_watchlist']
-                        if 'watchlist_data' in watchlist_info:
-                            watchlist_data = [
-                                {**symbol_data, 'symbol': symbol}
-                                for symbol, symbol_data in watchlist_info['watchlist_data'].items()
-                            ]
-                            data['watchlist_data'] = watchlist_data
-                            data['data_types'].append('watchlist_data')
-                    
-                    # Extract transaction data
-                    if 'transactions' in live_data:
-                        transactions_info = live_data['transactions']
-                        if 'pnl_stats' in transactions_info:
-                            data['pnl_statistics'] = transactions_info['pnl_stats']
-                            data['data_types'].append('pnl_statistics')
-                        
-                        # Get recent transactions if available
-                        if 'recent_transactions' in transactions_info:
-                            data['recent_transactions'] = transactions_info['recent_transactions']
-                            data['data_types'].append('recent_transactions')
-                
-                except Exception as e:
-                    logger.warning(f"⚠️ Error loading live monitor data: {e}")
+            # Account data
+            if dashboard_data.get('account_data'):
+                data['account_data'] = dashboard_data['account_data']
+                data['data_types'].append('account_data')
+                logger.info(f"💰 Account data: {len(dashboard_data['account_data'].get('accounts', {}))} accounts")
+            
+            # Watchlist data
+            if dashboard_data.get('watchlist_data'):
+                data['watchlist_data'] = dashboard_data['watchlist_data']
+                data['data_types'].append('watchlist_data')
+                logger.info(f"📋 Watchlist: {len(data['watchlist_data'])} symbols")
+            
+            # Recent transactions
+            if dashboard_data.get('recent_transactions'):
+                data['recent_transactions'] = dashboard_data['recent_transactions']
+                data['data_types'].append('recent_transactions')
+                logger.info(f"💳 Recent transactions: {len(data['recent_transactions'])}")
+            
+            # Market status
+            if dashboard_data.get('market_status'):
+                data['market_status'] = dashboard_data['market_status']
+                data['data_types'].append('market_status')
             
             # Add summary statistics
             data['summary'] = {
-                'total_pml_signals': len(pml_signals),
-                'pml_strong_buy_count': len([s for s in pml_signals if s.get('signal_type') == 'STRONG_BUY']),
-                'total_iron_condor_signals': len(iron_condor_signals),
-                'iron_condor_strong_buy_count': len([s for s in iron_condor_signals if s.get('signal_type') == 'STRONG_BUY']),
-                'total_divergence_signals': len(divergence_signals),
-                'divergence_strong_buy_count': len([s for s in divergence_signals if s.get('signal_type') == 'STRONG_BUY']),
+                'total_pml_signals': len(data.get('pml_signals', [])),
+                'pml_strong_buy_count': len([s for s in data.get('pml_signals', []) if s.get('signal_type') == 'STRONG_BUY']),
+                'total_iron_condor_signals': len(data.get('iron_condor_signals', [])),
+                'iron_condor_strong_buy_count': len([s for s in data.get('iron_condor_signals', []) if s.get('signal_type') == 'STRONG_BUY']),
+                'total_divergence_signals': len(data.get('divergence_signals', [])),
+                'divergence_strong_buy_count': len([s for s in data.get('divergence_signals', []) if s.get('signal_type') == 'STRONG_BUY']),
                 'total_watchlist_symbols': len(data.get('watchlist_data', [])),
                 'total_positions': len(data.get('positions', [])),
-                'total_recent_transactions': len(data.get('recent_transactions', []))
+                'total_recent_transactions': len(data.get('recent_transactions', [])),
+                'database_connected': True
             }
             
+            logger.info(f"✅ Successfully fetched data from PostgreSQL: {len(data['data_types'])} data types")
             return data
                 
         except Exception as e:
-            logger.error(f"❌ Error getting latest data from JSON files: {e}")
+            logger.error(f"❌ Error getting latest data from PostgreSQL: {e}")
             return {
                 'timestamp': datetime.now().isoformat(),
                 'error': str(e),
-                'data_types': []
+                'data_types': [],
+                'data_source': 'postgresql',
+                'database_connected': False
             }
     
     def start_data_polling(self):
-        """Start background thread to poll JSON files for updates"""
+        """Start background thread to poll database for updates"""
         def poll_data():
-            logger.info("🔄 Starting JSON file polling thread")
+            logger.info("🔄 Starting PostgreSQL database polling thread")
             while self.running:
                 try:
-                    # Check if any JSON files have been updated
-                    files_changed = False
-                    for file_key, file_path in self.json_files.items():
-                        if os.path.exists(file_path):
-                            current_mtime = os.path.getmtime(file_path)
-                            if file_key not in self.file_timestamps or current_mtime > self.file_timestamps[file_key]:
-                                self.file_timestamps[file_key] = current_mtime
-                                files_changed = True
+                    # Get latest data from database
+                    new_data = self.get_latest_data()
                     
-                    # Get latest data if files changed
-                    if files_changed:
-                        new_data = self.get_latest_data()
+                    # Check if data content has actually changed
+                    if new_data != self.latest_data:
+                        self.latest_data = new_data
                         
-                        # Check if data content has actually changed
-                        if new_data != self.latest_data:
-                            self.latest_data = new_data
-                            
-                            # Send to all connected clients
-                            if self.clients:
-                                asyncio.run(self.broadcast_data(new_data))
+                        # Send to all connected clients
+                        if self.clients:
+                            asyncio.run(self.broadcast_data(new_data))
                     
-                    time.sleep(2)  # Poll every 2 seconds
+                    time.sleep(self.polling_interval)  # Poll every 3 seconds
                     
                 except Exception as e:
-                    logger.error(f"❌ Error in data polling: {e}")
+                    logger.error(f"❌ Error in database polling: {e}")
                     time.sleep(5)  # Wait longer on error
             
-            logger.info("🛑 JSON file polling thread stopped")
+            logger.info("🛑 Database polling thread stopped")
         
         self.running = True
         self.data_thread = threading.Thread(target=poll_data, daemon=True)
@@ -338,8 +296,8 @@ class JSONFileWebSocketStreamer:
             )
             
             logger.info(f"✅ WebSocket server running on ws://localhost:{self.port}")
-            logger.info("📡 Streaming JSON file data in real-time")
-            logger.info("🔄 JSON file polling every 2 seconds")
+            logger.info("📡 Streaming PostgreSQL database data in real-time")
+            logger.info(f"🔄 Database polling every {self.polling_interval} seconds")
             
             # Keep server running
             await server.wait_closed()
@@ -697,13 +655,13 @@ def main():
     """Main function"""
     import argparse
     
-    parser = argparse.ArgumentParser(description='JSON File WebSocket Streamer')
+    parser = argparse.ArgumentParser(description='PostgreSQL Database WebSocket Streamer')
     parser.add_argument('--port', type=int, default=8765, help='WebSocket port (default: 8765)')
     
     args = parser.parse_args()
     
     # Create and start WebSocket streamer
-    streamer = JSONFileWebSocketStreamer(args.port)
+    streamer = DatabaseWebSocketStreamer(args.port)
     
     try:
         # Run the WebSocket server

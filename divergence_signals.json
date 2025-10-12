@@ -1,7 +1,7 @@
 {
   "strategy_name": "Divergence_Strategy",
-  "last_updated": "2025-10-10T14:24:46.596384",
-  "total_symbols_analyzed": 9,
+  "last_updated": "2025-10-11T18:09:50.278856",
+  "total_symbols_analyzed": 7,
   "signals_generated": 0,
   "analysis_summary": {
     "strong_buy": 0,
@@ -10,71 +10,11 @@
     "no_signal": 5
   },
   "signals": {
-    "NVDA": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-10T14:24:46.589054",
-      "market_condition": "TRENDING_UP",
-      "volatility_environment": "High Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": true
-    },
-    "GOOGL": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-10T14:24:46.590616",
-      "market_condition": "RANGE_BOUND",
-      "volatility_environment": "Medium Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": true
-    },
-    "QQQ": {
-      "signal_type": "STRONG_SELL",
-      "confidence": 0.9,
-      "entry_reason": "Strong bearish divergence detected in technical indicators",
-      "timestamp": "2025-10-10T14:24:46.589109",
-      "market_condition": "BEARISH_DIVERGENCE",
-      "volatility_environment": "Medium Volatility",
-      "position_size": 2.0,
-      "stop_loss": 600.3457832264414,
-      "profit_target": 567.9584335471169,
-      "auto_approve": true
-    },
-    "INTC": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-10T14:24:46.590342",
-      "market_condition": "TRENDING_UP",
-      "volatility_environment": "High Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": true
-    },
-    "SPY": {
-      "signal_type": "STRONG_SELL",
-      "confidence": 0.9,
-      "entry_reason": "Strong bearish divergence detected in technical indicators",
-      "timestamp": "2025-10-10T14:24:46.589850",
-      "market_condition": "BEARISH_DIVERGENCE",
-      "volatility_environment": "Low Volatility",
-      "position_size": 3.0,
-      "stop_loss": 661.9261866999701,
-      "profit_target": 635.0876266000598,
-      "auto_approve": true
-    },
     "AMZN": {
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-10T14:24:46.591543",
+      "timestamp": "2025-10-11T18:09:50.205981",
       "market_condition": "TRENDING_DOWN",
       "volatility_environment": "Medium Volatility",
       "position_size": 0.0,
@@ -82,11 +22,23 @@
       "profit_target": 0.0,
       "auto_approve": true
     },
+    "AAPL": {
+      "signal_type": "STRONG_SELL",
+      "confidence": 0.9,
+      "entry_reason": "Strong bearish divergence detected in technical indicators",
+      "timestamp": "2025-10-11T18:09:50.225250",
+      "market_condition": "BEARISH_DIVERGENCE",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 2.0,
+      "stop_loss": 252.64946407671263,
+      "profit_target": 230.51107184657477,
+      "auto_approve": true
+    },
     "BAC": {
       "signal_type": "STRONG_SELL",
       "confidence": 0.9,
       "entry_reason": "Strong bearish divergence detected in technical indicators",
-      "timestamp": "2025-10-10T14:24:46.592191",
+      "timestamp": "2025-10-11T18:09:50.228325",
       "market_condition": "BEARISH_DIVERGENCE",
       "volatility_environment": "Medium Volatility",
       "position_size": 2.0,
@@ -98,7 +50,7 @@
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-10T14:24:46.593966",
+      "timestamp": "2025-10-11T18:09:50.229398",
       "market_condition": "RANGE_BOUND",
       "volatility_environment": "High Volatility",
       "position_size": 0.0,
@@ -106,16 +58,40 @@
       "profit_target": 0.0,
       "auto_approve": true
     },
-    "AAPL": {
-      "signal_type": "STRONG_SELL",
-      "confidence": 0.9,
-      "entry_reason": "Strong bearish divergence detected in technical indicators",
-      "timestamp": "2025-10-10T14:24:46.594213",
-      "market_condition": "BEARISH_DIVERGENCE",
+    "NVDA": {
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "No divergence signals detected",
+      "timestamp": "2025-10-11T18:09:50.229100",
+      "market_condition": "TRENDING_UP",
+      "volatility_environment": "High Volatility",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": true
+    },
+    "GOOGL": {
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "No divergence signals detected",
+      "timestamp": "2025-10-11T18:09:50.209222",
+      "market_condition": "RANGE_BOUND",
       "volatility_environment": "Medium Volatility",
-      "position_size": 2.0,
-      "stop_loss": 252.5194640767126,
-      "profit_target": 230.38107184657474,
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": true
+    },
+    "INTC": {
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "No divergence signals detected",
+      "timestamp": "2025-10-11T18:09:50.250090",
+      "market_condition": "TRENDING_UP",
+      "volatility_environment": "High Volatility",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
       "auto_approve": true
     }
   },
@@ -131,7 +107,7 @@
     "update_frequency": "on_demand",
     "data_source": "schwab_historical_data",
     "optimal_conditions": "oversold_bullish_divergence_or_overbought_bearish_divergence",
-    "auto_approve_last_updated": "2025-10-10T14:24:46.597046",
+    "auto_approve_last_updated": "2025-10-11T18:09:50.279902",
     "auto_approve_status": true
   }
 }

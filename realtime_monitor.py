@@ -796,7 +796,7 @@ class RealTimeMonitor:
                     'transactions': executor.submit(self._get_transactions_data),
                     'account': executor.submit(self._get_account_data),
                     'market_status': executor.submit(self._get_market_status),
-                    'watchlist': executor.submit(self._get_watchlist_data_sync)
+                    'watchlist': executor.submit(self._get_integrated_watchlist_data)
                 }
                 
                 # Collect results as they complete
