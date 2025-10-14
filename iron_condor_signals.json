@@ -1,6 +1,6 @@
 {
   "strategy_name": "Iron_Condor_Strategy",
-  "last_updated": "2025-10-14T16:49:08.666783",
+  "last_updated": "2025-10-14T16:52:43.913024",
   "total_symbols_analyzed": 7,
   "signals_generated": 4,
   "analysis_summary": {
@@ -10,23 +10,11 @@
     "no_signal": 3
   },
   "signals": {
-    "INTC": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "Market conditions not suitable for Iron Condor",
-      "timestamp": "2025-10-14T16:49:04.929957",
-      "market_condition": "HIGH_VOLATILITY",
-      "volatility_environment": "Medium Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": false
-    },
     "LYFT": {
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "Market conditions not suitable for Iron Condor",
-      "timestamp": "2025-10-14T16:49:04.926514",
+      "timestamp": "2025-10-14T16:52:39.314053",
       "market_condition": "HIGH_VOLATILITY",
       "volatility_environment": "Medium Volatility",
       "position_size": 0.0,
@@ -38,7 +26,7 @@
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "Market conditions not suitable for Iron Condor",
-      "timestamp": "2025-10-14T16:49:04.926126",
+      "timestamp": "2025-10-14T16:52:39.313840",
       "market_condition": "HIGH_VOLATILITY",
       "volatility_environment": "Medium Volatility",
       "position_size": 0.0,
@@ -46,23 +34,23 @@
       "profit_target": 0.0,
       "auto_approve": false
     },
-    "AMZN": {
-      "signal_type": "BUY",
-      "confidence": 0.5910431417721247,
-      "entry_reason": "Good Iron Condor setup - suitable market conditions - No suitable Iron Condor setups found with current options data",
-      "timestamp": "2025-10-14T16:49:05.507367",
-      "market_condition": "RANGE_BOUND",
+    "INTC": {
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "Market conditions not suitable for Iron Condor",
+      "timestamp": "2025-10-14T16:52:39.317700",
+      "market_condition": "HIGH_VOLATILITY",
       "volatility_environment": "Medium Volatility",
-      "position_size": 2.0,
-      "stop_loss": 195.03954000000002,
-      "profit_target": 219.4194825,
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
       "auto_approve": false
     },
     "PLTR": {
       "signal_type": "BUY",
       "confidence": 0.5996402931054943,
       "entry_reason": "Good Iron Condor setup - suitable market conditions - No suitable Iron Condor setups found with current options data",
-      "timestamp": "2025-10-14T16:49:05.712453",
+      "timestamp": "2025-10-14T16:52:40.100800",
       "market_condition": "RANGE_BOUND",
       "volatility_environment": "Medium Volatility",
       "position_size": 1.0,
@@ -70,11 +58,23 @@
       "profit_target": 182.21962499999998,
       "auto_approve": false
     },
+    "AMZN": {
+      "signal_type": "BUY",
+      "confidence": 0.5910431417721247,
+      "entry_reason": "Good Iron Condor setup - suitable market conditions - No suitable Iron Condor setups found with current options data",
+      "timestamp": "2025-10-14T16:52:40.276827",
+      "market_condition": "RANGE_BOUND",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 2.0,
+      "stop_loss": 195.03954000000002,
+      "profit_target": 219.4194825,
+      "auto_approve": false
+    },
     "AAPL": {
       "signal_type": "BUY",
       "confidence": 0.6942251930168261,
       "entry_reason": "Good Iron Condor setup - suitable market conditions - No suitable Iron Condor setups found with current options data",
-      "timestamp": "2025-10-14T16:49:08.108099",
+      "timestamp": "2025-10-14T16:52:43.911969",
       "market_condition": "RANGE_BOUND",
       "volatility_environment": "Medium Volatility",
       "position_size": 2.0,
@@ -86,7 +86,7 @@
       "signal_type": "STRONG_BUY",
       "confidence": 0.9957862324422315,
       "entry_reason": "Excellent Iron Condor conditions - range-bound low volatility market - No suitable Iron Condor setups found with current options data",
-      "timestamp": "2025-10-14T16:49:08.665398",
+      "timestamp": "2025-10-14T16:52:43.910991",
       "market_condition": "RANGE_BOUND",
       "volatility_environment": "Medium Volatility",
       "position_size": 2.0,
@@ -107,7 +107,7 @@
     "update_frequency": "on_demand",
     "data_source": "schwab_options_chain",
     "optimal_conditions": "range_bound_markets_with_medium_iv",
-    "auto_approve_last_updated": "2025-10-14T16:49:13.291003",
+    "auto_approve_last_updated": "2025-10-14T16:52:43.913610",
     "auto_approve_status": false
   }
 }

@@ -1,6 +1,6 @@
 {
   "strategy_name": "PnL_Statistics",
-  "last_updated": "2025-10-14T16:49:13.234302",
+  "last_updated": "2025-10-14T16:52:38.674741",
   "total_statistics": 1,
   "statistics": {
     "overall_performance": {
@@ -62,6 +62,6 @@
     "database_integration": true,
     "auto_updated": true,
     "data_source": "schwab_transactions",
-    "calculation_date": "2025-10-14T16:49:13.234323"
+    "calculation_date": "2025-10-14T16:52:38.674753"
   }
 }

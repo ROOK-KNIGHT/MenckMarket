@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-14T16:49:05.370303",
+  "timestamp": "2025-10-14T16:52:23.988622",
   "symbols_analyzed": 2,
   "symbols": {
     "V": {
@@ -7232,7 +7232,7 @@
         }
       ],
       "total_contracts": 140,
-      "analysis_timestamp": "2025-10-14T16:49:06.664916"
+      "analysis_timestamp": "2025-10-14T16:52:32.200223"
     },
     "NVDA": {
       "symbol": "NVDA",
@@ -14464,7 +14464,7 @@
         }
       ],
       "total_contracts": 140,
-      "analysis_timestamp": "2025-10-14T16:49:08.306076"
+      "analysis_timestamp": "2025-10-14T16:52:37.245717"
     }
   },
   "metadata": {

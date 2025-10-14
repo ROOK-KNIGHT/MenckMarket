@@ -1,6 +1,6 @@
 {
   "strategy_name": "Unified_Technical_Indicators",
-  "last_updated": "2025-10-14T16:49:09.312411",
+  "last_updated": "2025-10-14T16:52:35.998565",
   "total_symbols_analyzed": 7,
   "analysis_summary": {
     "symbols_with_data": 7,
@@ -10,12 +10,95 @@
     "divergence_signals": 3
   },
   "indicators": {
+    "INTC": {
+      "symbol": "INTC",
+      "timestamp": "2025-10-14T16:52:30.440858",
+      "base_indicators": {
+        "symbol": "INTC",
+        "timestamp": "2025-10-14T16:52:25.999074",
+        "current_price": 35.58,
+        "sma_20": 34.00599999999998,
+        "sma_50": 27.742599999999992,
+        "ema_9": 36.19559176375931,
+        "ema_21": 33.7567538700097,
+        "ema_50": 29.52772406805768,
+        "rsi": 61.422911249724855,
+        "macd": 2.8606599948179223,
+        "macd_signal": 3.0206281260644037,
+        "macd_histogram": -0.15996813124648135,
+        "atr": 1.8361779054763654,
+        "realized_volatility": 59.03741571533242,
+        "volume": 101302385,
+        "avg_volume": 148841916.0,
+        "relative_volume_pct": 68.06038763972913,
+        "trend_direction": "neutral",
+        "trend_strength": 0.04628594953831737
+      },
+      "pml_indicators": {
+        "pml_price": 40.0,
+        "ceiling_price": 42.0,
+        "floor_price": 38.0,
+        "green_line_price": 37.79,
+        "call_delta": 2128373.529,
+        "put_delta": 305723.98999999993,
+        "net_delta": 1822649.539,
+        "pml_cross_bullish": false,
+        "delta_confirmation": true,
+        "market_condition": "PML_CROSS_BEARISH"
+      },
+      "iron_condor_indicators": {
+        "iv_rank": 75.0,
+        "realized_vol": 59.03741571533242,
+        "range_pct": 0.4272062956717257,
+        "recent_high": 39.65,
+        "recent_low": 24.45,
+        "is_range_bound": false,
+        "is_low_volatility": false,
+        "is_suitable_for_ic": false,
+        "trend_strength": 0.04628594953831671,
+        "market_condition": "HIGH_VOLATILITY"
+      },
+      "divergence_indicators": {
+        "swing_highs": [
+          23.82,
+          23.49,
+          25.31,
+          24.93,
+          37.8
+        ],
+        "swing_lows": [
+          22.69,
+          19.31,
+          23.5,
+          24.0,
+          24.08
+        ],
+        "support_levels": [
+          23.5,
+          24.0,
+          24.08
+        ],
+        "resistance_levels": [
+          37.8
+        ],
+        "bullish_divergence_detected": false,
+        "bearish_divergence_detected": false,
+        "divergence_strength": "weak",
+        "trend_direction": "bullish",
+        "bullish_divergence_strong": false,
+        "bullish_divergence_medium": false,
+        "bearish_divergence_strong": false,
+        "bearish_divergence_medium": false,
+        "has_trade_signal": false,
+        "signal_type": "NO_SIGNAL"
+      }
+    },
     "LYFT": {
       "symbol": "LYFT",
-      "timestamp": "2025-10-14T16:49:06.988413",
+      "timestamp": "2025-10-14T16:52:31.216093",
       "base_indicators": {
         "symbol": "LYFT",
-        "timestamp": "2025-10-14T16:49:06.271377",
+        "timestamp": "2025-10-14T16:52:27.239068",
         "current_price": 20.13,
         "sma_20": 21.606000000000005,
         "sma_50": 18.456800000000005,
@@ -94,12 +177,97 @@
         "signal_type": "SELL"
       }
     },
+    "PLTR": {
+      "symbol": "PLTR",
+      "timestamp": "2025-10-14T16:52:31.770945",
+      "base_indicators": {
+        "symbol": "PLTR",
+        "timestamp": "2025-10-14T16:52:25.796677",
+        "current_price": 179.97,
+        "sma_20": 179.77599999999995,
+        "sma_50": 172.11340000000004,
+        "ema_9": 179.81255062462867,
+        "ema_21": 177.63828596966164,
+        "ema_50": 170.02280650915176,
+        "rsi": 53.9037067716688,
+        "macd": 3.1409135918682978,
+        "macd_signal": 4.015826598166324,
+        "macd_histogram": -0.8749130062980264,
+        "atr": 7.795822604094822,
+        "realized_volatility": 53.61981671829105,
+        "volume": 37736477,
+        "avg_volume": 51140627.571428575,
+        "relative_volume_pct": 73.78962439851394,
+        "trend_direction": "bullish",
+        "trend_strength": 0.0010791206835175178
+      },
+      "pml_indicators": {
+        "pml_price": 185.0,
+        "ceiling_price": 194.25,
+        "floor_price": 175.75,
+        "green_line_price": 182.485,
+        "call_delta": 749197.938,
+        "put_delta": 178390.95,
+        "net_delta": 570806.9879999999,
+        "pml_cross_bullish": false,
+        "delta_confirmation": true,
+        "market_condition": "PML_CROSS_BEARISH"
+      },
+      "iron_condor_indicators": {
+        "iv_rank": 75.0,
+        "realized_vol": 53.61981671829105,
+        "range_pct": 0.14963605045285314,
+        "recent_high": 188.2,
+        "recent_low": 161.27,
+        "is_range_bound": true,
+        "is_low_volatility": false,
+        "is_suitable_for_ic": true,
+        "trend_strength": 0.0010791206835172014,
+        "market_condition": "RANGE_BOUND"
+      },
+      "divergence_indicators": {
+        "swing_highs": [
+          158.8,
+          186.97,
+          160.87,
+          182.55,
+          187.05
+        ],
+        "swing_lows": [
+          130.68,
+          154.27,
+          156.01,
+          153.11,
+          173.07
+        ],
+        "support_levels": [
+          156.01,
+          153.11,
+          173.07
+        ],
+        "resistance_levels": [
+          186.97,
+          182.55,
+          187.05
+        ],
+        "bullish_divergence_detected": false,
+        "bearish_divergence_detected": false,
+        "divergence_strength": "weak",
+        "trend_direction": "bullish",
+        "bullish_divergence_strong": false,
+        "bullish_divergence_medium": false,
+        "bearish_divergence_strong": false,
+        "bearish_divergence_medium": false,
+        "has_trade_signal": false,
+        "signal_type": "NO_SIGNAL"
+      }
+    },
     "AMZN": {
       "symbol": "AMZN",
-      "timestamp": "2025-10-14T16:49:07.370955",
+      "timestamp": "2025-10-14T16:52:32.856915",
       "base_indicators": {
         "symbol": "AMZN",
-        "timestamp": "2025-10-14T16:49:06.278094",
+        "timestamp": "2025-10-14T16:52:26.122614",
         "current_price": 216.7106,
         "sma_20": 222.69453,
         "sma_50": 225.85841199999984,
@@ -181,10 +349,10 @@
     },
     "V": {
       "symbol": "V",
-      "timestamp": "2025-10-14T16:49:07.938182",
+      "timestamp": "2025-10-14T16:52:33.347179",
       "base_indicators": {
         "symbol": "V",
-        "timestamp": "2025-10-14T16:49:06.415144",
+        "timestamp": "2025-10-14T16:52:26.692573",
         "current_price": 348.38,
         "sma_20": 344.03099999999995,
         "sma_50": 343.7636000000003,
@@ -266,10 +434,10 @@
     },
     "NVDA": {
       "symbol": "NVDA",
-      "timestamp": "2025-10-14T16:49:08.122112",
+      "timestamp": "2025-10-14T16:52:34.578206",
       "base_indicators": {
         "symbol": "NVDA",
-        "timestamp": "2025-10-14T16:49:06.289416",
+        "timestamp": "2025-10-14T16:52:26.173187",
         "current_price": 180.28,
         "sma_20": 182.7145,
         "sma_50": 179.44780000000017,
@@ -349,95 +517,12 @@
         "signal_type": "NO_SIGNAL"
       }
     },
-    "INTC": {
-      "symbol": "INTC",
-      "timestamp": "2025-10-14T16:49:08.568312",
-      "base_indicators": {
-        "symbol": "INTC",
-        "timestamp": "2025-10-14T16:49:06.303131",
-        "current_price": 35.58,
-        "sma_20": 34.00599999999998,
-        "sma_50": 27.742599999999992,
-        "ema_9": 36.19559176375931,
-        "ema_21": 33.7567538700097,
-        "ema_50": 29.52772406805768,
-        "rsi": 61.422911249724855,
-        "macd": 2.8606599948179223,
-        "macd_signal": 3.0206281260644037,
-        "macd_histogram": -0.15996813124648135,
-        "atr": 1.8361779054763654,
-        "realized_volatility": 59.03741571533242,
-        "volume": 101302385,
-        "avg_volume": 148841916.0,
-        "relative_volume_pct": 68.06038763972913,
-        "trend_direction": "neutral",
-        "trend_strength": 0.04628594953831737
-      },
-      "pml_indicators": {
-        "pml_price": 40.0,
-        "ceiling_price": 42.0,
-        "floor_price": 38.0,
-        "green_line_price": 37.79,
-        "call_delta": 2128373.529,
-        "put_delta": 305723.98999999993,
-        "net_delta": 1822649.539,
-        "pml_cross_bullish": false,
-        "delta_confirmation": true,
-        "market_condition": "PML_CROSS_BEARISH"
-      },
-      "iron_condor_indicators": {
-        "iv_rank": 75.0,
-        "realized_vol": 59.03741571533242,
-        "range_pct": 0.4272062956717257,
-        "recent_high": 39.65,
-        "recent_low": 24.45,
-        "is_range_bound": false,
-        "is_low_volatility": false,
-        "is_suitable_for_ic": false,
-        "trend_strength": 0.04628594953831671,
-        "market_condition": "HIGH_VOLATILITY"
-      },
-      "divergence_indicators": {
-        "swing_highs": [
-          23.82,
-          23.49,
-          25.31,
-          24.93,
-          37.8
-        ],
-        "swing_lows": [
-          22.69,
-          19.31,
-          23.5,
-          24.0,
-          24.08
-        ],
-        "support_levels": [
-          23.5,
-          24.0,
-          24.08
-        ],
-        "resistance_levels": [
-          37.8
-        ],
-        "bullish_divergence_detected": false,
-        "bearish_divergence_detected": false,
-        "divergence_strength": "weak",
-        "trend_direction": "bullish",
-        "bullish_divergence_strong": false,
-        "bullish_divergence_medium": false,
-        "bearish_divergence_strong": false,
-        "bearish_divergence_medium": false,
-        "has_trade_signal": false,
-        "signal_type": "NO_SIGNAL"
-      }
-    },
     "AAPL": {
       "symbol": "AAPL",
-      "timestamp": "2025-10-14T16:49:09.282087",
+      "timestamp": "2025-10-14T16:52:35.997878",
       "base_indicators": {
         "symbol": "AAPL",
-        "timestamp": "2025-10-14T16:49:07.377152",
+        "timestamp": "2025-10-14T16:52:31.053625",
         "current_price": 247.79,
         "sma_20": 252.15849999999992,
         "sma_50": 238.81359999999987,
@@ -513,91 +598,6 @@
         "bearish_divergence_medium": false,
         "has_trade_signal": true,
         "signal_type": "SELL"
-      }
-    },
-    "PLTR": {
-      "symbol": "PLTR",
-      "timestamp": "2025-10-14T16:49:09.301294",
-      "base_indicators": {
-        "symbol": "PLTR",
-        "timestamp": "2025-10-14T16:49:06.384329",
-        "current_price": 179.97,
-        "sma_20": 179.77599999999995,
-        "sma_50": 172.11340000000004,
-        "ema_9": 179.81255062462867,
-        "ema_21": 177.63828596966164,
-        "ema_50": 170.02280650915176,
-        "rsi": 53.9037067716688,
-        "macd": 3.1409135918682978,
-        "macd_signal": 4.015826598166324,
-        "macd_histogram": -0.8749130062980264,
-        "atr": 7.795822604094822,
-        "realized_volatility": 53.61981671829105,
-        "volume": 37736477,
-        "avg_volume": 51140627.571428575,
-        "relative_volume_pct": 73.78962439851394,
-        "trend_direction": "bullish",
-        "trend_strength": 0.0010791206835175178
-      },
-      "pml_indicators": {
-        "pml_price": 185.0,
-        "ceiling_price": 194.25,
-        "floor_price": 175.75,
-        "green_line_price": 182.485,
-        "call_delta": 749197.938,
-        "put_delta": 178390.95,
-        "net_delta": 570806.9879999999,
-        "pml_cross_bullish": false,
-        "delta_confirmation": true,
-        "market_condition": "PML_CROSS_BEARISH"
-      },
-      "iron_condor_indicators": {
-        "iv_rank": 75.0,
-        "realized_vol": 53.61981671829105,
-        "range_pct": 0.14963605045285314,
-        "recent_high": 188.2,
-        "recent_low": 161.27,
-        "is_range_bound": true,
-        "is_low_volatility": false,
-        "is_suitable_for_ic": true,
-        "trend_strength": 0.0010791206835172014,
-        "market_condition": "RANGE_BOUND"
-      },
-      "divergence_indicators": {
-        "swing_highs": [
-          158.8,
-          186.97,
-          160.87,
-          182.55,
-          187.05
-        ],
-        "swing_lows": [
-          130.68,
-          154.27,
-          156.01,
-          153.11,
-          173.07
-        ],
-        "support_levels": [
-          156.01,
-          153.11,
-          173.07
-        ],
-        "resistance_levels": [
-          186.97,
-          182.55,
-          187.05
-        ],
-        "bullish_divergence_detected": false,
-        "bearish_divergence_detected": false,
-        "divergence_strength": "weak",
-        "trend_direction": "bullish",
-        "bullish_divergence_strong": false,
-        "bullish_divergence_medium": false,
-        "bearish_divergence_strong": false,
-        "bearish_divergence_medium": false,
-        "has_trade_signal": false,
-        "signal_type": "NO_SIGNAL"
       }
     }
   },

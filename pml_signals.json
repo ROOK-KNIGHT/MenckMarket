@@ -1,6 +1,6 @@
 {
   "strategy_name": "PML_Strategy",
-  "last_updated": "2025-10-14T16:49:06.743106",
+  "last_updated": "2025-10-14T16:52:40.859679",
   "total_symbols_analyzed": 7,
   "signals_generated": 1,
   "analysis_summary": {
@@ -10,47 +10,11 @@
     "no_signal": 6
   },
   "signals": {
-    "PLTR": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-14T16:49:04.952364",
-      "market_condition": "PML_CROSS_BEARISH",
-      "volatility_environment": "High Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": false
-    },
     "NVDA": {
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-14T16:49:04.951512",
-      "market_condition": "PML_CROSS_BEARISH",
-      "volatility_environment": "High Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": false
-    },
-    "INTC": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-14T16:49:04.956140",
-      "market_condition": "PML_CROSS_BEARISH",
-      "volatility_environment": "High Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": false
-    },
-    "AMZN": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-14T16:49:04.956835",
+      "timestamp": "2025-10-14T16:52:39.311773",
       "market_condition": "PML_CROSS_BEARISH",
       "volatility_environment": "High Volatility",
       "position_size": 0.0,
@@ -62,9 +26,33 @@
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-14T16:49:04.951940",
+      "timestamp": "2025-10-14T16:52:39.311568",
       "market_condition": "PML_CROSS_BEARISH",
       "volatility_environment": "Medium Volatility",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": false
+    },
+    "PLTR": {
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "Price has not crossed above PML",
+      "timestamp": "2025-10-14T16:52:39.312547",
+      "market_condition": "PML_CROSS_BEARISH",
+      "volatility_environment": "High Volatility",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": false
+    },
+    "INTC": {
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "Price has not crossed above PML",
+      "timestamp": "2025-10-14T16:52:39.315749",
+      "market_condition": "PML_CROSS_BEARISH",
+      "volatility_environment": "High Volatility",
       "position_size": 0.0,
       "stop_loss": 0.0,
       "profit_target": 0.0,
@@ -74,9 +62,21 @@
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "Price has not crossed above PML",
-      "timestamp": "2025-10-14T16:49:04.959081",
+      "timestamp": "2025-10-14T16:52:39.316427",
       "market_condition": "PML_CROSS_BEARISH",
       "volatility_environment": "Medium Volatility",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": false
+    },
+    "AMZN": {
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "Price has not crossed above PML",
+      "timestamp": "2025-10-14T16:52:39.312359",
+      "market_condition": "PML_CROSS_BEARISH",
+      "volatility_environment": "High Volatility",
       "position_size": 0.0,
       "stop_loss": 0.0,
       "profit_target": 0.0,
@@ -86,7 +86,7 @@
       "signal_type": "STRONG_BUY",
       "confidence": 0.729999999999999,
       "entry_reason": "Strong PML bullish cross with confirmation",
-      "timestamp": "2025-10-14T16:49:04.952825",
+      "timestamp": "2025-10-14T16:52:39.312886",
       "market_condition": "PML_CROSS_BULLISH",
       "volatility_environment": "High Volatility",
       "position_size": 1.0,
@@ -106,7 +106,7 @@
     "analysis_method": "pml_cross_with_delta_confirmation",
     "update_frequency": "on_demand",
     "data_source": "schwab_options_chain",
-    "auto_approve_last_updated": "2025-10-14T16:49:13.619715",
+    "auto_approve_last_updated": "2025-10-14T16:52:40.860483",
     "auto_approve_status": false
   }
 }
