@@ -1,11 +1,12 @@
 // WebSocket connection management for real-time data streaming
 class WebSocketManager {
     constructor() {
+        console.log('🔍 DEBUG: WebSocketManager constructor called');
         this.ws = null;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
         this.reconnectDelay = 1000;
-        this.isConnected = false;
+        this.connected = false;
         this.callbacks = {
             onData: [],
             onConnect: [],
@@ -13,29 +14,47 @@ class WebSocketManager {
             onError: []
         };
         
+        console.log('🔍 DEBUG: WebSocketManager initialized, calling connect()');
         this.connect();
     }
     
     connect() {
         try {
+            console.log('🔍 DEBUG: WebSocketManager.connect() called');
             console.log('🔄 Connecting to WebSocket server...');
             // Connect directly to WebSocket server on port 8765
             const wsUrl = 'ws://localhost:8765';
             console.log(`📡 WebSocket URL: ${wsUrl}`);
+            console.log('🔍 DEBUG: Creating new WebSocket instance...');
             this.ws = new WebSocket(wsUrl);
+            console.log('🔍 DEBUG: WebSocket instance created:', !!this.ws);
             
             this.ws.onopen = () => {
+                console.log('🔍 DEBUG: WebSocket onopen event fired');
                 console.log('✅ WebSocket connected');
-                this.isConnected = true;
+                this.connected = true;
                 this.reconnectAttempts = 0;
                 this.updateConnectionStatus('connected');
+                console.log('🔍 DEBUG: Calling onConnect callbacks:', this.callbacks.onConnect.length);
                 this.callbacks.onConnect.forEach(callback => callback());
             };
             
             this.ws.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    console.log('📡 Received WebSocket data:', data.timestamp);
+                    console.log('📡 Received WebSocket data:', data.timestamp || data.type);
+                    
+                    // Route strategy configuration messages to strategy manager
+                    if (data.type && data.type.includes('strategy_config')) {
+                        console.log('🎯 Routing strategy config message to strategy manager:', data.type);
+                        if (window.strategyManager && typeof window.strategyManager.handleWebSocketMessage === 'function') {
+                            window.strategyManager.handleWebSocketMessage(data);
+                        } else {
+                            console.warn('⚠️ Strategy manager not available for config message routing');
+                        }
+                    }
+                    
+                    // Call all registered data callbacks
                     this.callbacks.onData.forEach(callback => callback(data));
                 } catch (error) {
                     console.error('❌ Error parsing WebSocket data:', error);
@@ -43,14 +62,16 @@ class WebSocketManager {
             };
             
             this.ws.onclose = () => {
+                console.log('🔍 DEBUG: WebSocket onclose event fired');
                 console.log('🔌 WebSocket disconnected');
-                this.isConnected = false;
+                this.connected = false;
                 this.updateConnectionStatus('disconnected');
                 this.callbacks.onDisconnect.forEach(callback => callback());
                 this.attemptReconnect();
             };
             
             this.ws.onerror = (error) => {
+                console.log('🔍 DEBUG: WebSocket onerror event fired');
                 console.error('❌ WebSocket error:', error);
                 this.callbacks.onError.forEach(callback => callback(error));
             };
@@ -96,7 +117,7 @@ class WebSocketManager {
     }
     
     send(data) {
-        if (this.isConnected && this.ws.readyState === WebSocket.OPEN) {
+        if (this.isConnected() && this.ws.readyState === WebSocket.OPEN) {
             this.ws.send(JSON.stringify(data));
         } else {
             console.warn('⚠️ WebSocket not connected, cannot send data');
@@ -128,6 +149,20 @@ class WebSocketManager {
                 this.callbacks[event].splice(index, 1);
             }
         }
+    }
+    
+    // Add message listener for specific message types (used by API manager)
+    addMessageListener(callback) {
+        this.on('onData', callback);
+    }
+    
+    // Remove message listener
+    removeMessageListener(callback) {
+        this.off('onData', callback);
+    }
+    
+    isConnected() {
+        return this.ws && this.ws.readyState === WebSocket.OPEN;
     }
     
     disconnect() {

@@ -234,12 +234,28 @@ body {
     display: flex;
     gap: 0;
     overflow-x: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f7fafc;
+    padding-bottom: 2px;
 }
 
 .nav-items::-webkit-scrollbar {
-    display: none;
+    height: 4px;
+}
+
+.nav-items::-webkit-scrollbar-track {
+    background: #f7fafc;
+    border-radius: 2px;
+}
+
+.nav-items::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 2px;
+    transition: background 0.2s ease;
+}
+
+.nav-items::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
 }
 
 .nav-item {
@@ -255,6 +271,8 @@ body {
     transition: all 0.2s ease;
     white-space: nowrap;
     position: relative;
+    flex-shrink: 0;
+    min-width: fit-content;
 }
 
 .nav-item:hover {
@@ -391,7 +409,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    max-height: 400px;
+    max-height: 675px;
     overflow-y: auto;
 }
 
@@ -941,11 +959,72 @@ body {
     color: #2d3748;
 }
 
+/* Navigation Responsive Improvements */
+@media (max-width: 1024px) {
+    .nav-container {
+        padding: 0 1rem;
+    }
+    
+    .nav-item {
+        padding: 1rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .nav-item span {
+        display: none;
+    }
+    
+    .nav-item i {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-items {
+        gap: 0.25rem;
+        padding: 0 0.5rem;
+    }
+    
+    .nav-item {
+        padding: 0.75rem 0.75rem;
+        min-width: 60px;
+        justify-content: center;
+    }
+    
+    .nav-item span {
+        display: none;
+    }
+    
+    .nav-item i {
+        font-size: 1.2rem;
+    }
+}
+
+/* Add navigation hint for mobile */
+.nav-container::after {
+    content: "← Scroll for more tabs →";
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: #718096;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .nav-container::after {
+        opacity: 1;
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
     .main-content {
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto auto;
+        grid-template-rows: auto auto auto auto auto auto;
     }
     
     .positions-panel {
@@ -958,14 +1037,24 @@ body {
         grid-row: 2;
     }
     
-    .config-panel {
+    .risk-management-panel {
         grid-column: 1;
         grid-row: 3;
     }
     
-    .screening-panel {
+    .watchlist-panel {
         grid-column: 1;
         grid-row: 4;
+    }
+    
+    .security-panel {
+        grid-column: 1;
+        grid-row: 5;
+    }
+    
+    .settings-panel {
+        grid-column: 1;
+        grid-row: 6;
     }
 }
 
@@ -1149,7 +1238,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    max-height: 400px;
+    max-height: 675px;
     overflow-y: auto;
     padding-right: 0.5rem;
     scrollbar-width: thin;
@@ -3098,6 +3187,560 @@ body {
 .security-panel .settings-group-title i {
     color: #667eea;
     font-size: 1rem;
+}
+
+/* ==================== API AUTHENTICATION STATUS STYLES ==================== */
+
+/* Authentication Status Display */
+.auth-status-display {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    min-width: 180px;
+}
+
+.auth-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.auth-indicator.authenticated {
+    background: #38a169;
+    box-shadow: 0 0 8px rgba(56, 161, 105, 0.4);
+}
+
+.auth-indicator.expiring {
+    background: #d69e2e;
+    box-shadow: 0 0 8px rgba(214, 158, 46, 0.4);
+    animation: pulse 2s infinite;
+}
+
+.auth-indicator.expired {
+    background: #e53e3e;
+    box-shadow: 0 0 8px rgba(229, 62, 62, 0.4);
+    animation: pulse 1s infinite;
+}
+
+.auth-indicator.unauthenticated {
+    background: #cbd5e0;
+}
+
+.auth-indicator.checking {
+    background: #667eea;
+    animation: spin 1s linear infinite;
+}
+
+.auth-indicator.refreshing {
+    background: #667eea;
+    animation: spin 1s linear infinite;
+}
+
+.auth-indicator.error {
+    background: #e53e3e;
+    box-shadow: 0 0 8px rgba(229, 62, 62, 0.4);
+}
+
+.auth-indicator.unknown {
+    background: #9ca3af;
+}
+
+.auth-status {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2d3748;
+    transition: color 0.3s ease;
+}
+
+.auth-status.authenticated {
+    color: #38a169;
+}
+
+.auth-status.expiring {
+    color: #d69e2e;
+}
+
+.auth-status.expired {
+    color: #e53e3e;
+}
+
+.auth-status.unauthenticated {
+    color: #718096;
+}
+
+.auth-status.checking {
+    color: #667eea;
+}
+
+.auth-status.refreshing {
+    color: #667eea;
+}
+
+.auth-status.error {
+    color: #e53e3e;
+}
+
+.auth-status.unknown {
+    color: #9ca3af;
+}
+
+/* Token Expiry Display */
+.token-expiry {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+}
+
+.token-expiry.warning {
+    background: #faf089;
+    color: #d69e2e;
+    border: 1px solid #f6e05e;
+}
+
+.token-expiry.expired {
+    background: #fed7d7;
+    color: #e53e3e;
+    border: 1px solid #feb2b2;
+}
+
+.token-expiry.unknown {
+    background: #edf2f7;
+    color: #718096;
+    border: 1px solid #e2e8f0;
+}
+
+.token-expiry:not(.warning):not(.expired):not(.unknown) {
+    background: #c6f6d5;
+    color: #38a169;
+    border: 1px solid #9ae6b4;
+}
+
+/* Last Check Time Display */
+.last-check-time {
+    font-size: 0.85rem;
+    color: #718096;
+    font-weight: 500;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Account Info Display */
+.auth-account-info {
+    font-size: 0.9rem;
+    color: #4a5568;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+/* Authentication Action Buttons */
+.security-panel .setting-control .btn {
+    min-width: 140px;
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.security-panel .setting-control .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.security-panel .setting-control .btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* API Status Animations */
+@keyframes authPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+@keyframes authSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.auth-indicator.checking,
+.auth-indicator.refreshing {
+    animation: authSpin 1s linear infinite;
+}
+
+.auth-indicator.expiring {
+    animation: authPulse 2s infinite;
+}
+
+.auth-indicator.expired {
+    animation: authPulse 1s infinite;
+}
+
+/* API Connection Status Section Styling */
+.security-panel .settings-section:first-child {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 1rem;
+}
+
+.security-panel .settings-section:first-child .settings-section-title {
+    color: #0c4a6e;
+}
+
+.security-panel .settings-section:first-child .settings-section-title i {
+    color: #0284c7;
+}
+
+.security-panel .settings-section:first-child .settings-section-description {
+    color: #075985;
+}
+
+/* API Status Grid Enhancements */
+.security-panel .settings-section:first-child .settings-grid {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.security-panel .settings-section:first-child .settings-group {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e0f2fe;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.1);
+}
+
+.security-panel .settings-section:first-child .settings-group:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: #bae6fd;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.15);
+}
+
+/* Responsive API Status */
+@media (max-width: 768px) {
+    .auth-status-display {
+        min-width: 150px;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .auth-status {
+        font-size: 0.8rem;
+    }
+    
+    .token-expiry {
+        font-size: 0.8rem;
+        min-width: 70px;
+        padding: 0.2rem 0.6rem;
+    }
+    
+    .auth-account-info {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.6rem;
+    }
+    
+    .security-panel .setting-control .btn {
+        min-width: 120px;
+        font-size: 0.8rem;
+        padding: 0.5rem 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-status-display {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .security-panel .settings-section:first-child {
+        padding: 1.5rem;
+    }
+    
+    .security-panel .settings-section:first-child .settings-grid {
+        padding: 0.75rem;
+    }
+}
+
+/* API Status Success States */
+.auth-status-display.success {
+    background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+    border-color: #9ae6b4;
+}
+
+.auth-status-display.warning {
+    background: linear-gradient(135deg, #fffbeb, #faf089);
+    border-color: #f6e05e;
+}
+
+.auth-status-display.error {
+    background: linear-gradient(135deg, #fff5f5, #fed7d7);
+    border-color: #feb2b2;
+}
+
+/* API Management Action Button States */
+.security-panel .btn-primary:disabled {
+    background: linear-gradient(135deg, #cbd5e0, #a0aec0);
+    color: #718096;
+}
+
+.security-panel .btn-secondary:disabled {
+    background: #f7fafc;
+    color: #a0aec0;
+    border-color: #e2e8f0;
+}
+
+.security-panel .btn-warning:disabled {
+    background: linear-gradient(135deg, #edf2f7, #e2e8f0);
+    color: #a0aec0;
+}
+
+.security-panel .btn-outline:disabled {
+    background: transparent;
+    color: #cbd5e0;
+    border-color: #e2e8f0;
+}
+
+/* ==================== NOTIFICATION STYLES ==================== */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 400px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e2e8f0;
+    z-index: 10000;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.notification.notification-show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification-content {
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.notification-message {
+    flex: 1;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #2d3748;
+    font-weight: 500;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #718096;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.notification-close:hover {
+    background: #f7fafc;
+    color: #4a5568;
+}
+
+/* Notification Types */
+.notification-success {
+    border-left: 4px solid #38a169;
+    background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+}
+
+.notification-success .notification-message {
+    color: #22543d;
+}
+
+.notification-error {
+    border-left: 4px solid #e53e3e;
+    background: linear-gradient(135deg, #fff5f5, #fed7d7);
+}
+
+.notification-error .notification-message {
+    color: #742a2a;
+}
+
+.notification-warning {
+    border-left: 4px solid #d69e2e;
+    background: linear-gradient(135deg, #fffbeb, #faf089);
+}
+
+.notification-warning .notification-message {
+    color: #744210;
+}
+
+.notification-info {
+    border-left: 4px solid #667eea;
+    background: linear-gradient(135deg, #f7fafc, #bee3f8);
+}
+
+.notification-info .notification-message {
+    color: #2c5282;
+}
+
+/* Trading Status Styles */
+.toggle-option.running {
+    color: #38a169;
+    font-weight: 600;
+}
+
+.toggle-option.stopped {
+    color: #718096;
+    font-weight: 500;
+}
+
+.toggle-option.starting {
+    color: #d69e2e;
+    font-weight: 600;
+}
+
+.toggle-option.stopping {
+    color: #d69e2e;
+    font-weight: 600;
+}
+
+.toggle-option.paused {
+    color: #d69e2e;
+    font-weight: 600;
+}
+
+.toggle-option.emergency {
+    color: #e53e3e;
+    font-weight: 700;
+    animation: pulse 1s infinite;
+}
+
+.toggle-option.error {
+    color: #e53e3e;
+    font-weight: 600;
+}
+
+.toggle-option.unknown {
+    color: #718096;
+    font-weight: 500;
+}
+
+.toggle-option.live {
+    color: #e53e3e;
+    font-weight: 600;
+}
+
+.toggle-option.paper {
+    color: #38a169;
+    font-weight: 600;
+}
+
+/* Emergency Button Styles */
+.btn-danger {
+    background: linear-gradient(135deg, #e53e3e, #c53030);
+    color: white;
+    box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3);
+    border: none;
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(229, 62, 62, 0.4);
+    background: linear-gradient(135deg, #c53030, #9c2626);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #d69e2e, #b7791f);
+    color: white;
+    box-shadow: 0 4px 15px rgba(214, 158, 46, 0.3);
+    border: none;
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(214, 158, 46, 0.4);
+    background: linear-gradient(135deg, #b7791f, #975a16);
+}
+
+/* Responsive Notifications */
+@media (max-width: 768px) {
+    .notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+    }
+    
+    .notification-content {
+        padding: 0.75rem 1rem;
+    }
+    
+    .notification-message {
+        font-size: 0.85rem;
+    }
+}
+
+/* Notification Animation */
+@keyframes notificationSlideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes notificationSlideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.notification.notification-enter {
+    animation: notificationSlideIn 0.3s ease-out;
+}
+
+.notification.notification-exit {
+    animation: notificationSlideOut 0.3s ease-in;
 }
 
 /* Security Panel Responsive Design */

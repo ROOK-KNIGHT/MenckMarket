@@ -80,7 +80,7 @@ class RealTimeMonitor:
         )
         self.logger = logging.getLogger(__name__)
         
-        # Database insertion functionality removed - now handled by individual strategy files
+        # Database insertion runs in separate thread every 30 seconds
         self.db_thread = None
         self.db_thread_running = False
         
@@ -893,8 +893,10 @@ class RealTimeMonitor:
     def update_data(self):
         """Update all data concurrently in a thread-safe manner."""
         try:
+            # Collect data WITHOUT holding the lock to prevent blocking
             new_data = self.collect_all_data_concurrently()
             
+            # Only hold the lock for the brief moment of updating current_data
             with self.data_lock:
                 self.current_data = new_data
                 
@@ -927,8 +929,8 @@ class RealTimeMonitor:
                             if not success:
                                 self.logger.warning(f"🗄️ Database insertion failed for: {file_type}")
                     
-                    # Sleep for 1 second before checking again
-                    time.sleep(1)
+                    # Sleep for 5 seconds before checking again (db_inserter has its own 30s throttling)
+                    time.sleep(5)
                     
                 except Exception as e:
                     self.logger.error(f"🗄️ Error in database inserter thread: {e}")
@@ -981,7 +983,7 @@ class RealTimeMonitor:
                 except Exception as e:
                     self.logger.error(f"Error writing JSON: {e}")
                 
-                # Database insertion functionality removed - now handled by individual strategy files
+                # Database insertion runs independently in separate thread with 30-second throttling
                 
                 
                 # Maintain update interval

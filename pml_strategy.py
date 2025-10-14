@@ -84,11 +84,26 @@ class PMLConfig:
     
     # Position management
     max_positions_per_symbol: int = 1
-    position_size_pct: float = 0.05    # Position size as % of account
+    position_size_pct: float = 0.05    # Position size as % of account (will be loaded from risk config)
     
     # Market condition filters
     min_liquidity_volume: int = 1000   # Min daily volume
     max_spread_pct: float = 0.05       # Max bid-ask spread %
+    
+    def __post_init__(self):
+        """Load position size from risk configuration after initialization"""
+        try:
+            risk_config = load_risk_config()
+            if risk_config:
+                position_sizing = risk_config.get('risk_management', {}).get('position_sizing', {})
+                max_position_size = position_sizing.get('max_position_size', 5)  # Default 5%
+                self.position_size_pct = max_position_size / 100.0  # Convert to decimal
+                print(f"📊 PML: Loaded position_size_pct = {self.position_size_pct:.3f} ({max_position_size}%) from risk config")
+            else:
+                print(f"⚠️ PML: Using default position_size_pct = {self.position_size_pct:.3f}")
+        except Exception as e:
+            print(f"❌ PML: Error loading position size from risk config: {e}")
+            print(f"📊 PML: Using default position_size_pct = {self.position_size_pct:.3f}")
 
 @dataclass
 class PMLSetup:
@@ -652,14 +667,14 @@ class PMLStrategy:
 
     def generate_trading_signal(self, symbol: str, technical_indicators: Dict[str, Any] = None) -> TradingSignal:
         """
-        Generate trading signal for PML strategy using technical indicators.
+        Generate trading signal for PML strategy with specific option recommendations.
         
         Args:
             symbol: Stock symbol to analyze
             technical_indicators: Pre-calculated technical indicators (optional)
             
         Returns:
-            Trading signal with recommendation
+            Trading signal with specific option contract recommendation
         """
         try:
             # Load technical indicators if not provided
@@ -721,8 +736,15 @@ class PMLStrategy:
                 volatility_environment=self._get_volatility_environment_from_indicators(base_indicators)
             )
             
-            # Add dynamic position sizing and risk management for buy signals
+            # Add specific option recommendation for buy signals
             if signal_type in [SignalType.BUY, SignalType.STRONG_BUY]:
+                # Find the best option setup using live options data
+                best_option = self._find_best_option_contract(symbol, pml_analysis, base_indicators)
+                if best_option:
+                    signal.setup = best_option
+                    # Update entry reason to include specific option details
+                    signal.entry_reason = f"{reason} - Recommended: {best_option.option_type} {best_option.strike} exp {best_option.expiration_date.strftime('%m/%d')} @ ${best_option.mid_price:.2f}"
+                
                 # Load dynamic risk configuration
                 risk_config = load_risk_config()
                 
@@ -996,6 +1018,111 @@ class PMLStrategy:
         except Exception as e:
             print(f"❌ Error getting dynamic risk settings: {e}")
             return default_stop_loss, default_take_profit
+
+    def _find_best_option_contract(self, symbol: str, pml_analysis: Dict, base_indicators: Dict) -> Optional[PMLSetup]:
+        """
+        Find the best option contract for the PML signal using live options data.
+        
+        Args:
+            symbol: Stock symbol
+            pml_analysis: PML analysis data
+            base_indicators: Base technical indicators
+            
+        Returns:
+            Best PML setup or None if no suitable options found
+        """
+        try:
+            # Get live options chain data
+            options_chain = self.options_handler.get_options_chain(symbol)
+            if not options_chain:
+                self.logger.warning(f"No options chain data for {symbol}")
+                return None
+            
+            current_price = base_indicators.get('current_price', 0)
+            if current_price <= 0:
+                return None
+            
+            # Find suitable expirations (7-45 DTE)
+            suitable_expirations = self._find_suitable_expirations(options_chain)
+            if not suitable_expirations:
+                self.logger.info(f"No suitable expirations found for {symbol}")
+                return None
+            
+            best_setups = []
+            
+            # Analyze each suitable expiration
+            for exp_date in suitable_expirations:
+                setups = self._find_itm_call_setups(
+                    symbol, exp_date, current_price, 
+                    pml_analysis['ceiling_price'], options_chain, pml_analysis
+                )
+                best_setups.extend(setups)
+            
+            if not best_setups:
+                self.logger.info(f"No suitable option setups found for {symbol}")
+                return None
+            
+            # Sort by potential profit and return the best one
+            best_setups.sort(key=lambda x: x.potential_profit, reverse=True)
+            best_setup = best_setups[0]
+            
+            # Calculate probability of success (simplified)
+            probability = self._calculate_option_probability(best_setup, pml_analysis)
+            
+            self.logger.info(f"Best option for {symbol}: {best_setup.option_type} {best_setup.strike} exp {best_setup.expiration_date.strftime('%m/%d')} @ ${best_setup.mid_price:.2f} ({probability:.0f}% prob)")
+            
+            return best_setup
+            
+        except Exception as e:
+            self.logger.error(f"Error finding best option contract for {symbol}: {e}")
+            return None
+
+    def _calculate_option_probability(self, setup: PMLSetup, pml_analysis: Dict) -> float:
+        """Calculate simplified probability of success for option setup."""
+        try:
+            # Simplified probability calculation based on:
+            # 1. Distance to ceiling price
+            # 2. Time to expiration
+            # 3. Delta confirmation
+            
+            current_price = setup.spot_price
+            ceiling_price = setup.ceiling_price
+            strike = setup.strike
+            dte = setup.dte
+            
+            # Distance factor (closer to ceiling = higher probability)
+            distance_to_ceiling = abs(ceiling_price - current_price)
+            price_range = ceiling_price - strike
+            
+            if price_range <= 0:
+                return 50.0  # Neutral probability
+            
+            distance_factor = max(0.3, 1 - (distance_to_ceiling / price_range))
+            
+            # Time factor (more time = higher probability, but not too much)
+            if dte <= 7:
+                time_factor = 0.5  # Low probability for very short term
+            elif dte <= 21:
+                time_factor = 0.8  # Good probability for medium term
+            elif dte <= 45:
+                time_factor = 0.7  # Decent probability for longer term
+            else:
+                time_factor = 0.6  # Lower probability for very long term
+            
+            # Delta confirmation factor
+            delta_factor = 0.8 if pml_analysis.get('delta_confirmation', False) else 0.6
+            
+            # ITM factor (ITM calls have higher success probability)
+            itm_factor = 0.9 if current_price > strike else 0.7
+            
+            # Combine factors
+            probability = (distance_factor * 0.3 + time_factor * 0.3 + delta_factor * 0.2 + itm_factor * 0.2) * 100
+            
+            return min(95.0, max(30.0, probability))  # Cap between 30-95%
+            
+        except Exception as e:
+            self.logger.error(f"Error calculating option probability: {e}")
+            return 50.0  # Default neutral probability
 
     def _find_itm_call_setups_from_comprehensive_data(self, symbol: str, expiration: Dict, 
                                                     current_price: float, pml_analysis: Dict) -> List[PMLSetup]:
@@ -1506,118 +1633,6 @@ def monitor_auto_approve_config():
             print(f"❌ Error in PML config monitoring: {e}")
             time.sleep(5)  # Wait longer on error
 
-def insert_pml_signals_to_db(pml_signals: Dict[str, Any]) -> bool:
-    """Insert PML signals into PostgreSQL database with truncation"""
-    try:
-        # Database connection parameters
-        conn_params = {
-            'host': 'localhost',
-            'database': 'volflow_options',
-            'user': 'isaac',
-            'password': None  # Will use peer authentication
-        }
-        
-        # Connect to database
-        conn = psycopg2.connect(**conn_params)
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        
-        # Truncate the table first
-        print("🗑️  Truncating pml_signals table...")
-        # Use DELETE instead of TRUNCATE to avoid relation locks in parallel execution
-        cur.execute("DELETE FROM pml_signals;")
-        
-        # Insert new data
-        insert_count = 0
-        for symbol, signal_data in pml_signals.items():
-            try:
-                # Extract setup data if available
-                setup_data = signal_data.get('setup', {})
-                
-                # Prepare insert statement
-                insert_sql = """
-                INSERT INTO pml_signals (
-                    timestamp, symbol, signal_type, confidence, entry_reason, exit_reason,
-                    position_size, stop_loss, profit_target, market_condition, volatility_environment,
-                    expiration_date, dte, strike, option_type, current_price, bid, ask,
-                    pml_price, ceiling_price, floor_price, green_line_price,
-                    call_delta, put_delta, net_delta, delta, gamma, theta, vega,
-                    implied_vol, intrinsic_value, time_value, potential_profit, max_loss,
-                    spot_price, volume, open_interest, auto_approve
-                ) VALUES (
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-                )
-                """
-                
-                # Prepare values
-                values = (
-                    signal_data.get('timestamp', datetime.now().isoformat()),
-                    symbol,
-                    signal_data.get('signal_type', 'NO_SIGNAL'),
-                    signal_data.get('confidence', 0.0),
-                    signal_data.get('entry_reason', ''),
-                    signal_data.get('exit_reason', ''),
-                    signal_data.get('position_size', 0.0),
-                    signal_data.get('stop_loss', 0.0),
-                    signal_data.get('profit_target', 0.0),
-                    signal_data.get('market_condition', 'UNCERTAIN'),
-                    signal_data.get('volatility_environment', 'Unknown'),
-                    setup_data.get('expiration_date'),
-                    setup_data.get('dte', 0),
-                    setup_data.get('strike', 0.0),
-                    setup_data.get('option_type', 'CALL'),
-                    setup_data.get('current_price', 0.0),
-                    setup_data.get('bid', 0.0),
-                    setup_data.get('ask', 0.0),
-                    setup_data.get('pml_price', 0.0),
-                    setup_data.get('ceiling_price', 0.0),
-                    setup_data.get('floor_price', 0.0),
-                    setup_data.get('green_line_price', 0.0),
-                    setup_data.get('call_delta', 0.0),
-                    setup_data.get('put_delta', 0.0),
-                    setup_data.get('net_delta', 0.0),
-                    setup_data.get('delta', 0.0),
-                    setup_data.get('gamma', 0.0),
-                    setup_data.get('theta', 0.0),
-                    setup_data.get('vega', 0.0),
-                    setup_data.get('implied_vol', 0.0),
-                    setup_data.get('intrinsic_value', 0.0),
-                    setup_data.get('time_value', 0.0),
-                    setup_data.get('potential_profit', 0.0),
-                    setup_data.get('max_loss', 0.0),
-                    setup_data.get('spot_price', 0.0),
-                    setup_data.get('volume', 0),
-                    setup_data.get('open_interest', 0),
-                    signal_data.get('auto_approve', True)
-                )
-                
-                cur.execute(insert_sql, values)
-                insert_count += 1
-                
-            except Exception as e:
-                print(f"❌ Error inserting {symbol}: {e}")
-                continue
-        
-        # Commit the transaction
-        conn.commit()
-        
-        # Close connections
-        cur.close()
-        conn.close()
-        
-        print(f"✅ Successfully inserted {insert_count} PML signals into database")
-        return True
-        
-    except Exception as e:
-        print(f"❌ Error inserting PML signals to database: {e}")
-        if 'conn' in locals():
-            conn.rollback()
-            conn.close()
-        return False
-
-# Global throttling variables for database insertion
-_last_db_insertion = 0
-_db_insertion_interval = 30  # seconds
 
 def main():
     """Main function to run PML strategy analysis"""

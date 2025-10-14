@@ -367,18 +367,8 @@ class RiskManager {
             return;
         }
         
-        // Send risk configuration to backend via WebSocket
-        if (window.volflowApp?.modules?.websocket?.isConnected) {
-            const message = {
-                type: 'update_risk_config',
-                config: this.getRiskConfiguration(),
-                timestamp: new Date().toISOString(),
-                user: 'web_interface'
-            };
-            
-            window.volflowApp.modules.websocket.send(message);
-            console.log('📡 Risk configuration sent via WebSocket');
-        }
+        // Send risk configuration to backend via WebSocket (same pattern as watchlist/strategy)
+        this.sendRiskConfigToWebSocket();
         
         // Save configuration locally
         this.saveRiskConfiguration();
@@ -473,37 +463,80 @@ class RiskManager {
     
     getRiskConfiguration() {
         return {
-            max_account_risk: {
-                enabled: this.riskConfig.enable_max_account_risk || false,
-                value: this.riskConfig.max_account_risk || 25
+            account_limits: {
+                daily_loss_limit: this.riskConfig.daily_loss_limit || 5.0,
+                max_account_risk: this.riskConfig.max_account_risk || 25.0,
+                equity_buffer: this.riskConfig.equity_buffer || 10000.0
             },
-            daily_loss_limit: {
-                enabled: this.riskConfig.enable_daily_loss_limit || false,
-                value: this.riskConfig.daily_loss_limit || 5
+            position_sizing: {
+                max_positions: this.riskConfig.max_positions || 15,
+                max_position_size: this.riskConfig.max_position_size || 5.0
             },
-            equity_buffer: {
-                enabled: this.riskConfig.enable_equity_buffer || false,
-                value: this.riskConfig.equity_buffer || 10000
-            },
-            max_position_size: {
-                enabled: this.riskConfig.enable_max_position_size || false,
-                value: this.riskConfig.max_position_size || 5
-            },
-            max_positions: {
-                enabled: this.riskConfig.enable_max_positions || false,
-                value: this.riskConfig.max_positions || 15
-            },
-            stop_loss: {
-                enabled: this.riskConfig.enable_stop_loss || false,
+            stop_loss_settings: {
                 method: this.riskConfig.stop_loss_method || 'atr',
-                value: this.riskConfig.stop_loss_value || 2.0
+                value: this.riskConfig.stop_loss_value || 2.0,
+                take_profit_ratio: this.riskConfig.take_profit_ratio || 2.0
             },
-            risk_reward_ratio: {
-                enabled: this.riskConfig.enable_risk_reward_ratio || false,
-                value: this.riskConfig.take_profit_ratio || 2.0
+            parameter_states: {
+                enable_max_account_risk: this.riskConfig.enable_max_account_risk || false,
+                enable_daily_loss_limit: this.riskConfig.enable_daily_loss_limit || false,
+                enable_equity_buffer: this.riskConfig.enable_equity_buffer || false,
+                enable_max_position_size: this.riskConfig.enable_max_position_size || false,
+                enable_max_positions: this.riskConfig.enable_max_positions || false,
+                enable_stop_loss: this.riskConfig.enable_stop_loss || false,
+                enable_stop_loss_value: this.riskConfig.enable_stop_loss_value || false,
+                enable_risk_reward_ratio: this.riskConfig.enable_risk_reward_ratio || false
             },
             timestamp: new Date().toISOString()
         };
+    }
+    
+    sendRiskConfigToWebSocket() {
+        console.log('📡 Sending risk configuration to WebSocket server...');
+        
+        try {
+            // Check WebSocket connection - try multiple possible references (same pattern as watchlist/strategy)
+            const wsManager = window.websocketManager || window.wsManager || (window.volflowApp && window.volflowApp.modules.websocket);
+            
+            if (!wsManager) {
+                console.error('❌ WebSocket manager not found');
+                this.showToast('WebSocket connection not available', 'error');
+                return;
+            }
+            
+            if (!wsManager.ws) {
+                console.error('❌ WebSocket not created');
+                this.showToast('WebSocket not connected', 'error');
+                return;
+            }
+            
+            if (wsManager.ws.readyState !== WebSocket.OPEN) {
+                console.error('❌ WebSocket not open, state:', wsManager.ws.readyState);
+                this.showToast('WebSocket not connected', 'error');
+                return;
+            }
+            
+            const config = this.getRiskConfiguration();
+            const message = {
+                type: 'save_risk_config',
+                config: config,
+                timestamp: new Date().toISOString(),
+                source: 'risk_manager'
+            };
+            
+            console.log('📨 Sending risk config WebSocket message:', message);
+            
+            // Use direct WebSocket send (same pattern as watchlist/strategy manager)
+            wsManager.ws.send(JSON.stringify(message));
+            console.log('✅ Risk config WebSocket message sent successfully');
+            
+            // Show user feedback
+            this.showToast('Risk configuration sent to server', 'success');
+            
+        } catch (error) {
+            console.error('❌ Error sending risk config to WebSocket:', error);
+            this.showToast('Error sending configuration to server', 'error');
+        }
     }
     
     saveRiskConfiguration() {

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Symbols Monitor Handler for VolFlow Options Breakout
-Handles watchlist symbols and fetches current market prices
+Simplified Symbols Monitor Handler for VolFlow Options Breakout
+Loads symbols from api_watchlist.json and current_positions.json,
+fetches market data using Schwab quotes API, and updates integrated_watchlist.json
 """
 
 import json
@@ -11,12 +12,8 @@ import os
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
-import aiohttp
-from connection_manager import ensure_valid_tokens
 from config_loader import ConfigLoader
 from historical_data_handler import HistoricalDataHandler
-import psycopg2
-from psycopg2.extras import RealDictCursor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -38,55 +35,46 @@ class WatchlistSymbol:
             self.last_updated = datetime.now().isoformat()
 
 class SymbolsMonitorHandler:
-    """Handler for monitoring watchlist symbols and fetching current prices"""
+    """Simplified handler for monitoring watchlist symbols and updating integrated_watchlist.json"""
     
     def __init__(self, config_path: str = "config.yaml"):
         """Initialize the symbols monitor handler"""
         self.config_loader = ConfigLoader(config_path)
-        self.live_monitor_file = "live_monitor.json"
         self.symbols_to_monitor: List[str] = []
         self.watchlist_data: Dict[str, WatchlistSymbol] = {}
         
-        
-        # Initialize historical data handler
+        # Initialize historical data handler for quotes
         self.historical_handler = HistoricalDataHandler()
         
-        # Load existing watchlist from live monitor
-        self.load_watchlist()
+        logger.info("🔧 Simplified Symbols Monitor Handler initialized with centralized quotes API")
     
-    def load_watchlist(self) -> None:
-        """Load watchlist from both api_watchlist.json and current_positions.json"""
+    def load_symbols_from_sources(self) -> List[str]:
+        """Load and combine symbols from api_watchlist.json and current_positions.json"""
         try:
+            logger.info("📋 === LOADING SYMBOLS FROM SOURCES ===")
+            
             # Load from api_watchlist.json
             api_symbols = self._load_api_watchlist_symbols()
+            logger.info(f"📋 API WATCHLIST SYMBOLS ({len(api_symbols)}): {api_symbols}")
             
             # Load from current_positions.json
             position_symbols = self._load_position_symbols()
+            logger.info(f"💼 POSITION SYMBOLS ({len(position_symbols)}): {position_symbols}")
             
             # Combine both sources
             all_symbols = list(set(api_symbols + position_symbols))
-            self.symbols_to_monitor = all_symbols
+            logger.info(f"🎯 COMBINED SYMBOLS ({len(all_symbols)}): {sorted(all_symbols)}")
+            logger.info(f"🔍 API-only symbols: {[s for s in api_symbols if s not in position_symbols]}")
+            logger.info(f"🔍 Position-only symbols: {[s for s in position_symbols if s not in api_symbols]}")
+            logger.info(f"🔍 Overlapping symbols: {[s for s in api_symbols if s in position_symbols]}")
             
-            # Initialize watchlist data for all symbols
-            self.watchlist_data = {}
-            for symbol in all_symbols:
-                self.watchlist_data[symbol] = WatchlistSymbol(
-                    symbol=symbol,
-                    current_price=0.0,
-                    price_change=0.0,
-                    price_change_percent=0.0,
-                    volume=0
-                )
-                    
-            logger.info(f"📊 Loaded {len(self.symbols_to_monitor)} symbols from integrated sources:")
-            logger.info(f"   API Watchlist: {len(api_symbols)} symbols: {api_symbols}")
-            logger.info(f"   Current Positions: {len(position_symbols)} symbols: {position_symbols}")
-            logger.info(f"   Total Integrated: {len(all_symbols)} symbols: {sorted(all_symbols)}")
+            self.symbols_to_monitor = all_symbols
+            print(f"Total unique symbols to monitor: {len(all_symbols)}")
+            return all_symbols
             
         except Exception as e:
-            logger.error(f"Error loading integrated watchlist: {e}")
-            self.symbols_to_monitor = []
-            self.watchlist_data = {}
+            logger.error(f"❌ Error loading symbols from sources: {e}")
+            return []
 
     def _load_api_watchlist_symbols(self) -> List[str]:
         """Load symbols from api_watchlist.json"""
@@ -97,10 +85,10 @@ class SymbolsMonitorHandler:
                 logger.info(f"📋 Loaded {len(symbols)} symbols from api_watchlist.json")
                 return symbols
         except FileNotFoundError:
-            logger.info("api_watchlist.json not found")
+            logger.info("📋 api_watchlist.json not found")
             return []
         except Exception as e:
-            logger.error(f"Error loading api_watchlist.json: {e}")
+            logger.error(f"❌ Error loading api_watchlist.json: {e}")
             return []
 
     def _load_position_symbols(self) -> List[str]:
@@ -112,396 +100,124 @@ class SymbolsMonitorHandler:
                 logger.info(f"💼 Loaded {len(symbols)} symbols from current_positions.json")
                 return symbols
         except FileNotFoundError:
-            logger.info("current_positions.json not found")
+            logger.info("💼 current_positions.json not found")
             return []
         except Exception as e:
-            logger.error(f"Error loading current_positions.json: {e}")
+            logger.error(f"❌ Error loading current_positions.json: {e}")
             return []
     
-    def save_watchlist(self) -> None:
-        """Save watchlist to live monitor file"""
+    def fetch_quotes_data(self, symbols: List[str]) -> Optional[Dict[str, Any]]:
+        """Fetch current quote data for multiple symbols using centralized HistoricalDataHandler"""
+        if not symbols:
+            logger.warning("No symbols provided for quote fetch")
+            return None
+            
         try:
-            # Load existing live monitor data
-            live_data = {}
-            try:
-                with open(self.live_monitor_file, 'r') as f:
-                    live_data = json.load(f)
-            except FileNotFoundError:
-                # Initialize basic structure if file doesn't exist
-                live_data = {
-                    'metadata': {},
-                    'integrated_watchlist': {}
-                }
+            logger.info(f"📊 Fetching quotes for {len(symbols)} symbols using centralized handler: {symbols}")
             
-            # Convert WatchlistSymbol objects to dictionaries
-            watchlist_raw = {}
-            for symbol, symbol_obj in self.watchlist_data.items():
-                watchlist_raw[symbol] = asdict(symbol_obj)
+            # Use the centralized historical data handler for quotes
+            quotes_data = self.historical_handler.get_quotes(symbols, fields="quote,reference")
             
-            # Update integrated_watchlist section
-            live_data['integrated_watchlist'] = {
-                'symbols': self.symbols_to_monitor,
-                'watchlist_data': watchlist_raw,
-                'metadata': {
-                    'total_symbols': len(self.symbols_to_monitor),
-                    'last_updated': datetime.now().isoformat(),
-                    'update_source': 'symbols_monitor_handler'
-                }
-            }
-            
-            # Update main metadata
-            if 'metadata' not in live_data:
-                live_data['metadata'] = {}
-            
-            live_data['metadata']['symbols_monitored'] = self.symbols_to_monitor
-            live_data['metadata']['timestamp'] = datetime.now().isoformat()
-            
-            # Save updated live monitor data
-            with open(self.live_monitor_file, 'w') as f:
-                json.dump(live_data, f, indent=2)
+            if quotes_data:
+                logger.info(f"✅ Successfully fetched quotes for {len(quotes_data)} symbols via centralized handler")
+                return quotes_data
+            else:
+                logger.warning("⚠️ No quotes data returned from centralized handler")
+                return None
                 
-            logger.info(f"Saved watchlist with {len(self.symbols_to_monitor)} symbols to live monitor")
         except Exception as e:
-            logger.error(f"Error saving watchlist to live monitor: {e}")
+            logger.error(f"❌ Error fetching quotes data via centralized handler: {e}")
+            return None
     
-    def add_symbol(self, symbol: str) -> bool:
-        """Add a symbol to the watchlist"""
-        symbol = symbol.upper().strip()
+    def parse_quotes_data(self, quotes_data: Dict[str, Any]) -> Dict[str, WatchlistSymbol]:
+        """Parse quotes data from Schwab API response"""
+        parsed_symbols = {}
         
-        if not symbol:
-            logger.warning("Cannot add empty symbol")
-            return False
-            
-        if symbol in self.symbols_to_monitor:
-            logger.info(f"Symbol {symbol} already in watchlist")
-            return False
-        
-        # Add to symbols list
-        self.symbols_to_monitor.append(symbol)
-        
-        # Initialize with placeholder data
-        self.watchlist_data[symbol] = WatchlistSymbol(
-            symbol=symbol,
-            current_price=0.0,
-            price_change=0.0,
-            price_change_percent=0.0,
-            volume=0
-        )
-        
-        # Save to file
-        self.save_watchlist()
-        
-        logger.info(f"Added {symbol} to watchlist")
-        return True
-    
-    def remove_symbol(self, symbol: str) -> bool:
-        """Remove a symbol from the watchlist"""
-        symbol = symbol.upper().strip()
-        
-        if symbol not in self.symbols_to_monitor:
-            logger.warning(f"Symbol {symbol} not in watchlist")
-            return False
-        
-        # Remove from symbols list
-        self.symbols_to_monitor.remove(symbol)
-        
-        # Remove from watchlist data
-        if symbol in self.watchlist_data:
-            del self.watchlist_data[symbol]
-        
-        # Save to file
-        self.save_watchlist()
-        
-        logger.info(f"Removed {symbol} from watchlist")
-        return True
-    
-    def get_watchlist_symbols(self) -> List[str]:
-        """Get list of symbols in watchlist"""
-        return self.symbols_to_monitor.copy()
-    
-    def get_watchlist_data(self) -> Dict[str, Dict[str, Any]]:
-        """Get watchlist data as dictionary"""
-        result = {}
-        for symbol, symbol_obj in self.watchlist_data.items():
-            result[symbol] = asdict(symbol_obj)
-        return result
-    
-    def fetch_quote_data(self, symbol: str) -> Optional[Dict[str, Any]]:
-        """Fetch current quote data for a single symbol using HistoricalDataHandler"""
         try:
-            # Get recent price data from historical data handler
-            historical_data = self.historical_handler.get_historical_data(
-                symbol=symbol,
-                periodType='day',
-                period=1,
-                frequencyType='minute',
-                freq=1,
-                needExtendedHoursData=True
-            )
-            
-            if historical_data and historical_data.get('candles'):
-                candles = historical_data['candles']
-                if candles:
-                    # Get the most recent candle for current price
-                    latest_candle = candles[-1]
-                    previous_candle = candles[-2] if len(candles) > 1 else latest_candle
+            for symbol, symbol_data in quotes_data.items():
+                try:
+                    quote = symbol_data.get('quote', {})
+                    reference = symbol_data.get('reference', {})
                     
-                    current_price = latest_candle.get('close', 0.0)
-                    previous_close = previous_candle.get('close', current_price)
-                    volume = latest_candle.get('volume', 0)
-                    high = latest_candle.get('high', current_price)
-                    low = latest_candle.get('low', current_price)
-                    open_price = latest_candle.get('open', current_price)
+                    # Extract price information
+                    current_price = quote.get('lastPrice', 0.0)
+                    close_price = quote.get('closePrice', current_price)
                     
                     # Calculate price change
-                    price_change = current_price - previous_close
-                    price_change_percent = (price_change / previous_close * 100) if previous_close > 0 else 0.0
+                    price_change = quote.get('netChange', 0.0)
+                    price_change_percent = quote.get('netPercentChange', 0.0)
                     
-                    # Create a quote-like structure for compatibility
-                    quote_data = {
-                        symbol: {
-                            'quote': {
-                                'lastPrice': current_price,
-                                'closePrice': previous_close,
-                                'totalVolume': volume,
-                                'high': high,
-                                'low': low,
-                                'open': open_price,
-                                'netChange': price_change,
-                                'netPercentChangeInDouble': price_change_percent
-                            },
-                            'fundamental': {
-                                'marketCap': None  # Not available from historical data
-                            }
-                        }
-                    }
+                    # Extract volume
+                    volume = quote.get('totalVolume', 0)
                     
-                    logger.info(f"Successfully fetched quote data for {symbol}: ${current_price}")
-                    return quote_data
-                else:
-                    logger.warning(f"No candle data available for {symbol}")
-                    return None
-            else:
-                logger.warning(f"No historical data available for {symbol}")
-                return None
-                
-        except Exception as e:
-            logger.error(f"Error fetching quote data for {symbol}: {e}")
-            return None
-    
-    def parse_quote_data(self, symbol: str, quote_data: Dict[str, Any]) -> Optional[WatchlistSymbol]:
-        """Parse quote data from Schwab API response"""
-        try:
-            if symbol not in quote_data:
-                logger.warning(f"No data found for symbol {symbol}")
-                return None
-            
-            symbol_data = quote_data[symbol]
-            quote = symbol_data.get('quote', {})
-            fundamental = symbol_data.get('fundamental', {})
-            
-            # Extract price information
-            current_price = quote.get('lastPrice', 0.0)
-            previous_close = quote.get('closePrice', current_price)
-            
-            # Calculate price change
-            price_change = current_price - previous_close
-            price_change_percent = (price_change / previous_close * 100) if previous_close > 0 else 0.0
-            
-            # Extract volume and market cap
-            volume = quote.get('totalVolume', 0)
-            market_cap = fundamental.get('marketCap')
-            
-            return WatchlistSymbol(
-                symbol=symbol,
-                current_price=current_price,
-                price_change=price_change,
-                price_change_percent=price_change_percent,
-                volume=volume,
-                market_cap=market_cap,
-                last_updated=datetime.now().isoformat()
-            )
-            
-        except Exception as e:
-            logger.error(f"Error parsing quote data for {symbol}: {e}")
-            return None
-    
-    async def update_symbol_prices(self, symbols: Optional[List[str]] = None) -> Dict[str, WatchlistSymbol]:
-        """Update prices for specified symbols or all watchlist symbols"""
-        if symbols is None:
-            symbols = self.symbols_to_monitor
-        
-        if not symbols:
-            logger.info("No symbols to update")
-            return {}
-        
-        logger.info(f"Updating prices for {len(symbols)} symbols: {symbols}")
-        updated_data = {}
-        
-        # Process symbols in batches to avoid API rate limits
-        batch_size = 10
-        for i in range(0, len(symbols), batch_size):
-            batch = symbols[i:i + batch_size]
-            
-            # Create tasks for concurrent processing
-            tasks = []
-            for symbol in batch:
-                task = self.fetch_and_update_symbol(symbol)
-                tasks.append(task)
-            
-            # Execute batch concurrently
-            batch_results = await asyncio.gather(*tasks, return_exceptions=True)
-            
-            # Process results
-            for symbol, result in zip(batch, batch_results):
-                if isinstance(result, Exception):
-                    logger.error(f"Error updating {symbol}: {result}")
-                elif result:
-                    updated_data[symbol] = result
-                    self.watchlist_data[symbol] = result
-            
-            # Small delay between batches to respect rate limits
-            if i + batch_size < len(symbols):
-                await asyncio.sleep(0.5)
-        
-        # Save updated data
-        if updated_data:
-            self.save_watchlist()
-            logger.info(f"Successfully updated {len(updated_data)} symbols")
-        
-        return updated_data
-    
-    async def fetch_and_update_symbol(self, symbol: str) -> Optional[WatchlistSymbol]:
-        """Fetch and update data for a single symbol"""
-        try:
-            quote_data = self.fetch_quote_data(symbol)
-            if quote_data:
-                return self.parse_quote_data(symbol, quote_data)
-            return None
-        except Exception as e:
-            logger.error(f"Error fetching and updating {symbol}: {e}")
-            return None
-    
-    async def refresh_all_prices(self) -> Dict[str, Any]:
-        """Refresh prices for all watchlist symbols and return summary"""
-        start_time = datetime.now()
-        
-        updated_data = await self.update_symbol_prices()
-        
-        end_time = datetime.now()
-        duration = (end_time - start_time).total_seconds()
-        
-        summary = {
-            'symbols_updated': len(updated_data),
-            'total_symbols': len(self.symbols_to_monitor),
-            'update_duration': duration,
-            'last_update': end_time.isoformat(),
-            'watchlist_data': self.get_watchlist_data()
-        }
-        
-        logger.info(f"Refreshed {len(updated_data)}/{len(self.symbols_to_monitor)} symbols in {duration:.2f}s")
-        return summary
-    
-    def get_symbols_to_monitor(self) -> List[str]:
-        """Get list of all symbols being monitored (for integration with other systems)"""
-        return self.symbols_to_monitor.copy()
-    
-    def get_market_status(self) -> str:
-        """Get current market status (simplified)"""
-        now = datetime.now()
-        current_hour = now.hour
-        
-        # Simple market hours check (9:30 AM - 4:00 PM ET)
-        # This is a simplified version - in production you'd want more sophisticated logic
-        if 9 <= current_hour < 16:
-            return "Open"
-        elif 16 <= current_hour < 20:
-            return "After Hours"
-        else:
-            return "Closed"
-
-    def insert_watchlist_to_db(self) -> bool:
-        """Insert watchlist data into PostgreSQL database with truncation"""
-        try:
-            # Database connection parameters
-            conn_params = {
-                'host': 'localhost',
-                'database': 'volflow_options',
-                'user': 'isaac',
-                'password': None  # Will use peer authentication
-            }
-            
-            # Connect to database
-            conn = psycopg2.connect(**conn_params)
-            cur = conn.cursor(cursor_factory=RealDictCursor)
-            
-            # Truncate the table first
-            print("🗑️  Truncating integrated_watchlist table...")
-            # Use DELETE instead of TRUNCATE to avoid relation locks in parallel execution
-            cur.execute("DELETE FROM integrated_watchlist;")
-            
-            # Insert watchlist data
-            insert_count = 0
-            for symbol, symbol_obj in self.watchlist_data.items():
-                try:
-                    # Prepare insert statement
-                    insert_sql = """
-                    INSERT INTO integrated_watchlist (
-                        timestamp, symbol, current_price, price_change, price_change_percent,
-                        volume, market_cap, last_updated, high_52_week, low_52_week,
-                        avg_volume, pe_ratio, dividend_yield, market_status, sector, industry
-                    ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-                    )
-                    """
-                    
-                    # Prepare values
-                    values = (
-                        datetime.now().isoformat(),
-                        symbol,
-                        symbol_obj.current_price,
-                        symbol_obj.price_change,
-                        symbol_obj.price_change_percent,
-                        symbol_obj.volume,
-                        symbol_obj.market_cap,
-                        symbol_obj.last_updated,
-                        0.0,  # high_52_week - would need additional data
-                        0.0,  # low_52_week - would need additional data
-                        0,    # avg_volume - would need additional data
-                        0.0,  # pe_ratio - would need additional data
-                        0.0,  # dividend_yield - would need additional data
-                        self.get_market_status(),
-                        'Unknown',  # sector - would need additional data
-                        'Unknown'   # industry - would need additional data
+                    # Create WatchlistSymbol object
+                    watchlist_symbol = WatchlistSymbol(
+                        symbol=symbol,
+                        current_price=current_price,
+                        price_change=price_change,
+                        price_change_percent=price_change_percent,
+                        volume=volume,
+                        market_cap=None,  # Not available in quotes API
+                        last_updated=datetime.now().isoformat()
                     )
                     
-                    cur.execute(insert_sql, values)
-                    insert_count += 1
+                    parsed_symbols[symbol] = watchlist_symbol
+                    logger.info(f"✅ Parsed {symbol}: ${current_price:.2f} ({price_change:+.2f}, {price_change_percent:+.2f}%)")
                     
                 except Exception as e:
-                    print(f"❌ Error inserting {symbol}: {e}")
+                    logger.error(f"❌ Error parsing quote data for {symbol}: {e}")
                     continue
+                    
+        except Exception as e:
+            logger.error(f"❌ Error parsing quotes data: {e}")
             
-            # Commit the transaction
-            conn.commit()
+        return parsed_symbols
+    
+    async def fetch_market_data_for_symbols(self, symbols: List[str]) -> Dict[str, WatchlistSymbol]:
+        """Fetch market data for all symbols using batch quotes API"""
+        if not symbols:
+            logger.info("ℹ️ No symbols to fetch data for")
+            return {}
+        
+        logger.info(f"📊 Fetching market data for {len(symbols)} symbols using batch quotes API")
+        
+        try:
+            # Process symbols in batches to avoid URL length limits
+            batch_size = 50  # Schwab API can handle many symbols at once
+            all_market_data = {}
             
-            # Close connections
-            cur.close()
-            conn.close()
+            for i in range(0, len(symbols), batch_size):
+                batch = symbols[i:i + batch_size]
+                logger.info(f"📊 Processing batch {i//batch_size + 1}: {len(batch)} symbols")
+                
+                # Fetch quotes for this batch
+                quotes_data = self.fetch_quotes_data(batch)
+                
+                if quotes_data:
+                    # Parse the quotes data
+                    batch_market_data = self.parse_quotes_data(quotes_data)
+                    all_market_data.update(batch_market_data)
+                    
+                    logger.info(f"✅ Batch {i//batch_size + 1}: Got data for {len(batch_market_data)} symbols")
+                else:
+                    logger.warning(f"⚠️ Batch {i//batch_size + 1}: No data returned")
+                
+                # Small delay between batches to respect rate limits
+                if i + batch_size < len(symbols):
+                    await asyncio.sleep(0.5)
             
-            print(f"✅ Successfully inserted {insert_count} watchlist symbols into database")
-            return True
+            logger.info(f"✅ Successfully fetched market data for {len(all_market_data)}/{len(symbols)} symbols")
+            return all_market_data
             
         except Exception as e:
-            print(f"❌ Error inserting watchlist to database: {e}")
-            if 'conn' in locals():
-                conn.rollback()
-                conn.close()
-            return False
+            logger.error(f"❌ Error fetching market data for symbols: {e}")
+            return {}
 
-    def create_integrated_watchlist_json(self) -> bool:
-        """Create integrated_watchlist.json file combining api_watchlist.json and current_positions.json"""
+    def create_integrated_watchlist_json(self, market_data: Dict[str, WatchlistSymbol]) -> bool:
+        """Create integrated_watchlist.json file with combined symbols and market data"""
         try:
+            logger.info("🔧 === CREATING INTEGRATED WATCHLIST JSON ===")
+            
             # Reload the latest data from both sources
             api_symbols = self._load_api_watchlist_symbols()
             position_symbols = self._load_position_symbols()
@@ -512,8 +228,9 @@ class SymbolsMonitorHandler:
                 with open('current_positions.json', 'r') as f:
                     positions_data = json.load(f)
                     position_details = positions_data.get('positions', {})
+                logger.info(f"📊 Position details loaded for {len(position_details)} positions")
             except Exception as e:
-                logger.warning(f"Could not load position details: {e}")
+                logger.warning(f"⚠️ Could not load position details: {e}")
             
             # Combine all symbols
             all_symbols = list(set(api_symbols + position_symbols))
@@ -530,12 +247,17 @@ class SymbolsMonitorHandler:
                     'position_symbols': len(position_symbols),
                     'total_integrated_symbols': len(all_symbols),
                     'update_source': 'symbols_monitor_handler',
+                    'market_data_source': 'schwab_quotes_api',
                     'creation_date': datetime.now().isoformat()
                 }
             }
             
             # Add watchlist data for each symbol
+            logger.info(f"🔧 === PROCESSING {len(all_symbols)} SYMBOLS FOR INTEGRATED WATCHLIST ===")
+            
             for symbol in all_symbols:
+                logger.info(f"📊 Processing symbol: {symbol}")
+                
                 symbol_data = {
                     'symbol': symbol,
                     'current_price': 0.0,
@@ -547,16 +269,19 @@ class SymbolsMonitorHandler:
                     'source': []
                 }
                 
-                # Mark source
+                # Mark source and log it
+                sources_found = []
                 if symbol in api_symbols:
                     symbol_data['source'].append('api_watchlist')
+                    sources_found.append('API_WATCHLIST')
                 if symbol in position_symbols:
                     symbol_data['source'].append('current_positions')
+                    sources_found.append('CURRENT_POSITIONS')
                     
                     # Add position details if available
                     for pos_key, pos_data in position_details.items():
                         if pos_data.get('symbol') == symbol:
-                            symbol_data['position_details'] = {
+                            position_info = {
                                 'quantity': pos_data.get('quantity', 0),
                                 'market_value': pos_data.get('market_value', 0),
                                 'cost_basis': pos_data.get('cost_basis', 0),
@@ -566,19 +291,36 @@ class SymbolsMonitorHandler:
                                 'position_type': pos_data.get('position_type', 'LONG'),
                                 'instrument_type': pos_data.get('instrument_type', 'EQUITY')
                             }
+                            symbol_data['position_details'] = position_info
+                            logger.info(f"   💼 Position details: {pos_data.get('quantity', 0)} shares, "
+                                      f"Market Value: ${pos_data.get('market_value', 0):.2f}, "
+                                      f"P&L: ${pos_data.get('unrealized_pl', 0):.2f} "
+                                      f"({pos_data.get('unrealized_pl_percent', 0):.2f}%)")
                             break
                 
-                # Use current watchlist data if available
-                if symbol in self.watchlist_data:
-                    watchlist_symbol = self.watchlist_data[symbol]
+                # Use market data if available
+                market_data_found = False
+                if symbol in market_data:
+                    market_symbol = market_data[symbol]
                     symbol_data.update({
-                        'current_price': watchlist_symbol.current_price,
-                        'price_change': watchlist_symbol.price_change,
-                        'price_change_percent': watchlist_symbol.price_change_percent,
-                        'volume': watchlist_symbol.volume,
-                        'market_cap': watchlist_symbol.market_cap,
-                        'last_updated': watchlist_symbol.last_updated
+                        'current_price': market_symbol.current_price,
+                        'price_change': market_symbol.price_change,
+                        'price_change_percent': market_symbol.price_change_percent,
+                        'volume': market_symbol.volume,
+                        'market_cap': market_symbol.market_cap,
+                        'last_updated': market_symbol.last_updated
                     })
+                    market_data_found = True
+                    logger.info(f"   📈 Market data: ${market_symbol.current_price:.2f} "
+                              f"({market_symbol.price_change:+.2f}, {market_symbol.price_change_percent:+.2f}%), "
+                              f"Volume: {market_symbol.volume:,}")
+                else:
+                    logger.info(f"   ⚠️ No market data available for {symbol}")
+                
+                # Log the complete symbol entry
+                logger.info(f"   ✅ {symbol} added - Sources: {sources_found}, "
+                          f"Market Data: {'YES' if market_data_found else 'NO'}, "
+                          f"Position: {'YES' if 'position_details' in symbol_data else 'NO'}")
                 
                 integrated_data['watchlist_data'][symbol] = symbol_data
             
@@ -595,91 +337,203 @@ class SymbolsMonitorHandler:
             logger.error(f"❌ Error creating integrated watchlist JSON: {e}")
             return False
 
-    async def refresh_and_store_watchlist(self) -> Dict[str, Any]:
-        """Refresh watchlist prices and create integrated JSON"""
+    async def run_full_update(self) -> Dict[str, Any]:
+        """Run the complete update process: load symbols, fetch data, update JSON"""
         try:
-            # Refresh all prices
-            summary = await self.refresh_all_prices()
+            start_time = datetime.now()
+            logger.info("🚀 === STARTING FULL WATCHLIST UPDATE ===")
             
-            # Create integrated watchlist JSON
-            json_created = self.create_integrated_watchlist_json()
-            summary['integrated_json_created'] = json_created
+            # Step 1: Load symbols from both sources
+            symbols = self.load_symbols_from_sources()
+            if not symbols:
+                logger.warning("⚠️ No symbols found to monitor")
+                return {
+                    'success': False,
+                    'error': 'No symbols found',
+                    'symbols_processed': 0,
+                    'duration': 0
+                }
+            
+            # Step 2: Fetch market data for all symbols using batch quotes API
+            market_data = await self.fetch_market_data_for_symbols(symbols)
+            
+            # Step 3: Create integrated watchlist JSON
+            json_created = self.create_integrated_watchlist_json(market_data)
+            
+            end_time = datetime.now()
+            duration = (end_time - start_time).total_seconds()
+            
+            summary = {
+                'success': json_created,
+                'symbols_processed': len(symbols),
+                'market_data_fetched': len(market_data),
+                'duration': duration,
+                'last_update': end_time.isoformat(),
+                'symbols': symbols
+            }
+            
+            logger.info(f"🎉 === FULL UPDATE COMPLETED ===")
+            logger.info(f"✅ Processed {len(symbols)} symbols in {duration:.2f}s")
+            logger.info(f"📊 Market data fetched for {len(market_data)} symbols")
+            logger.info(f"📄 Integrated JSON created: {json_created}")
             
             return summary
             
         except Exception as e:
-            print(f"❌ Error refreshing watchlist: {e}")
+            logger.error(f"❌ Error in full update: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'symbols_processed': 0,
+                'duration': 0
+            }
+
+    def _update_integrated_watchlist_json(self, market_data: Dict[str, WatchlistSymbol] = None, fetch_market_data: bool = False) -> bool:
+        """
+        Internal method to update integrated_watchlist.json file automatically.
+        Called every time get_watchlist_symbols() or get_watchlist_data() is executed.
+        Similar to account_data_handler.py pattern.
+        
+        Args:
+            market_data (Dict[str, WatchlistSymbol], optional): Market data to include
+            fetch_market_data (bool): Whether to fetch market data if none provided
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            # If no market data provided and fetch_market_data is True, fetch it
+            if market_data is None and fetch_market_data:
+                logger.info("🔄 Auto-update: Fetching market data for integrated watchlist")
+                symbols = self.load_symbols_from_sources()
+                if symbols:
+                    try:
+                        # Use synchronous approach for auto-updates
+                        quotes_data = self.fetch_quotes_data(symbols)
+                        if quotes_data:
+                            market_data = self.parse_quotes_data(quotes_data)
+                            logger.info(f"✅ Auto-update: Fetched market data for {len(market_data)} symbols")
+                        else:
+                            market_data = {}
+                            logger.warning("⚠️ Auto-update: No market data returned")
+                    except Exception as e:
+                        logger.warning(f"⚠️ Auto-update: Failed to fetch market data: {e}")
+                        market_data = {}
+                else:
+                    market_data = {}
+            elif market_data is None:
+                market_data = {}
+                logger.debug("Auto-update: Skipping market data fetch for performance")
+            
+            # Create/update the integrated watchlist JSON
+            success = self.create_integrated_watchlist_json(market_data)
+            
+            if success:
+                logger.debug("✅ Auto-updated integrated_watchlist.json")
+            else:
+                logger.warning("⚠️ Failed to auto-update integrated_watchlist.json")
+                
+            return success
+            
+        except Exception as e:
+            logger.error(f"❌ Error auto-updating integrated_watchlist.json: {e}")
+            return False
+
+    # Enhanced methods that auto-update integrated_watchlist.json on every call
+    def get_watchlist_symbols(self) -> List[str]:
+        """
+        Get list of symbols being monitored and automatically update integrated_watchlist.json.
+        Similar to account_data_handler.py pattern - updates JSON file on every call.
+        """
+        try:
+            # Load symbols from both sources
+            api_symbols = self._load_api_watchlist_symbols()
+            position_symbols = self._load_position_symbols()
+            all_symbols = list(set(api_symbols + position_symbols))
+            
+            # Automatically update integrated_watchlist.json every time this method is called
+            try:
+                self._update_integrated_watchlist_json()
+            except Exception as e:
+                logger.warning(f"Warning: Failed to auto-update integrated_watchlist.json: {e}")
+            
+            logger.debug(f"📋 Retrieved {len(all_symbols)} symbols and auto-updated JSON")
+            return all_symbols
+            
+        except Exception as e:
+            logger.warning(f"Could not load symbols: {e}")
+            return []
+    
+    def get_watchlist_data(self, include_market_data: bool = True) -> Dict[str, Any]:
+        """
+        Get watchlist data as dictionary and automatically update integrated_watchlist.json.
+        Similar to account_data_handler.py pattern - updates JSON file on every call.
+        
+        Args:
+            include_market_data (bool): Whether to fetch market data (default: True for realtime_monitor)
+        """
+        try:
+            # First, ensure the JSON is updated with latest data including market data
+            try:
+                self._update_integrated_watchlist_json(fetch_market_data=include_market_data)
+            except Exception as e:
+                logger.warning(f"Warning: Failed to auto-update integrated_watchlist.json: {e}")
+            
+            # Then read and return the data
+            with open('integrated_watchlist.json', 'r') as f:
+                data = json.load(f)
+                watchlist_data = data.get('watchlist_data', {})
+                logger.debug(f"📋 Retrieved watchlist data for {len(watchlist_data)} symbols and auto-updated JSON (market_data={include_market_data})")
+                return watchlist_data
+                
+        except Exception as e:
+            logger.warning(f"Could not load integrated watchlist data: {e}")
             return {}
 
+    # Legacy method names for backward compatibility (also auto-update)
+    def get_symbols(self) -> List[str]:
+        """Legacy method name - calls get_watchlist_symbols()"""
+        return self.get_watchlist_symbols()
+    
+    def get_data(self) -> Dict[str, Any]:
+        """Legacy method name - calls get_watchlist_data()"""
+        return self.get_watchlist_data()
 
-def cli_interface():
-    """Command-line interface for managing watchlist symbols"""
-    import sys
+    # Additional methods for compatibility with realtime_monitor.py
+    def add_symbol(self, symbol: str) -> bool:
+        """Add a symbol to monitoring (for compatibility)"""
+        logger.info(f"📋 Add symbol request: {symbol} (handled by api_watchlist.json)")
+        return True
     
-    handler = SymbolsMonitorHandler()
-    
-    if len(sys.argv) < 2:
-        print("Usage:")
-        print("  python3 symbols_monitor_handler.py add <SYMBOL>     - Add symbol to watchlist")
-        print("  python3 symbols_monitor_handler.py remove <SYMBOL>  - Remove symbol from watchlist")
-        print("  python3 symbols_monitor_handler.py list             - List all symbols")
-        print("  python3 symbols_monitor_handler.py refresh          - Refresh all prices")
-        return
-    
-    command = sys.argv[1].lower()
-    
-    if command == 'add' and len(sys.argv) > 2:
-        symbol = sys.argv[2].upper()
-        success = handler.add_symbol(symbol)
-        print(f"{'✅' if success else '❌'} {'Added' if success else 'Failed to add'} {symbol}")
-    
-    elif command == 'remove' and len(sys.argv) > 2:
-        symbol = sys.argv[2].upper()
-        success = handler.remove_symbol(symbol)
-        print(f"{'✅' if success else '❌'} {'Removed' if success else 'Failed to remove'} {symbol}")
-    
-    elif command == 'list':
-        symbols = handler.get_watchlist_symbols()
-        print(f"📊 Watchlist symbols ({len(symbols)}):")
-        for symbol in symbols:
-            print(f"  - {symbol}")
-    
-    elif command == 'refresh':
-        async def refresh():
-            summary = await handler.refresh_all_prices()
-            print(f"🔄 Refreshed {summary['symbols_updated']}/{summary['total_symbols']} symbols")
-            print(f"⏱️  Duration: {summary['update_duration']:.2f}s")
-        
-        asyncio.run(refresh())
-    
-    else:
-        print("❌ Invalid command or missing arguments")
-        cli_interface()
+    def remove_symbol(self, symbol: str) -> bool:
+        """Remove a symbol from monitoring (for compatibility)"""
+        logger.info(f"📋 Remove symbol request: {symbol} (handled by api_watchlist.json)")
+        return True
 
 
 def main():
-    """Main function - automatically refresh watchlist and store in database"""
-    print("Symbols Monitor Handler - Watchlist Analysis")
-    print("=" * 50)
+    """Main function - run the simplified symbols monitor handler"""
+    print("Simplified Symbols Monitor Handler with Schwab Quotes API")
+    print("=" * 60)
     
     # Initialize handler
     handler = SymbolsMonitorHandler()
     
-    # Get current symbols
-    symbols = handler.get_watchlist_symbols()
-    print(f"Processing {len(symbols)} watchlist symbols: {symbols}")
-    
-    # Run async refresh and store
-    async def run_refresh_and_store():
-        summary = await handler.refresh_and_store_watchlist()
-        print(f"✅ Watchlist analysis completed")
-        print(f"📊 Updated {summary.get('symbols_updated', 0)}/{summary.get('total_symbols', 0)} symbols")
-        print(f"⏱️  Duration: {summary.get('update_duration', 0):.2f}s")
-        return summary
+    # Run the full update process
+    async def run_update():
+        summary = await handler.run_full_update()
+        
+        if summary['success']:
+            print(f"✅ Update completed successfully")
+            print(f"📊 Symbols processed: {summary['symbols_processed']}")
+            print(f"📈 Market data fetched: {summary['market_data_fetched']}")
+            print(f"⏱️  Duration: {summary['duration']:.2f}s")
+            print(f"🎯 Symbols: {summary['symbols']}")
+        else:
+            print(f"❌ Update failed: {summary.get('error', 'Unknown error')}")
     
     # Execute the async function
-    import asyncio
-    asyncio.run(run_refresh_and_store())
+    asyncio.run(run_update())
 
 
 if __name__ == "__main__":

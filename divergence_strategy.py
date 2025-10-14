@@ -88,7 +88,22 @@ class DivergenceConfig:
     
     # Position management
     max_positions_per_symbol: int = 1
-    position_size_pct: float = 0.02  # Position size as % of account (2% for stocks/futures)
+    position_size_pct: float = 0.02  # Position size as % of account (2% for stocks/futures, will be loaded from risk config)
+    
+    def __post_init__(self):
+        """Load position size from risk configuration after initialization"""
+        try:
+            risk_config = load_risk_config()
+            if risk_config:
+                position_sizing = risk_config.get('risk_management', {}).get('position_sizing', {})
+                max_position_size = position_sizing.get('max_position_size', 5)  # Default 5%
+                self.position_size_pct = max_position_size / 100.0  # Convert to decimal
+                print(f"📊 Divergence: Loaded position_size_pct = {self.position_size_pct:.3f} ({max_position_size}%) from risk config")
+            else:
+                print(f"⚠️ Divergence: Using default position_size_pct = {self.position_size_pct:.3f}")
+        except Exception as e:
+            print(f"❌ Divergence: Error loading position size from risk config: {e}")
+            print(f"📊 Divergence: Using default position_size_pct = {self.position_size_pct:.3f}")
 
 @dataclass
 class SwingPoint:

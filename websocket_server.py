@@ -267,6 +267,56 @@ class DatabaseWebSocketStreamer:
                         # Handle strategy configuration request
                         logger.info(f"📨 Received get_strategy_config message from {client_addr}")
                         await self.handle_strategy_config_get(websocket)
+                    
+                    elif client_msg.get('type') == 'add_watchlist_symbol':
+                        # Handle adding symbol to watchlist
+                        logger.info(f"📨 Received add_watchlist_symbol message from {client_addr}")
+                        await self.handle_add_watchlist_symbol(websocket, client_msg)
+                    
+                    elif client_msg.get('type') == 'remove_watchlist_symbol':
+                        # Handle removing symbol from watchlist
+                        logger.info(f"📨 Received remove_watchlist_symbol message from {client_addr}")
+                        await self.handle_remove_watchlist_symbol(websocket, client_msg)
+                    
+                    elif client_msg.get('type') == 'get_watchlist':
+                        # Handle getting current watchlist
+                        logger.info(f"📨 Received get_watchlist message from {client_addr}")
+                        await self.handle_get_watchlist(websocket)
+                    
+                    elif client_msg.get('type') == 'refresh_watchlist_with_cleanup':
+                        # Handle refreshing watchlist with database cleanup
+                        logger.info(f"📨 Received refresh_watchlist_with_cleanup message from {client_addr}")
+                        await self.handle_refresh_watchlist_with_cleanup(websocket)
+                    
+                    elif client_msg.get('type') == 'check_auth_status':
+                        # Handle authentication status check
+                        logger.info(f"📨 Received check_auth_status message from {client_addr}")
+                        await self.handle_check_auth_status(websocket)
+                    
+                    elif client_msg.get('type') == 'exchange_tokens':
+                        # Handle token exchange
+                        logger.info(f"📨 Received exchange_tokens message from {client_addr}")
+                        await self.handle_exchange_tokens(websocket, client_msg)
+                    
+                    elif client_msg.get('type') == 'start_trading':
+                        # Handle starting trading engine
+                        logger.info(f"📨 Received start_trading message from {client_addr}")
+                        await self.handle_start_trading(websocket, client_msg)
+                    
+                    elif client_msg.get('type') == 'stop_trading':
+                        # Handle stopping trading engine
+                        logger.info(f"📨 Received stop_trading message from {client_addr}")
+                        await self.handle_stop_trading(websocket, client_msg)
+                    
+                    elif client_msg.get('type') == 'get_trading_status':
+                        # Handle trading status request
+                        logger.info(f"📨 Received get_trading_status message from {client_addr}")
+                        await self.handle_get_trading_status(websocket)
+                    
+                    elif client_msg.get('type') == 'emergency_stop':
+                        # Handle emergency stop
+                        logger.info(f"📨 Received emergency_stop message from {client_addr}")
+                        await self.handle_emergency_stop(websocket, client_msg)
                 
                 except json.JSONDecodeError:
                     logger.warning(f"⚠️ Invalid JSON from client {client_addr}: {message}")
@@ -573,34 +623,50 @@ class DatabaseWebSocketStreamer:
             }))
     
     async def handle_strategy_config_get(self, websocket):
-        """Handle getting current strategy configuration"""
+        """Handle getting current strategy configuration from centralized auto_approve_config.json"""
         try:
-            strategy_files = {
-                'iron_condor': 'iron_condor_signals.json',
-                'pml': 'pml_signals.json',
-                'divergence': 'divergence_signals.json'
-            }
+            config_file = 'auto_approve_config.json'
             
-            config = {}
-            
-            for strategy_name, filename in strategy_files.items():
-                if os.path.exists(filename):
-                    with open(filename, 'r') as f:
-                        strategy_data = json.load(f)
-                    
-                    # Extract strategy controls from metadata
-                    strategy_controls = strategy_data.get('metadata', {}).get('strategy_controls', {})
-                    
-                    config[strategy_name] = {
-                        'auto_execute': strategy_controls.get('auto_execute', False),
-                        'manual_approval': strategy_controls.get('manual_approval', False)
-                    }
-                else:
-                    # Default configuration if file doesn't exist
-                    config[strategy_name] = {
-                        'auto_execute': True,  # Default to auto execute
+            if os.path.exists(config_file):
+                logger.info(f"📂 Loading strategy config from centralized file: {config_file}")
+                with open(config_file, 'r') as f:
+                    auto_approve_config = json.load(f)
+                
+                # Extract strategy controls from centralized config
+                strategy_controls = auto_approve_config.get('strategy_controls', {})
+                
+                config = {}
+                for strategy_name in ['iron_condor', 'pml', 'divergence']:
+                    if strategy_name in strategy_controls:
+                        config[strategy_name] = {
+                            'auto_execute': strategy_controls[strategy_name].get('auto_execute', False),
+                            'manual_approval': strategy_controls[strategy_name].get('manual_approval', False)
+                        }
+                    else:
+                        # Default configuration if strategy not in centralized config
+                        config[strategy_name] = {
+                            'auto_execute': False,
+                            'manual_approval': False
+                        }
+                
+                logger.info(f"✅ Loaded strategy config from centralized file: {config}")
+            else:
+                logger.warning(f"⚠️ Centralized config file not found: {config_file}, using defaults")
+                # Default configuration if centralized file doesn't exist
+                config = {
+                    'iron_condor': {
+                        'auto_execute': False,
+                        'manual_approval': False
+                    },
+                    'pml': {
+                        'auto_execute': True,
+                        'manual_approval': False
+                    },
+                    'divergence': {
+                        'auto_execute': True,
                         'manual_approval': False
                     }
+                }
             
             # Send config response
             await websocket.send(json.dumps({
@@ -645,6 +711,916 @@ class DatabaseWebSocketStreamer:
         self.clients -= disconnected_clients
         
         logger.info(f"📡 Strategy config update broadcasted to {len(self.clients)} clients")
+
+    async def handle_add_watchlist_symbol(self, websocket, client_msg):
+        """Handle adding a symbol to the watchlist"""
+        try:
+            logger.info(f"🔍 DEBUG: Received add_watchlist_symbol request: {client_msg}")
+            
+            symbol = client_msg.get('symbol', '').strip().upper()
+            logger.info(f"🔍 DEBUG: Extracted symbol: '{symbol}'")
+            
+            if not symbol:
+                logger.warning(f"🔍 DEBUG: Symbol is empty or invalid")
+                await websocket.send(json.dumps({
+                    'type': 'watchlist_error',
+                    'success': False,
+                    'error': 'Symbol is required',
+                    'timestamp': datetime.now().isoformat()
+                }))
+                return
+            
+            logger.info(f"📋 Adding symbol {symbol} to watchlist")
+            
+            # Load current watchlist
+            watchlist_file = 'api_watchlist.json'
+            logger.info(f"🔍 DEBUG: Watchlist file path: {watchlist_file}")
+            logger.info(f"🔍 DEBUG: File exists: {os.path.exists(watchlist_file)}")
+            
+            if os.path.exists(watchlist_file):
+                logger.info(f"🔍 DEBUG: Loading existing watchlist file")
+                with open(watchlist_file, 'r') as f:
+                    watchlist_data = json.load(f)
+                logger.info(f"🔍 DEBUG: Loaded watchlist data: {watchlist_data}")
+            else:
+                logger.info(f"🔍 DEBUG: Creating new watchlist data structure")
+                watchlist_data = {
+                    "watchlist": {
+                        "symbols": [],
+                        "metadata": {
+                            "created": datetime.now().isoformat(),
+                            "last_updated": datetime.now().isoformat(),
+                            "total_symbols": 0,
+                            "managed_by": "websocket_server"
+                        }
+                    }
+                }
+                logger.info(f"🔍 DEBUG: Created new watchlist data: {watchlist_data}")
+            
+            # Check if symbol already exists
+            current_symbols = watchlist_data.get('watchlist', {}).get('symbols', [])
+            logger.info(f"🔍 DEBUG: Current symbols in watchlist: {current_symbols}")
+            
+            if symbol in current_symbols:
+                logger.warning(f"🔍 DEBUG: Symbol {symbol} already exists in watchlist")
+                await websocket.send(json.dumps({
+                    'type': 'watchlist_error',
+                    'success': False,
+                    'error': f'{symbol} is already in the watchlist',
+                    'timestamp': datetime.now().isoformat()
+                }))
+                return
+            
+            # Add symbol to watchlist
+            logger.info(f"🔍 DEBUG: Adding {symbol} to symbols list")
+            current_symbols.append(symbol)
+            logger.info(f"🔍 DEBUG: Updated symbols list: {current_symbols}")
+            
+            # Update metadata
+            watchlist_data['watchlist']['symbols'] = current_symbols
+            watchlist_data['watchlist']['metadata']['last_updated'] = datetime.now().isoformat()
+            watchlist_data['watchlist']['metadata']['total_symbols'] = len(current_symbols)
+            watchlist_data['watchlist']['metadata']['managed_by'] = 'websocket_server'
+            
+            logger.info(f"🔍 DEBUG: Updated watchlist data structure: {watchlist_data}")
+            
+            # Save updated watchlist
+            logger.info(f"🔍 DEBUG: Attempting to save watchlist to {watchlist_file}")
+            try:
+                with open(watchlist_file, 'w') as f:
+                    json.dump(watchlist_data, f, indent=2)
+                logger.info(f"🔍 DEBUG: Successfully wrote watchlist file")
+                
+                # Verify the file was written correctly
+                with open(watchlist_file, 'r') as f:
+                    verification_data = json.load(f)
+                logger.info(f"🔍 DEBUG: Verification read of saved file: {verification_data}")
+                
+            except Exception as file_error:
+                logger.error(f"🔍 DEBUG: Error writing watchlist file: {file_error}")
+                raise file_error
+            
+            logger.info(f"✅ Successfully added {symbol} to watchlist. Total symbols: {len(current_symbols)}")
+            
+            # Send success response
+            response_data = {
+                'type': 'watchlist_symbol_added',
+                'success': True,
+                'symbol': symbol,
+                'message': f'Successfully added {symbol} to watchlist',
+                'total_symbols': len(current_symbols),
+                'watchlist': watchlist_data['watchlist'],
+                'timestamp': datetime.now().isoformat()
+            }
+            logger.info(f"🔍 DEBUG: Sending success response: {response_data}")
+            
+            await websocket.send(json.dumps(response_data))
+            
+            # Broadcast watchlist update to all clients
+            logger.info(f"🔍 DEBUG: Broadcasting watchlist update to all clients")
+            await self.broadcast_watchlist_update(watchlist_data['watchlist'])
+            
+        except Exception as e:
+            logger.error(f"❌ Error adding symbol to watchlist: {e}")
+            logger.error(f"🔍 DEBUG: Exception details: {type(e).__name__}: {str(e)}")
+            import traceback
+            logger.error(f"🔍 DEBUG: Full traceback: {traceback.format_exc()}")
+            
+            await websocket.send(json.dumps({
+                'type': 'watchlist_error',
+                'success': False,
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            }))
+    
+    async def handle_remove_watchlist_symbol(self, websocket, client_msg):
+        """Handle removing a symbol from the watchlist"""
+        try:
+            logger.info(f"🔍 DEBUG: Received remove_watchlist_symbol request: {client_msg}")
+            
+            symbol = client_msg.get('symbol', '').strip().upper()
+            logger.info(f"🔍 DEBUG: Extracted symbol: '{symbol}'")
+            
+            if not symbol:
+                logger.warning(f"🔍 DEBUG: Symbol is empty or invalid")
+                await websocket.send(json.dumps({
+                    'type': 'watchlist_error',
+                    'success': False,
+                    'error': 'Symbol is required',
+                    'timestamp': datetime.now().isoformat()
+                }))
+                return
+            
+            logger.info(f"📋 Removing symbol {symbol} from watchlist")
+            
+            # Load current watchlist
+            watchlist_file = 'api_watchlist.json'
+            logger.info(f"🔍 DEBUG: Watchlist file path: {watchlist_file}")
+            logger.info(f"🔍 DEBUG: File exists: {os.path.exists(watchlist_file)}")
+            
+            if not os.path.exists(watchlist_file):
+                logger.error(f"🔍 DEBUG: Watchlist file does not exist")
+                await websocket.send(json.dumps({
+                    'type': 'watchlist_error',
+                    'success': False,
+                    'error': 'Watchlist file not found',
+                    'timestamp': datetime.now().isoformat()
+                }))
+                return
+            
+            logger.info(f"🔍 DEBUG: Loading existing watchlist file")
+            with open(watchlist_file, 'r') as f:
+                watchlist_data = json.load(f)
+            logger.info(f"🔍 DEBUG: Loaded watchlist data: {watchlist_data}")
+            
+            # Check if symbol exists
+            current_symbols = watchlist_data.get('watchlist', {}).get('symbols', [])
+            logger.info(f"🔍 DEBUG: Current symbols in watchlist: {current_symbols}")
+            
+            if symbol not in current_symbols:
+                logger.warning(f"🔍 DEBUG: Symbol {symbol} not found in watchlist")
+                await websocket.send(json.dumps({
+                    'type': 'watchlist_error',
+                    'success': False,
+                    'error': f'{symbol} is not in the watchlist',
+                    'timestamp': datetime.now().isoformat()
+                }))
+                return
+            
+            # Remove symbol from watchlist
+            logger.info(f"🔍 DEBUG: Removing {symbol} from symbols list")
+            current_symbols.remove(symbol)
+            logger.info(f"🔍 DEBUG: Updated symbols list: {current_symbols}")
+            
+            # Update metadata
+            watchlist_data['watchlist']['symbols'] = current_symbols
+            watchlist_data['watchlist']['metadata']['last_updated'] = datetime.now().isoformat()
+            watchlist_data['watchlist']['metadata']['total_symbols'] = len(current_symbols)
+            watchlist_data['watchlist']['metadata']['managed_by'] = 'websocket_server'
+            
+            logger.info(f"🔍 DEBUG: Updated watchlist data structure: {watchlist_data}")
+            
+            # Save updated watchlist
+            logger.info(f"🔍 DEBUG: Attempting to save watchlist to {watchlist_file}")
+            try:
+                with open(watchlist_file, 'w') as f:
+                    json.dump(watchlist_data, f, indent=2)
+                logger.info(f"🔍 DEBUG: Successfully wrote watchlist file")
+                
+                # Verify the file was written correctly
+                with open(watchlist_file, 'r') as f:
+                    verification_data = json.load(f)
+                logger.info(f"🔍 DEBUG: Verification read of saved file: {verification_data}")
+                
+            except Exception as file_error:
+                logger.error(f"🔍 DEBUG: Error writing watchlist file: {file_error}")
+                raise file_error
+            
+            logger.info(f"✅ Successfully removed {symbol} from watchlist. Total symbols: {len(current_symbols)}")
+            
+            # Truncate integrated watchlist database table and restart real-time monitor
+            logger.info(f"🗄️ Truncating integrated watchlist database table for fresh data set...")
+            await self.truncate_watchlist_database_and_restart_monitor()
+            
+            # Send success response
+            response_data = {
+                'type': 'watchlist_symbol_removed',
+                'success': True,
+                'symbol': symbol,
+                'message': f'Successfully removed {symbol} from watchlist',
+                'total_symbols': len(current_symbols),
+                'watchlist': watchlist_data['watchlist'],
+                'database_refreshed': True,
+                'timestamp': datetime.now().isoformat()
+            }
+            logger.info(f"🔍 DEBUG: Sending success response: {response_data}")
+            
+            await websocket.send(json.dumps(response_data))
+            
+            # Broadcast watchlist update to all clients
+            logger.info(f"🔍 DEBUG: Broadcasting watchlist update to all clients")
+            await self.broadcast_watchlist_update(watchlist_data['watchlist'])
+            
+        except Exception as e:
+            logger.error(f"❌ Error removing symbol from watchlist: {e}")
+            logger.error(f"🔍 DEBUG: Exception details: {type(e).__name__}: {str(e)}")
+            import traceback
+            logger.error(f"🔍 DEBUG: Full traceback: {traceback.format_exc()}")
+            
+            await websocket.send(json.dumps({
+                'type': 'watchlist_error',
+                'success': False,
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            }))
+    
+    async def handle_get_watchlist(self, websocket):
+        """Handle getting current watchlist"""
+        try:
+            watchlist_file = 'api_watchlist.json'
+            
+            if os.path.exists(watchlist_file):
+                with open(watchlist_file, 'r') as f:
+                    watchlist_data = json.load(f)
+            else:
+                watchlist_data = {
+                    "watchlist": {
+                        "symbols": [],
+                        "metadata": {
+                            "created": datetime.now().isoformat(),
+                            "last_updated": datetime.now().isoformat(),
+                            "total_symbols": 0,
+                            "managed_by": "websocket_server"
+                        }
+                    }
+                }
+            
+            # Send watchlist response
+            await websocket.send(json.dumps({
+                'type': 'watchlist_data',
+                'success': True,
+                'watchlist': watchlist_data['watchlist'],
+                'timestamp': datetime.now().isoformat()
+            }))
+            
+        except Exception as e:
+            logger.error(f"❌ Error getting watchlist: {e}")
+            await websocket.send(json.dumps({
+                'type': 'watchlist_error',
+                'success': False,
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            }))
+    
+    async def handle_refresh_watchlist_with_cleanup(self, websocket):
+        """Handle refreshing watchlist with database cleanup and monitor restart"""
+        try:
+            logger.info("🔄 Processing refresh watchlist with cleanup request...")
+            
+            # Step 1: Truncate integrated watchlist database table and restart real-time monitor
+            logger.info("🗄️ Performing database cleanup and monitor restart...")
+            await self.truncate_watchlist_database_and_restart_monitor()
+            
+            # Step 2: Get current watchlist data
+            watchlist_file = 'api_watchlist.json'
+            
+            if os.path.exists(watchlist_file):
+                with open(watchlist_file, 'r') as f:
+                    watchlist_data = json.load(f)
+            else:
+                watchlist_data = {
+                    "watchlist": {
+                        "symbols": [],
+                        "metadata": {
+                            "created": datetime.now().isoformat(),
+                            "last_updated": datetime.now().isoformat(),
+                            "total_symbols": 0,
+                            "managed_by": "websocket_server"
+                        }
+                    }
+                }
+            
+            logger.info(f"✅ Watchlist refresh with cleanup completed. Total symbols: {len(watchlist_data.get('watchlist', {}).get('symbols', []))}")
+            
+            # Send success response with refresh confirmation
+            await websocket.send(json.dumps({
+                'type': 'watchlist_refreshed_with_cleanup',
+                'success': True,
+                'message': 'Watchlist refreshed with database cleanup completed',
+                'watchlist': watchlist_data['watchlist'],
+                'database_refreshed': True,
+                'monitor_restarted': True,
+                'timestamp': datetime.now().isoformat()
+            }))
+            
+            # Broadcast watchlist update to all clients
+            logger.info("📡 Broadcasting refreshed watchlist to all clients")
+            await self.broadcast_watchlist_update(watchlist_data['watchlist'])
+            
+        except Exception as e:
+            logger.error(f"❌ Error refreshing watchlist with cleanup: {e}")
+            logger.error(f"🔍 DEBUG: Exception details: {type(e).__name__}: {str(e)}")
+            import traceback
+            logger.error(f"🔍 DEBUG: Full traceback: {traceback.format_exc()}")
+            
+            await websocket.send(json.dumps({
+                'type': 'watchlist_error',
+                'success': False,
+                'error': f'Failed to refresh watchlist with cleanup: {str(e)}',
+                'timestamp': datetime.now().isoformat()
+            }))
+    
+    async def broadcast_watchlist_update(self, watchlist):
+        """Broadcast watchlist update to all clients"""
+        if not self.clients:
+            return
+        
+        message = json.dumps({
+            'type': 'watchlist_updated',
+            'watchlist': watchlist,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        disconnected_clients = set()
+        
+        for client in self.clients.copy():
+            try:
+                await client.send(message)
+            except websockets.exceptions.ConnectionClosed:
+                disconnected_clients.add(client)
+            except Exception as e:
+                logger.error(f"❌ Error broadcasting watchlist update: {e}")
+                disconnected_clients.add(client)
+        
+        # Remove disconnected clients
+        self.clients -= disconnected_clients
+        
+        logger.info(f"📡 Watchlist update broadcasted to {len(self.clients)} clients")
+
+    async def truncate_watchlist_database_and_restart_monitor(self):
+        """Truncate integrated watchlist database table and restart real-time monitor for fresh data"""
+        try:
+            logger.info("🗄️ Starting database cleanup and monitor restart process...")
+            
+            # Step 1: Truncate integrated watchlist database table
+            logger.info("🗄️ Truncating integrated_watchlist table...")
+            try:
+                # Use the database query handler to execute truncate
+                truncate_result = self.db_query_handler.execute_query(
+                    "TRUNCATE TABLE integrated_watchlist RESTART IDENTITY CASCADE;",
+                    fetch_results=False
+                )
+                
+                if truncate_result.get('success', False):
+                    logger.info("✅ Successfully truncated integrated_watchlist table")
+                else:
+                    logger.warning(f"⚠️ Truncate may have failed: {truncate_result}")
+                    
+            except Exception as db_error:
+                logger.error(f"❌ Error truncating database table: {db_error}")
+                # Continue with restart even if truncate fails
+            
+            # Step 2: Restart real-time monitor process
+            logger.info("🔄 Restarting real-time monitor process...")
+            try:
+                import subprocess
+                import signal
+                import psutil
+                
+                # Find and terminate existing realtime_monitor.py processes
+                logger.info("🔍 Looking for existing realtime_monitor.py processes...")
+                terminated_processes = []
+                
+                for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+                    try:
+                        cmdline = proc.info['cmdline']
+                        if cmdline and any('realtime_monitor.py' in arg for arg in cmdline):
+                            logger.info(f"🛑 Terminating existing realtime_monitor process: PID {proc.info['pid']}")
+                            proc.terminate()
+                            terminated_processes.append(proc.info['pid'])
+                    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                        continue
+                
+                # Wait for processes to terminate gracefully
+                if terminated_processes:
+                    logger.info(f"⏳ Waiting for {len(terminated_processes)} processes to terminate...")
+                    import time
+                    time.sleep(2)  # Give processes time to shut down gracefully
+                
+                # Start new realtime_monitor.py process
+                logger.info("🚀 Starting new realtime_monitor.py process...")
+                monitor_process = subprocess.Popen([
+                    'python3', 'realtime_monitor.py'
+                ], 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE,
+                cwd=os.getcwd()
+                )
+                
+                logger.info(f"✅ Started new realtime_monitor.py process with PID: {monitor_process.pid}")
+                
+                # Give the new process a moment to initialize
+                import time
+                time.sleep(1)
+                
+                # Check if the process is still running
+                if monitor_process.poll() is None:
+                    logger.info("✅ Real-time monitor process is running successfully")
+                else:
+                    logger.error("❌ Real-time monitor process failed to start")
+                    
+            except ImportError as import_error:
+                logger.error(f"❌ Missing required module for process management: {import_error}")
+                logger.info("💡 Install psutil: pip install psutil")
+            except Exception as restart_error:
+                logger.error(f"❌ Error restarting real-time monitor: {restart_error}")
+            
+            logger.info("🔄 Database cleanup and monitor restart process completed")
+            
+        except Exception as e:
+            logger.error(f"❌ Error in truncate_watchlist_database_and_restart_monitor: {e}")
+            import traceback
+            logger.error(f"🔍 Full traceback: {traceback.format_exc()}")
+
+    async def handle_check_auth_status(self, websocket):
+        """Handle authentication status check using connection_manager"""
+        try:
+            logger.info("🔐 Checking authentication status via connection_manager...")
+            
+            # Import connection_manager to access tokens
+            import connection_manager
+            
+            # Load tokens directly from AWS Secrets Manager
+            tokens = connection_manager.load_tokens()
+            
+            if not tokens:
+                await websocket.send(json.dumps({
+                    'type': 'auth_status_response',
+                    'authenticated': False,
+                    'error': 'No tokens found in AWS Secrets Manager',
+                    'expires_at': None,
+                    'account_info': None,
+                    'last_check': datetime.now().isoformat(),
+                    'timestamp': datetime.now().isoformat()
+                }))
+                return
+            
+            # Check if tokens are valid and not expired
+            expires_at = tokens.get('expires_at')
+            if expires_at:
+                try:
+                    expires_datetime = datetime.fromisoformat(expires_at)
+                    current_time = datetime.now()
+                    
+                    if current_time >= expires_datetime:
+                        await websocket.send(json.dumps({
+                            'type': 'auth_status_response',
+                            'authenticated': False,
+                            'error': 'Tokens expired',
+                            'expires_at': expires_at,
+                            'account_info': None,
+                            'last_check': current_time.isoformat(),
+                            'timestamp': datetime.now().isoformat()
+                        }))
+                        return
+                    
+                    # Tokens are valid - return full status
+                    await websocket.send(json.dumps({
+                        'type': 'auth_status_response',
+                        'authenticated': True,
+                        'expires_at': expires_at,
+                        'account_info': {
+                            'account_number': 'Connected',
+                            'status': 'Active',
+                            'token_type': tokens.get('token_type', 'Bearer')
+                        },
+                        'last_check': current_time.isoformat(),
+                        'time_until_expiry': str(expires_datetime - current_time),
+                        'refresh_token_available': bool(tokens.get('refresh_token')),
+                        'timestamp': datetime.now().isoformat()
+                    }))
+                    
+                    logger.info("✅ Authentication status: Valid tokens found")
+                    return
+                    
+                except ValueError:
+                    await websocket.send(json.dumps({
+                        'type': 'auth_status_response',
+                        'authenticated': False,
+                        'error': 'Invalid token expiration format',
+                        'expires_at': None,
+                        'account_info': None,
+                        'last_check': datetime.now().isoformat(),
+                        'timestamp': datetime.now().isoformat()
+                    }))
+                    return
+            else:
+                await websocket.send(json.dumps({
+                    'type': 'auth_status_response',
+                    'authenticated': False,
+                    'error': 'No expiration time in tokens',
+                    'expires_at': None,
+                    'account_info': None,
+                    'last_check': datetime.now().isoformat(),
+                    'timestamp': datetime.now().isoformat()
+                }))
+                return
+                
+        except Exception as e:
+            logger.error(f"❌ Error checking auth status: {e}")
+            await websocket.send(json.dumps({
+                'type': 'auth_status_response',
+                'authenticated': False,
+                'error': f'Error checking auth status: {str(e)}',
+                'expires_at': None,
+                'account_info': None,
+                'last_check': datetime.now().isoformat(),
+                'timestamp': datetime.now().isoformat()
+            }))
+
+    async def handle_exchange_tokens(self, websocket, client_msg):
+        """Handle token exchange using connection_manager"""
+        try:
+            logger.info("🔐 Processing token exchange request...")
+            
+            auth_code = client_msg.get('code', '').strip()
+            
+            if not auth_code:
+                await websocket.send(json.dumps({
+                    'type': 'token_exchange_response',
+                    'success': False,
+                    'error': 'No authorization code provided',
+                    'timestamp': datetime.now().isoformat()
+                }))
+                return
+            
+            logger.info(f"🔄 Processing authorization code: {auth_code[:20]}...")
+            
+            # Import connection_manager to exchange tokens
+            import connection_manager
+            
+            # Use connection_manager directly to exchange tokens
+            tokens = connection_manager.get_tokens(auth_code)
+            
+            if tokens:
+                logger.info("✅ Tokens exchanged and saved successfully via WebSocket")
+                await websocket.send(json.dumps({
+                    'type': 'token_exchange_response',
+                    'success': True,
+                    'message': 'Authentication completed successfully',
+                    'expires_at': tokens.get('expires_at'),
+                    'timestamp': datetime.now().isoformat()
+                }))
+                
+                # Broadcast auth status update to all clients
+                await self.broadcast_auth_status_update(True)
+                
+            else:
+                logger.error("❌ Token exchange failed via WebSocket")
+                await websocket.send(json.dumps({
+                    'type': 'token_exchange_response',
+                    'success': False,
+                    'error': 'Failed to exchange code for tokens',
+                    'timestamp': datetime.now().isoformat()
+                }))
+                
+        except Exception as e:
+            error_msg = f'Error processing token exchange: {str(e)}'
+            logger.error(f"❌ {error_msg}")
+            await websocket.send(json.dumps({
+                'type': 'token_exchange_response',
+                'success': False,
+                'error': error_msg,
+                'timestamp': datetime.now().isoformat()
+            }))
+
+    async def broadcast_auth_status_update(self, authenticated):
+        """Broadcast authentication status update to all clients"""
+        if not self.clients:
+            return
+        
+        message = json.dumps({
+            'type': 'auth_status_updated',
+            'authenticated': authenticated,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        disconnected_clients = set()
+        
+        for client in self.clients.copy():
+            try:
+                await client.send(message)
+            except websockets.exceptions.ConnectionClosed:
+                disconnected_clients.add(client)
+            except Exception as e:
+                logger.error(f"❌ Error broadcasting auth status update: {e}")
+                disconnected_clients.add(client)
+        
+        # Remove disconnected clients
+        self.clients -= disconnected_clients
+        
+        logger.info(f"📡 Auth status update broadcasted to {len(self.clients)} clients")
+
+    async def handle_start_trading(self, websocket, client_msg):
+        """Handle starting the trading engine"""
+        try:
+            logger.info("🚀 Starting trading engine via WebSocket...")
+            
+            # Import and start trading engine
+            import subprocess
+            import psutil
+            
+            # Check if trading engine is already running
+            trading_engine_running = False
+            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+                try:
+                    cmdline = proc.info['cmdline']
+                    if cmdline and any('trading_engine.py' in arg for arg in cmdline):
+                        trading_engine_running = True
+                        logger.info(f"Trading engine already running: PID {proc.info['pid']}")
+                        break
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    continue
+            
+            if not trading_engine_running:
+                # Start new trading engine process
+                logger.info("🚀 Starting new trading_engine.py process...")
+                trading_process = subprocess.Popen([
+                    'python3', 'trading_engine.py'
+                ], 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.PIPE,
+                cwd=os.getcwd()
+                )
+                
+                logger.info(f"✅ Started trading engine process with PID: {trading_process.pid}")
+                
+                # Give the process a moment to initialize
+                import time
+                time.sleep(2)
+                
+                # Check if the process is still running
+                if trading_process.poll() is None:
+                    logger.info("✅ Trading engine is running successfully")
+                    success = True
+                    message = "Trading engine started successfully"
+                else:
+                    logger.error("❌ Trading engine failed to start")
+                    success = False
+                    message = "Trading engine failed to start"
+            else:
+                success = True
+                message = "Trading engine is already running"
+            
+            # Send response
+            await websocket.send(json.dumps({
+                'type': 'trading_start_response',
+                'success': success,
+                'message': message,
+                'timestamp': datetime.now().isoformat()
+            }))
+            
+            # Broadcast trading status update to all clients
+            if success:
+                await self.broadcast_trading_status_update('running')
+            
+        except Exception as e:
+            error_msg = f'Error starting trading engine: {str(e)}'
+            logger.error(f"❌ {error_msg}")
+            await websocket.send(json.dumps({
+                'type': 'trading_start_response',
+                'success': False,
+                'error': error_msg,
+                'timestamp': datetime.now().isoformat()
+            }))
+
+    async def handle_stop_trading(self, websocket, client_msg):
+        """Handle stopping the trading engine"""
+        try:
+            logger.info("🛑 Stopping trading engine via WebSocket...")
+            
+            import psutil
+            import signal
+            
+            # Find and terminate trading engine processes
+            terminated_processes = []
+            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+                try:
+                    cmdline = proc.info['cmdline']
+                    if cmdline and any('trading_engine.py' in arg for arg in cmdline):
+                        logger.info(f"🛑 Terminating trading engine process: PID {proc.info['pid']}")
+                        proc.terminate()
+                        terminated_processes.append(proc.info['pid'])
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    continue
+            
+            if terminated_processes:
+                # Wait for processes to terminate gracefully
+                logger.info(f"⏳ Waiting for {len(terminated_processes)} processes to terminate...")
+                import time
+                time.sleep(2)
+                
+                success = True
+                message = f"Trading engine stopped successfully ({len(terminated_processes)} processes terminated)"
+            else:
+                success = True
+                message = "Trading engine was not running"
+            
+            # Send response
+            await websocket.send(json.dumps({
+                'type': 'trading_stop_response',
+                'success': success,
+                'message': message,
+                'timestamp': datetime.now().isoformat()
+            }))
+            
+            # Broadcast trading status update to all clients
+            await self.broadcast_trading_status_update('stopped')
+            
+        except Exception as e:
+            error_msg = f'Error stopping trading engine: {str(e)}'
+            logger.error(f"❌ {error_msg}")
+            await websocket.send(json.dumps({
+                'type': 'trading_stop_response',
+                'success': False,
+                'error': error_msg,
+                'timestamp': datetime.now().isoformat()
+            }))
+
+    async def handle_get_trading_status(self, websocket):
+        """Handle getting trading engine status"""
+        try:
+            logger.info("🔍 Checking trading engine status via WebSocket...")
+            
+            import psutil
+            
+            # Check if trading engine is running
+            trading_engine_running = False
+            active_processes = []
+            
+            for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'create_time']):
+                try:
+                    cmdline = proc.info['cmdline']
+                    if cmdline and any('trading_engine.py' in arg for arg in cmdline):
+                        trading_engine_running = True
+                        active_processes.append({
+                            'pid': proc.info['pid'],
+                            'create_time': datetime.fromtimestamp(proc.info['create_time']).isoformat()
+                        })
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    continue
+            
+            # Check for processed_signals.json
+            processed_signals_exists = os.path.exists('processed_signals.json')
+            processed_signals_count = 0
+            
+            if processed_signals_exists:
+                try:
+                    with open('processed_signals.json', 'r') as f:
+                        processed_signals = json.load(f)
+                        processed_signals_count = len(processed_signals)
+                except Exception:
+                    pass
+            
+            # Check for active orders
+            active_orders_count = 0
+            if os.path.exists('orders/active_orders.json'):
+                try:
+                    with open('orders/active_orders.json', 'r') as f:
+                        active_orders = json.load(f)
+                        active_orders_count = len(active_orders)
+                except Exception:
+                    pass
+            
+            # Determine status
+            if trading_engine_running:
+                status = 'running'
+                status_message = f'Trading engine is running ({len(active_processes)} processes)'
+            else:
+                status = 'stopped'
+                status_message = 'Trading engine is not running'
+            
+            # Send response
+            await websocket.send(json.dumps({
+                'type': 'trading_status_response',
+                'success': True,
+                'running': trading_engine_running,
+                'status': status,
+                'message': status_message,
+                'active_processes': active_processes,
+                'processed_signals_count': processed_signals_count,
+                'active_orders_count': active_orders_count,
+                'processed_signals_file_exists': processed_signals_exists,
+                'timestamp': datetime.now().isoformat()
+            }))
+            
+        except Exception as e:
+            error_msg = f'Error getting trading status: {str(e)}'
+            logger.error(f"❌ {error_msg}")
+            await websocket.send(json.dumps({
+                'type': 'trading_status_response',
+                'success': False,
+                'error': error_msg,
+                'timestamp': datetime.now().isoformat()
+            }))
+
+    async def handle_emergency_stop(self, websocket, client_msg):
+        """Handle emergency stop of trading engine"""
+        try:
+            logger.info("🚨 EMERGENCY STOP triggered via WebSocket...")
+            
+            import psutil
+            import signal
+            
+            # Find and forcefully kill all trading-related processes
+            terminated_processes = []
+            process_types = ['trading_engine.py', 'iron_condor_strategy.py', 'pml_strategy.py', 'divergence_strategy.py']
+            
+            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+                try:
+                    cmdline = proc.info['cmdline']
+                    if cmdline and any(process_type in ' '.join(cmdline) for process_type in process_types):
+                        logger.info(f"🚨 EMERGENCY STOP: Killing process PID {proc.info['pid']}")
+                        proc.kill()  # Use kill() instead of terminate() for emergency stop
+                        terminated_processes.append(proc.info['pid'])
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    continue
+            
+            # Wait briefly for processes to die
+            import time
+            time.sleep(1)
+            
+            success = True
+            message = f"EMERGENCY STOP executed - {len(terminated_processes)} processes terminated"
+            
+            # Send response
+            await websocket.send(json.dumps({
+                'type': 'emergency_stop_response',
+                'success': success,
+                'message': message,
+                'terminated_processes': terminated_processes,
+                'timestamp': datetime.now().isoformat()
+            }))
+            
+            # Broadcast emergency stop to all clients
+            await self.broadcast_trading_status_update('emergency_stopped')
+            
+        except Exception as e:
+            error_msg = f'Error executing emergency stop: {str(e)}'
+            logger.error(f"❌ {error_msg}")
+            await websocket.send(json.dumps({
+                'type': 'emergency_stop_response',
+                'success': False,
+                'error': error_msg,
+                'timestamp': datetime.now().isoformat()
+            }))
+
+    async def broadcast_trading_status_update(self, status):
+        """Broadcast trading status update to all clients"""
+        if not self.clients:
+            return
+        
+        message = json.dumps({
+            'type': 'trading_status_updated',
+            'status': status,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        disconnected_clients = set()
+        
+        for client in self.clients.copy():
+            try:
+                await client.send(message)
+            except websockets.exceptions.ConnectionClosed:
+                disconnected_clients.add(client)
+            except Exception as e:
+                logger.error(f"❌ Error broadcasting trading status update: {e}")
+                disconnected_clients.add(client)
+        
+        # Remove disconnected clients
+        self.clients -= disconnected_clients
+        
+        logger.info(f"📡 Trading status update ({status}) broadcasted to {len(self.clients)} clients")
 
     def stop(self):
         """Stop the server and cleanup"""

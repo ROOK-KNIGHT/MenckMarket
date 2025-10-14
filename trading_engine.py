@@ -111,12 +111,17 @@ class TradingEngine:
         self.executed_trades: List[TradeOrder] = []
         self.last_signal_check = {}
         
+        # Signal state persistence - prevents re-trading signals across engine restarts
+        self.processed_signals_file = 'processed_signals.json'
+        self.processed_signals = self._load_processed_signals()
+        
         # Configuration
         self.config = self.load_trading_config()
         
         self.logger.info("Trading Engine initialized")
         self.logger.info(f"Monitor interval: {self.config.get('monitor_interval', 10)} seconds")
         self.logger.info(f"Max positions per strategy: {self.config.get('max_positions_per_strategy', 3)}")
+        self.logger.info(f"Loaded {len(self.processed_signals)} previously processed signals")
 
     def load_trading_config(self) -> Dict[str, Any]:
         """Load trading engine configuration from risk_config_live.json"""
@@ -205,6 +210,104 @@ class TradingEngine:
             self.logger.error(f"Error loading risk config: {e}")
             return {"monitor_interval": 10, "enable_auto_trading": False}
 
+    def _load_processed_signals(self) -> Dict[str, Dict[str, Any]]:
+        """Load previously processed signals from persistent storage"""
+        try:
+            if os.path.exists(self.processed_signals_file):
+                with open(self.processed_signals_file, 'r') as f:
+                    data = json.load(f)
+                    
+                # Clean up old signals (older than 7 days to prevent file from growing too large)
+                cutoff_time = datetime.now() - timedelta(days=7)
+                cleaned_signals = {}
+                
+                for signal_key, signal_info in data.items():
+                    try:
+                        processed_time = datetime.fromisoformat(signal_info.get('processed_at', ''))
+                        if processed_time > cutoff_time:
+                            cleaned_signals[signal_key] = signal_info
+                    except Exception:
+                        # Skip invalid entries
+                        continue
+                
+                # Save cleaned data back if we removed old entries
+                if len(cleaned_signals) < len(data):
+                    self._save_processed_signals(cleaned_signals)
+                    self.logger.info(f"Cleaned up {len(data) - len(cleaned_signals)} old processed signals")
+                
+                return cleaned_signals
+            else:
+                self.logger.info("No processed signals file found - starting fresh")
+                return {}
+                
+        except Exception as e:
+            self.logger.error(f"Error loading processed signals: {e}")
+            return {}
+
+    def _save_processed_signals(self, signals_dict: Dict[str, Dict[str, Any]] = None):
+        """Save processed signals to persistent storage"""
+        try:
+            if signals_dict is None:
+                signals_dict = self.processed_signals
+                
+            with open(self.processed_signals_file, 'w') as f:
+                json.dump(signals_dict, f, indent=2)
+                
+        except Exception as e:
+            self.logger.error(f"Error saving processed signals: {e}")
+
+    def _mark_signal_as_processed(self, strategy: str, symbol: str, signal_timestamp: str, signal_data: Dict[str, Any]):
+        """Mark a signal as processed to prevent re-trading across engine restarts"""
+        try:
+            signal_serial_key = f"{strategy}_{symbol}_{signal_timestamp}"
+            
+            signal_info = {
+                'strategy': strategy,
+                'symbol': symbol,
+                'signal_timestamp': signal_timestamp,
+                'signal_type': signal_data.get('signal_type', ''),
+                'confidence': signal_data.get('confidence', 0.0),
+                'processed_at': datetime.now().isoformat(),
+                'entry_reason': signal_data.get('entry_reason', ''),
+                'market_condition': signal_data.get('market_condition', ''),
+                'auto_approve': signal_data.get('auto_approve', False)
+            }
+            
+            # Add to both in-memory and persistent storage
+            self.processed_signals[signal_serial_key] = signal_info
+            self.last_signal_check[signal_serial_key] = datetime.now()
+            
+            # Save to file every 10 processed signals to avoid excessive I/O
+            if len(self.processed_signals) % 10 == 0:
+                self._save_processed_signals()
+                
+            self.logger.debug(f"Marked signal as processed: {signal_serial_key}")
+            
+        except Exception as e:
+            self.logger.error(f"Error marking signal as processed: {e}")
+
+    def _is_signal_already_processed(self, strategy: str, symbol: str, signal_timestamp: str) -> bool:
+        """Check if a signal has already been processed (prevents re-trading across restarts)"""
+        try:
+            signal_serial_key = f"{strategy}_{symbol}_{signal_timestamp}"
+            
+            # Check both in-memory cache and persistent storage
+            if signal_serial_key in self.last_signal_check:
+                self.logger.debug(f"Signal found in memory cache: {signal_serial_key}")
+                return True
+                
+            if signal_serial_key in self.processed_signals:
+                # Move to memory cache for faster future lookups
+                self.last_signal_check[signal_serial_key] = datetime.now()
+                self.logger.debug(f"Signal found in persistent storage: {signal_serial_key}")
+                return True
+                
+            return False
+            
+        except Exception as e:
+            self.logger.error(f"Error checking if signal already processed: {e}")
+            return False  # Default to allowing the signal if we can't check
+
     def start_monitoring(self):
         """Start the signal monitoring thread"""
         if self.running:
@@ -223,6 +326,13 @@ class TradingEngine:
         if self.monitor_thread:
             self.monitor_thread.join(timeout=5)
         
+        # Save processed signals on shutdown to ensure persistence
+        try:
+            self._save_processed_signals()
+            self.logger.info(f"💾 Saved {len(self.processed_signals)} processed signals on shutdown")
+        except Exception as e:
+            self.logger.error(f"Error saving processed signals on shutdown: {e}")
+        
         self.logger.info("🛑 Trading Engine stopped")
 
     def _monitor_signals(self):
@@ -231,28 +341,33 @@ class TradingEngine:
         
         while self.running:
             try:
-                # Check if auto-trading is enabled
-                if not self.config.get('enable_auto_trading', False):
-                    time.sleep(self.config.get('monitor_interval', 10))
-                    continue
+                # Monitor each strategy (auto-approve checked at individual signal level)
+                self.logger.info(f"🔍 Checking signals... (Auto-approve checked per signal)")
                 
                 # Monitor each strategy
                 strategies = ['pml', 'iron_condor', 'divergence']
+                self.logger.info(f"📊 Monitoring {len(strategies)} strategies: {strategies}")
                 
                 for strategy in strategies:
-                    if not self.config.get('strategies', {}).get(strategy, {}).get('enabled', True):
-                        continue
+                    # Check if strategy has any auto-approved signals
+                    strategy_has_auto_approve = self._strategy_has_auto_approve_signals(strategy)
+                    self.logger.info(f"🎯 Checking {strategy} strategy (Auto-approve signals: {'YES' if strategy_has_auto_approve else 'NO'})")
                     
+                    # Always check signals regardless - individual signal auto_approve will be checked in _should_execute_trade
                     try:
                         self._check_strategy_signals(strategy)
                     except Exception as e:
                         self.logger.error(f"Error checking {strategy} signals: {e}")
                 
                 # Check and manage existing orders
+                active_orders_count = len(self.active_orders)
+                self.logger.info(f"📋 Managing {active_orders_count} active orders")
                 self._manage_existing_orders()
                 
                 # Sleep until next check
-                time.sleep(self.config.get('monitor_interval', 10))
+                monitor_interval = self.config.get('monitor_interval', 10)
+                self.logger.info(f"⏰ Next check in {monitor_interval} seconds...")
+                time.sleep(monitor_interval)
                 
             except KeyboardInterrupt:
                 self.logger.info("Received interrupt signal")
@@ -284,6 +399,32 @@ class TradingEngine:
         except Exception as e:
             self.logger.error(f"Error checking {strategy} signals: {e}")
 
+    def _strategy_has_auto_approve_signals(self, strategy: str) -> bool:
+        """Check if strategy has any signals with auto_approve enabled"""
+        try:
+            signals = self._load_strategy_signals(strategy)
+            if not signals:
+                return False
+            
+            strategy_data = signals.get('signals', {})
+            if not strategy_data:
+                return False
+            
+            # Check if any individual signal has auto_approve enabled
+            for symbol, signal_data in strategy_data.items():
+                if signal_data.get('auto_approve', False):
+                    return True
+            
+            # Also check global strategy auto_approve_status in metadata
+            metadata = signals.get('metadata', {})
+            global_auto_approve = metadata.get('auto_approve_status', False)
+            
+            return global_auto_approve
+            
+        except Exception as e:
+            self.logger.error(f"Error checking {strategy} auto-approve signals: {e}")
+            return False
+
     def _load_strategy_signals(self, strategy: str) -> Optional[Dict[str, Any]]:
         """Load signals from strategy JSON file"""
         try:
@@ -310,8 +451,9 @@ class TradingEngine:
     def _should_execute_trade(self, strategy: str, symbol: str, signal_data: Dict[str, Any]) -> bool:
         """Determine if a trade should be executed"""
         try:
-            # Check if auto_approve is enabled
+            # Check if auto_approve is enabled for this specific signal
             if not signal_data.get('auto_approve', False):
+                self.logger.debug(f"Auto-approve disabled for {strategy} {symbol}, skipping trade")
                 return False
             
             # Check signal type
@@ -331,9 +473,9 @@ class TradingEngine:
             if not self._is_signal_recent(signal_timestamp):
                 return False
             
-            # Check if we already processed this signal
-            signal_key = f"{strategy}_{symbol}_{signal_timestamp}"
-            if signal_key in self.last_signal_check:
+            # Check if this signal has already been processed (prevents re-trading across restarts)
+            if self._is_signal_already_processed(strategy, symbol, signal_timestamp):
+                self.logger.debug(f"Signal already processed (timestamp: {signal_timestamp}): {strategy}_{symbol}_{signal_timestamp}")
                 return False
             
             # Check position limits and boxed position prevention
@@ -344,8 +486,7 @@ class TradingEngine:
             if not self._check_risk_limits(strategy, symbol, signal_data):
                 return False
             
-            # Mark signal as checked
-            self.last_signal_check[signal_key] = datetime.now()
+            self.logger.info(f"✅ Signal approved for execution: {strategy} {symbol} {signal_type} (confidence: {confidence:.2f}, timestamp: {signal_timestamp})")
             
             return True
             
@@ -576,6 +717,9 @@ class TradingEngine:
                 self.active_orders[order_id] = trade_order
                 self.logger.info(f"✅ Successfully submitted {strategy} order for {symbol}: {quantity} @ ${entry_price:.2f}")
                 
+                # Mark signal as processed to prevent re-trading across engine restarts
+                self._mark_signal_as_processed(strategy, symbol, signal.timestamp, signal_data)
+                
                 # Log trade details
                 self._log_trade_execution(trade_order)
                 
@@ -589,32 +733,85 @@ class TradingEngine:
             self.logger.error(f"Error executing trade for {strategy} {symbol}: {e}")
 
     def _determine_trade_parameters(self, strategy: str, symbol: str, signal: TradingSignal) -> Tuple[TradeType, int, float]:
-        """Determine trade type, quantity, and entry price"""
+        """Determine trade type, quantity, and entry price with elegant options/stocks handling"""
         try:
-            # Force all trades to be STOCK type for testing
-            trade_type = TradeType.STOCK
-            
-            # Get current market price (simplified - would use real market data)
+            # Get current market price
             entry_price = self._get_current_price(symbol)
             if entry_price <= 0:
-                return trade_type, 0, 0
+                return TradeType.STOCK, 0, 0
             
-            # Calculate position size
-            base_quantity = int(signal.position_size)
+            # Determine trade type based on strategy and signal setup
+            trade_type = self._determine_asset_type(strategy, symbol, signal)
             
-            # Apply strategy multiplier
-            strategy_multiplier = self.config.get('strategies', {}).get(strategy, {}).get('position_size_multiplier', 1.0)
-            quantity = max(1, int(base_quantity * strategy_multiplier))
-            
-            # Force all trades to be STOCK type - no options for now
-            # This ensures all signals will be executed as stock orders
-            self.logger.info(f"Forcing {strategy} {symbol} to STOCK type for testing")
+            # Calculate position size based on trade type
+            if trade_type == TradeType.OPTION:
+                # For options, position_size represents number of contracts
+                base_quantity = int(signal.position_size)
+                # Options are typically traded in smaller quantities
+                strategy_multiplier = self.config.get('strategies', {}).get(strategy, {}).get('position_size_multiplier', 0.5)
+                quantity = max(1, int(base_quantity * strategy_multiplier))
+                
+                self.logger.info(f"{strategy} {symbol}: Option trade - {quantity} contracts")
+                
+            else:  # STOCK/ETF
+                # For stocks, position_size represents number of shares
+                base_quantity = int(signal.position_size)
+                strategy_multiplier = self.config.get('strategies', {}).get(strategy, {}).get('position_size_multiplier', 1.0)
+                quantity = max(1, int(base_quantity * strategy_multiplier))
+                
+                self.logger.info(f"{strategy} {symbol}: Stock trade - {quantity} shares")
             
             return trade_type, quantity, entry_price
             
         except Exception as e:
             self.logger.error(f"Error determining trade parameters: {e}")
             return TradeType.STOCK, 0, 0
+
+    def _determine_asset_type(self, strategy: str, symbol: str, signal: TradingSignal) -> TradeType:
+        """Determine whether to trade the underlying stock or options based on strategy and setup"""
+        try:
+            # Check if signal has option-specific setup information
+            setup = signal.setup or {}
+            
+            # Iron Condor strategy should always use options when setup is present
+            if strategy == 'iron_condor':
+                # Iron Condor is inherently an options strategy
+                if setup:  # If we have setup details, use options
+                    self.logger.info(f"Iron Condor {symbol}: Using options (setup detected)")
+                    return TradeType.OPTION
+                else:
+                    # Fallback to stock if no setup available
+                    self.logger.info(f"Iron Condor {symbol}: No setup available, using stock fallback")
+                    return TradeType.STOCK
+            
+            # PML strategy uses options when setup contains option details
+            elif strategy == 'pml':
+                # Check if setup contains option-specific fields
+                if setup and ('strike' in setup or 'option_type' in setup):
+                    self.logger.info(f"PML {symbol}: Using options (option setup detected)")
+                    return TradeType.OPTION
+                else:
+                    # Default to stock for PML when no option setup
+                    self.logger.info(f"PML {symbol}: Using stock (no option setup)")
+                    return TradeType.STOCK
+            
+            # Divergence strategy typically uses stocks but can use options
+            elif strategy == 'divergence':
+                # Check if setup specifies options usage
+                if setup and setup.get('use_options', False):
+                    return TradeType.OPTION
+                else:
+                    # Default to stock for divergence
+                    return TradeType.STOCK
+            
+            # Default to stock for unknown strategies
+            else:
+                self.logger.warning(f"Unknown strategy {strategy}, defaulting to STOCK")
+                return TradeType.STOCK
+                
+        except Exception as e:
+            self.logger.error(f"Error determining asset type: {e}")
+            return TradeType.STOCK
 
     def _get_current_positions(self) -> Optional[Dict[str, Dict[str, Any]]]:
         """Load current positions from live_monitor.json to prevent boxed positions"""
@@ -689,14 +886,16 @@ class TradingEngine:
             self.logger.info(f"  Type: {trade_order.trade_type.value}")
             self.logger.info(f"  Quantity: {trade_order.quantity}")
             self.logger.info(f"  Entry Price: ${trade_order.entry_price:.2f}")
-            self.logger.info(f"  Stop Loss: ${trade_order.stop_loss:.2f}")
-            self.logger.info(f"  Profit Target: ${trade_order.profit_target:.2f}")
+            
+            # Handle Iron Condor as special 4-leg spread order
+            if trade_order.strategy == 'iron_condor' and trade_order.signal.setup:
+                return self._submit_iron_condor_spread_order(trade_order)
             
             # Determine order instruction based on signal type
             if trade_order.signal.signal_type in ['BUY', 'STRONG_BUY']:
-                instruction = 'BUY'
+                instruction = 'BUY'  # Buy to open long position
             elif trade_order.signal.signal_type in ['SELL', 'STRONG_SELL']:
-                instruction = 'SELL'
+                instruction = 'SELL_SHORT'  # Sell short to open short position
             else:
                 self.logger.error(f"Invalid signal type for order: {trade_order.signal.signal_type}")
                 trade_order.status = OrderStatus.REJECTED
@@ -704,72 +903,494 @@ class TradingEngine:
             
             # Submit order based on trade type
             if trade_order.trade_type == TradeType.STOCK:
-                # Submit stock order using existing order handler with proper parameter name
-                result = self.order_handler.place_market_order(
-                    action_type=instruction,  # Use correct parameter name from order handler
-                    symbol=trade_order.symbol,
-                    shares=trade_order.quantity,
-                    current_price=trade_order.entry_price,
-                    timestamp=trade_order.created_at
-                )
+                # ==================== STOCK ORDER LOGIC WITH OCO SUPPORT ====================
+                # 
+                # This section implements intelligent order routing for stock trades:
+                # 1. If the signal includes both profit_target and stop_loss, AND
+                # 2. The instruction is BUY or SELL_SHORT (new position entry), THEN
+                # 3. Use OCO (One Cancels Other) order for automatic risk management
+                # 4. Otherwise, use regular market order
+                #
+                # OCO Order Benefits:
+                # - Entry order fills → Automatic profit target and stop loss placement
+                # - One exit fills → Other exit automatically cancelled
+                # - No manual intervention required
+                # - Guaranteed risk management on every trade
+                
+                # Check if we have valid profit target and stop loss for OCO order
+                has_profit_target = trade_order.profit_target > 0
+                has_stop_loss = trade_order.stop_loss > 0
+                supports_oco = instruction in ['BUY', 'SELL_SHORT']  # Only new position entries support OCO
+                
+                if (has_profit_target and has_stop_loss and supports_oco):
+                    # ========== USE OCO ORDER WITH AUTOMATIC TARGETS ==========
+                    # This creates a complex order structure:
+                    # 1. Entry order (BUY/SELL_SHORT) at entry_price
+                    # 2. Once filled, automatically places TWO exit orders:
+                    #    - Profit target LIMIT order at profit_target price
+                    #    - Stop loss STOP order at stop_loss price
+                    # 3. If either exit fills, the other is cancelled (OCO logic)
+                    
+                    result = self.order_handler.place_stock_oco_order_with_targets(
+                        action_type=instruction,
+                        symbol=trade_order.symbol,
+                        shares=trade_order.quantity,
+                        entry_price=round(trade_order.entry_price, 2),
+                        profit_target=round(trade_order.profit_target, 2),
+                        stop_loss=round(trade_order.stop_loss, 2),
+                        timestamp=trade_order.created_at
+                    )
+                    
+                    self.logger.info(f"✅ Using OCO order with targets for {instruction} {trade_order.symbol}")
+                    self.logger.info(f"   Entry: ${trade_order.entry_price:.2f}")
+                    self.logger.info(f"   Profit Target: ${trade_order.profit_target:.2f}")
+                    self.logger.info(f"   Stop Loss: ${trade_order.stop_loss:.2f}")
+                    
+                else:
+                    # ========== USE REGULAR MARKET ORDER ==========
+                    # Fallback to regular market order when:
+                    # - No profit target specified (profit_target <= 0)
+                    # - No stop loss specified (stop_loss <= 0)
+                    # - Instruction is SELL or BUY_TO_COVER (closing existing positions)
+                    
+                    result = self.order_handler.place_market_order(
+                        action_type=instruction,
+                        symbol=trade_order.symbol,
+                        shares=trade_order.quantity,
+                        current_price=round(trade_order.entry_price, 2),
+                        timestamp=trade_order.created_at
+                    )
+                    
+                    # Log why we're using regular order instead of OCO
+                    if not has_profit_target:
+                        self.logger.info(f"📊 Using regular market order for {instruction} {trade_order.symbol} (no profit target)")
+                    elif not has_stop_loss:
+                        self.logger.info(f"📊 Using regular market order for {instruction} {trade_order.symbol} (no stop loss)")
+                    elif not supports_oco:
+                        self.logger.info(f"📊 Using regular market order for {instruction} {trade_order.symbol} (closing position)")
+                    else:
+                        self.logger.info(f"📊 Using regular market order for {instruction} {trade_order.symbol}")
                 
             elif trade_order.trade_type == TradeType.OPTION:
-                # For options, we'd need to construct the option symbol and use option methods
-                # This is simplified - would need proper option symbol construction
-                self.logger.warning(f"Option orders not fully implemented yet for {trade_order.symbol}")
-                result = {'status': 'rejected', 'reason': 'Option orders not implemented'}
+                # Handle PML single-leg option orders
+                if trade_order.strategy == 'pml':
+                    return self._submit_pml_option_order(trade_order, instruction)
+                else:
+                    # Generic single-leg option order
+                    return self._submit_generic_option_order(trade_order, instruction)
                 
             else:
                 self.logger.error(f"Unsupported trade type: {trade_order.trade_type}")
                 result = {'status': 'rejected', 'reason': 'Unsupported trade type'}
             
-            # Process result from order handler
+            # Process result from order handler (for stock orders)
             if result.get('status') == 'submitted':
                 trade_order.status = OrderStatus.SUBMITTED
                 trade_order.filled_price = result.get('fill_price', trade_order.entry_price)
                 
-                # Store Schwab order ID if available
                 if 'order_id' in result:
                     trade_order.notes += f" | Schwab Order ID: {result['order_id']}"
                 
-                self.logger.info(f"✅ Order submitted successfully to Schwab: {result.get('order_id', 'N/A')}")
+                self.logger.info(f"✅ Stock order submitted successfully: {result.get('order_id', 'N/A')}")
                 return True
                 
             else:
                 trade_order.status = OrderStatus.REJECTED
                 trade_order.notes += f" | Rejection reason: {result.get('reason', 'Unknown')}"
-                self.logger.error(f"❌ Order rejected by Schwab: {result.get('reason', 'Unknown')}")
+                self.logger.error(f"❌ Stock order rejected: {result.get('reason', 'Unknown')}")
                 return False
             
         except Exception as e:
-            self.logger.error(f"Error submitting order to Schwab: {e}")
+            self.logger.error(f"Error submitting order: {e}")
             trade_order.status = OrderStatus.FAILED
             trade_order.notes += f" | Error: {str(e)}"
             return False
 
-    def _manage_existing_orders(self):
-        """Check and manage existing orders"""
+    def _submit_iron_condor_spread_order(self, trade_order: TradeOrder) -> bool:
+        """Submit Iron Condor 4-leg spread order using Schwab API format"""
         try:
-            for order_id, order in list(self.active_orders.items()):
-                try:
-                    # Check order status (would integrate with broker API)
-                    self._check_order_status(order)
-                    
-                    # Remove completed orders from active list
-                    if order.status in [OrderStatus.FILLED, OrderStatus.CANCELLED, OrderStatus.REJECTED, OrderStatus.FAILED]:
-                        self.executed_trades.append(order)
-                        del self.active_orders[order_id]
+            setup = trade_order.signal.setup
+            strikes = setup.get('strikes', {})
+            expiration_date_str = setup.get('expiration_date', '')
+            net_credit = setup.get('net_credit', 0)
+            
+            # Parse expiration date for option symbol construction
+            try:
+                if 'T' in expiration_date_str:
+                    expiration_date = datetime.fromisoformat(expiration_date_str.replace('Z', '+00:00'))
+                else:
+                    expiration_date = datetime.strptime(expiration_date_str, '%Y-%m-%d')
+            except Exception as e:
+                self.logger.error(f"Error parsing Iron Condor expiration date: {e}")
+                return False
+            
+            # Format expiration for option symbol (YYMMDD)
+            exp_formatted = expiration_date.strftime('%y%m%d')
+            
+            # Construct all 4 option symbols using Schwab format
+            # Format: SYMBOL YYMMDD[C/P]SSSSSPPP (6 chars symbol + 6 chars date + 1 char type + 8 chars strike)
+            symbol_padded = f"{trade_order.symbol:<6}"  # Left-align and pad to 6 characters
+            
+            # Helper function to format strike price (5 digits + 3 decimals = 8 total)
+            def format_strike(strike):
+                return f"{int(strike * 1000):08d}"
+            
+            long_put_symbol = f"{symbol_padded}{exp_formatted}P{format_strike(strikes['long_put'])}"
+            short_put_symbol = f"{symbol_padded}{exp_formatted}P{format_strike(strikes['short_put'])}"
+            short_call_symbol = f"{symbol_padded}{exp_formatted}C{format_strike(strikes['short_call'])}"
+            long_call_symbol = f"{symbol_padded}{exp_formatted}C{format_strike(strikes['long_call'])}"
+            
+            self.logger.info(f"Iron Condor option symbols:")
+            self.logger.info(f"  Long Put:   {long_put_symbol}")
+            self.logger.info(f"  Short Put:  {short_put_symbol}")
+            self.logger.info(f"  Short Call: {short_call_symbol}")
+            self.logger.info(f"  Long Call:  {long_call_symbol}")
+            
+            # Create 4-leg spread order using Schwab API format
+            spread_order = {
+                "orderType": "NET_CREDIT",  # Iron Condor collects credit
+                "session": "NORMAL",
+                "price": str(net_credit),  # Net credit we want to collect
+                "duration": "DAY",
+                "orderStrategyType": "SINGLE",
+                "orderLegCollection": [
+                    {
+                        "instruction": "BUY_TO_OPEN",
+                        "quantity": trade_order.quantity,
+                        "instrument": {
+                            "symbol": long_put_symbol,
+                            "assetType": "OPTION"
+                        }
+                    },
+                    {
+                        "instruction": "SELL_TO_OPEN",
+                        "quantity": trade_order.quantity,
+                        "instrument": {
+                            "symbol": short_put_symbol,
+                            "assetType": "OPTION"
+                        }
+                    },
+                    {
+                        "instruction": "SELL_TO_OPEN",
+                        "quantity": trade_order.quantity,
+                        "instrument": {
+                            "symbol": short_call_symbol,
+                            "assetType": "OPTION"
+                        }
+                    },
+                    {
+                        "instruction": "BUY_TO_OPEN",
+                        "quantity": trade_order.quantity,
+                        "instrument": {
+                            "symbol": long_call_symbol,
+                            "assetType": "OPTION"
+                        }
+                    }
+                ]
+            }
+            
+            # Submit the 4-leg spread order
+            result = self.order_handler.place_complex_option_order(
+                order_data=spread_order,
+                timestamp=trade_order.created_at
+            )
+            
+            # Process result
+            if result.get('status') == 'submitted':
+                trade_order.status = OrderStatus.SUBMITTED
+                trade_order.filled_price = net_credit  # Use net credit as "price"
+                
+                if 'order_id' in result:
+                    trade_order.notes += f" | Schwab Order ID: {result['order_id']}"
+                
+                self.logger.info(f"✅ Iron Condor spread order submitted successfully")
+                self.logger.info(f"  Spread: {strikes['long_put']}/{strikes['short_put']}/{strikes['short_call']}/{strikes['long_call']}")
+                self.logger.info(f"  Net Credit: ${net_credit:.2f}")
+                self.logger.info(f"  Contracts: {trade_order.quantity}")
+                return True
+                
+            else:
+                trade_order.status = OrderStatus.REJECTED
+                trade_order.notes += f" | Iron Condor rejection: {result.get('reason', 'Unknown')}"
+                self.logger.error(f"❌ Iron Condor spread order rejected: {result.get('reason', 'Unknown')}")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"Error submitting Iron Condor spread order: {e}")
+            trade_order.status = OrderStatus.FAILED
+            trade_order.notes += f" | Iron Condor error: {str(e)}"
+            return False
+
+    def _submit_pml_option_order(self, trade_order: TradeOrder, instruction: str) -> bool:
+        """Submit PML single-leg option order using setup details"""
+        try:
+            setup = trade_order.signal.setup
+            strike_price = setup.get('strike', 0)
+            option_type = setup.get('option_type', 'CALL')
+            expiration_date_str = setup.get('expiration_date', '')
+            current_price = setup.get('current_price', 0)
+            
+            if not strike_price or not expiration_date_str:
+                self.logger.error(f"PML option order missing required setup details")
+                return False
+            
+            # Parse expiration date
+            try:
+                if 'T' in expiration_date_str:
+                    expiration_date = datetime.fromisoformat(expiration_date_str.replace('Z', '+00:00'))
+                else:
+                    expiration_date = datetime.strptime(expiration_date_str, '%Y-%m-%d')
+            except Exception as e:
+                self.logger.error(f"Error parsing PML expiration date: {e}")
+                return False
+            
+            # Format expiration for option symbol (YYMMDD)
+            exp_formatted = expiration_date.strftime('%y%m%d')
+            
+            # Construct option symbol using Schwab format
+            symbol_padded = f"{trade_order.symbol:<6}"
+            option_type_char = 'C' if option_type.upper() in ['CALL', 'C'] else 'P'
+            strike_formatted = f"{int(strike_price * 1000):08d}"
+            
+            option_symbol = f"{symbol_padded}{exp_formatted}{option_type_char}{strike_formatted}"
+            
+            # Map instruction to option-specific actions
+            if instruction == 'BUY':
+                option_instruction = 'BUY_TO_OPEN'
+            elif instruction == 'SELL':
+                option_instruction = 'SELL_TO_CLOSE'
+            else:
+                self.logger.error(f"Invalid PML option instruction: {instruction}")
+                return False
+            
+            # Use current price from setup or calculate limit price
+            limit_price = current_price if current_price > 0 else self._calculate_option_price(trade_order)
+            
+            result = self.order_handler.place_option_limit_order(
+                action_type=option_instruction,
+                option_symbol=option_symbol,
+                contracts=trade_order.quantity,
+                limit_price=limit_price,
+                timestamp=trade_order.created_at
+            )
+            
+            # Process result
+            if result.get('status') == 'submitted':
+                trade_order.status = OrderStatus.SUBMITTED
+                trade_order.filled_price = limit_price
+                
+                if 'order_id' in result:
+                    trade_order.notes += f" | Schwab Order ID: {result['order_id']}"
+                
+                self.logger.info(f"✅ PML option order submitted successfully")
+                self.logger.info(f"  Option: {option_symbol}")
+                self.logger.info(f"  Action: {option_instruction}")
+                self.logger.info(f"  Limit Price: ${limit_price:.2f}")
+                return True
+                
+            else:
+                trade_order.status = OrderStatus.REJECTED
+                trade_order.notes += f" | PML option rejection: {result.get('reason', 'Unknown')}"
+                self.logger.error(f"❌ PML option order rejected: {result.get('reason', 'Unknown')}")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"Error submitting PML option order: {e}")
+            trade_order.status = OrderStatus.FAILED
+            trade_order.notes += f" | PML option error: {str(e)}"
+            return False
+
+    def _submit_generic_option_order(self, trade_order: TradeOrder, instruction: str) -> bool:
+        """Submit generic single-leg option order"""
+        try:
+            # Construct option symbol using generic method
+            option_symbol = self._construct_option_symbol(trade_order)
+            if not option_symbol:
+                self.logger.error(f"Failed to construct option symbol for {trade_order.symbol}")
+                return False
+            
+            # Map instruction to option-specific actions
+            if instruction == 'BUY':
+                option_instruction = 'BUY_TO_OPEN'
+            elif instruction == 'SELL':
+                option_instruction = 'SELL_TO_CLOSE'
+            else:
+                self.logger.error(f"Invalid option instruction: {instruction}")
+                return False
+            
+            # Calculate option limit price
+            option_limit_price = self._calculate_option_price(trade_order)
+            
+            result = self.order_handler.place_option_limit_order(
+                action_type=option_instruction,
+                option_symbol=option_symbol,
+                contracts=trade_order.quantity,
+                limit_price=option_limit_price,
+                timestamp=trade_order.created_at
+            )
+            
+            # Process result
+            if result.get('status') == 'submitted':
+                trade_order.status = OrderStatus.SUBMITTED
+                trade_order.filled_price = option_limit_price
+                
+                if 'order_id' in result:
+                    trade_order.notes += f" | Schwab Order ID: {result['order_id']}"
+                
+                self.logger.info(f"✅ Generic option order submitted: {option_instruction} {trade_order.quantity} contracts of {option_symbol} @ ${option_limit_price:.2f}")
+                return True
+                
+            else:
+                trade_order.status = OrderStatus.REJECTED
+                trade_order.notes += f" | Generic option rejection: {result.get('reason', 'Unknown')}"
+                self.logger.error(f"❌ Generic option order rejected: {result.get('reason', 'Unknown')}")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"Error submitting generic option order: {e}")
+            trade_order.status = OrderStatus.FAILED
+            trade_order.notes += f" | Generic option error: {str(e)}"
+            return False
+
+    def _manage_existing_orders(self):
+        """Check and manage existing orders using get_all_orders to avoid dangerous assumptions"""
+        try:
+            if not self.active_orders:
+                return
+                
+            # Use get_all_orders to safely check all orders at once
+            # Get orders from the last 24 hours to capture recent orders
+            from_time = (datetime.now() - timedelta(hours=24)).strftime('%Y-%m-%dT%H:%M:%S.000Z')
+            to_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.000Z')
+            
+            try:
+                all_orders_result = self.order_handler.get_all_orders(
+                    from_entered_time=from_time,
+                    to_entered_time=to_time,
+                    max_results=1000
+                )
+                
+                if 'error' in all_orders_result:
+                    error_msg = all_orders_result['error']
+                    if '401' in error_msg or 'Unauthorized' in error_msg:
+                        self.logger.debug("Authorization error getting orders - tokens may need refresh")
+                        # Don't make assumptions about order status during auth errors
+                        return
+                    else:
+                        self.logger.warning(f"Error getting all orders: {error_msg}")
+                        return
+                
+                # Process each active order
+                for order_id, order in list(self.active_orders.items()):
+                    try:
+                        self._update_order_from_all_orders(order, all_orders_result)
                         
-                        if order.status == OrderStatus.FILLED:
-                            self.logger.info(f"✅ Order filled: {order.symbol} @ ${order.filled_price:.2f}")
-                        else:
-                            self.logger.info(f"❌ Order {order.status.value}: {order.symbol}")
+                        # Remove completed orders from active list
+                        if order.status in [OrderStatus.FILLED, OrderStatus.CANCELLED, OrderStatus.REJECTED, OrderStatus.FAILED]:
+                            self.executed_trades.append(order)
+                            del self.active_orders[order_id]
                             
-                except Exception as e:
-                    self.logger.error(f"Error managing order {order_id}: {e}")
+                            if order.status == OrderStatus.FILLED:
+                                self.logger.info(f"✅ Order filled: {order.symbol} @ ${order.filled_price:.2f}")
+                            else:
+                                self.logger.info(f"❌ Order {order.status.value}: {order.symbol}")
+                                
+                    except Exception as e:
+                        self.logger.error(f"Error managing order {order_id}: {e}")
+                        
+            except Exception as e:
+                self.logger.error(f"Error calling get_all_orders: {e}")
+                # Don't make assumptions about order status on API errors
+                return
                     
         except Exception as e:
             self.logger.error(f"Error managing existing orders: {e}")
+
+    def _update_order_from_all_orders(self, order: TradeOrder, all_orders_result: Dict[str, Any]):
+        """Update order status from get_all_orders result - safer than individual status calls"""
+        try:
+            # Extract Schwab order ID from notes if available
+            schwab_order_id = None
+            if "Schwab Order ID:" in order.notes:
+                try:
+                    schwab_order_id = order.notes.split("Schwab Order ID: ")[1].split(" |")[0].strip()
+                except Exception:
+                    pass
+            
+            if not schwab_order_id:
+                # No Schwab order ID available - cannot update status safely
+                return
+            
+            # Search for this order in the all_orders_result
+            if isinstance(all_orders_result, list):
+                orders_list = all_orders_result
+            else:
+                orders_list = all_orders_result.get('orders', [])
+            
+            for schwab_order in orders_list:
+                if str(schwab_order.get('orderId', '')) == str(schwab_order_id):
+                    # Found our order - update status
+                    schwab_status = schwab_order.get('status', '').upper()
+                    
+                    # Map Schwab status to our OrderStatus with comprehensive status handling
+                    if schwab_status in ['FILLED']:
+                        order.status = OrderStatus.FILLED
+                        order.filled_at = datetime.now()
+                        
+                        # Try to get fill price from order activities
+                        if 'orderActivityCollection' in schwab_order:
+                            activities = schwab_order['orderActivityCollection']
+                            if activities and len(activities) > 0:
+                                execution_legs = activities[0].get('executionLegs', [])
+                                if execution_legs and len(execution_legs) > 0:
+                                    order.filled_price = float(execution_legs[0].get('price', order.entry_price))
+                                else:
+                                    order.filled_price = order.entry_price
+                        else:
+                            order.filled_price = order.entry_price
+                            
+                    elif schwab_status in ['CANCELED', 'CANCELLED']:
+                        order.status = OrderStatus.CANCELLED
+                    elif schwab_status in ['REJECTED']:
+                        order.status = OrderStatus.REJECTED
+                    elif schwab_status in ['EXPIRED']:
+                        order.status = OrderStatus.CANCELLED
+                    elif schwab_status in ['WORKING']:
+                        # Order is active and working in the market
+                        order.status = OrderStatus.SUBMITTED
+                        self.logger.debug(f"Order {schwab_order_id} is WORKING in the market")
+                    elif schwab_status in ['PENDING_ACTIVATION', 'AWAITING_PARENT_ORDER', 'AWAITING_CONDITION', 
+                                         'AWAITING_STOP_CONDITION', 'AWAITING_MANUAL_REVIEW', 'ACCEPTED', 
+                                         'AWAITING_UR_OUT', 'QUEUED', 'AWAITING_RELEASE_TIME', 
+                                         'PENDING_ACKNOWLEDGEMENT', 'PENDING_RECALL']:
+                        # Order is submitted but not yet active (e.g., day orders after 3pm CT)
+                        order.status = OrderStatus.SUBMITTED
+                        self.logger.debug(f"Order {schwab_order_id} status: {schwab_status} (pending activation)")
+                    elif schwab_status in ['PENDING_CANCEL']:
+                        # Order cancellation is pending
+                        order.status = OrderStatus.SUBMITTED  # Keep as submitted until actually cancelled
+                        self.logger.debug(f"Order {schwab_order_id} cancellation pending")
+                    elif schwab_status in ['PENDING_REPLACE', 'REPLACED']:
+                        # Order is being replaced or has been replaced
+                        order.status = OrderStatus.SUBMITTED  # Keep tracking the replacement
+                        self.logger.debug(f"Order {schwab_order_id} status: {schwab_status}")
+                    elif schwab_status in ['NEW', 'UNKNOWN']:
+                        # New or unknown status - keep as submitted for safety
+                        order.status = OrderStatus.SUBMITTED
+                        self.logger.debug(f"Order {schwab_order_id} has status: {schwab_status}")
+                    else:
+                        # Unknown status - log it but don't change order status
+                        self.logger.warning(f"Unknown order status for {schwab_order_id}: {schwab_status}")
+                    
+                    self.logger.debug(f"Updated order {schwab_order_id} status to {order.status.value}")
+                    return
+            
+            # Order not found in results - this could mean it's very old or there was an error
+            # Don't make assumptions about status
+            self.logger.debug(f"Order {schwab_order_id} not found in get_all_orders result")
+            
+        except Exception as e:
+            self.logger.error(f"Error updating order from all_orders result: {e}")
 
     def _check_order_status(self, order: TradeOrder):
         """Check the status of an order using Schwab API"""
@@ -907,6 +1528,126 @@ class TradingEngine:
                 
         except Exception as e:
             self.logger.error(f"Error saving order to file: {e}")
+
+    def _construct_option_symbol(self, trade_order: TradeOrder) -> Optional[str]:
+        """Construct option symbol for the trade order"""
+        try:
+            # Get option parameters from signal setup or use defaults
+            setup = trade_order.signal.setup or {}
+            
+            # Default option parameters (would be more sophisticated in production)
+            expiration_days = setup.get('expiration_days', 30)  # 30 days from now
+            option_type = setup.get('option_type', 'C')  # Default to Call
+            strike_offset = setup.get('strike_offset', 0.05)  # 5% OTM by default
+            
+            # Calculate expiration date
+            expiration_date = datetime.now() + timedelta(days=expiration_days)
+            # Round to next Friday (typical option expiration)
+            days_ahead = 4 - expiration_date.weekday()  # Friday is 4
+            if days_ahead <= 0:
+                days_ahead += 7
+            expiration_date += timedelta(days=days_ahead)
+            
+            # Calculate strike price based on current price and offset
+            current_price = trade_order.entry_price
+            if trade_order.signal.signal_type in ['BUY', 'STRONG_BUY']:
+                # For buy signals, use slightly OTM calls or ITM puts
+                if option_type == 'C':
+                    strike_price = current_price * (1 + strike_offset)
+                else:  # Put
+                    strike_price = current_price * (1 - strike_offset)
+            else:  # SELL signals
+                # For sell signals, use slightly OTM puts or ITM calls
+                if option_type == 'P':
+                    strike_price = current_price * (1 + strike_offset)
+                else:  # Call
+                    strike_price = current_price * (1 - strike_offset)
+            
+            # Round strike price to nearest $0.50 or $1.00
+            if strike_price < 50:
+                strike_price = round(strike_price * 2) / 2  # Round to nearest $0.50
+            else:
+                strike_price = round(strike_price)  # Round to nearest $1.00
+            
+            # Use order handler's option symbol construction method
+            option_symbol = self.order_handler.create_option_symbol(
+                underlying=trade_order.symbol,
+                expiration_date=expiration_date.strftime('%Y-%m-%d'),
+                option_type=option_type,
+                strike_price=strike_price
+            )
+            
+            if option_symbol:
+                self.logger.info(f"Constructed option symbol: {option_symbol} (Strike: ${strike_price}, Exp: {expiration_date.strftime('%Y-%m-%d')})")
+                return option_symbol
+            else:
+                self.logger.error(f"Failed to construct option symbol for {trade_order.symbol}")
+                return None
+                
+        except Exception as e:
+            self.logger.error(f"Error constructing option symbol: {e}")
+            return None
+
+    def _calculate_option_price(self, trade_order: TradeOrder) -> float:
+        """Calculate option limit price (simplified Black-Scholes approximation)"""
+        try:
+            # This is a simplified option pricing model
+            # In production, you'd use real option pricing data or a proper Black-Scholes model
+            
+            setup = trade_order.signal.setup or {}
+            current_price = trade_order.entry_price
+            
+            # Get option parameters
+            strike_offset = setup.get('strike_offset', 0.05)
+            expiration_days = setup.get('expiration_days', 30)
+            option_type = setup.get('option_type', 'C')
+            
+            # Calculate strike price (same logic as symbol construction)
+            if trade_order.signal.signal_type in ['BUY', 'STRONG_BUY']:
+                if option_type == 'C':
+                    strike_price = current_price * (1 + strike_offset)
+                else:
+                    strike_price = current_price * (1 - strike_offset)
+            else:
+                if option_type == 'P':
+                    strike_price = current_price * (1 + strike_offset)
+                else:
+                    strike_price = current_price * (1 - strike_offset)
+            
+            # Round strike price
+            if strike_price < 50:
+                strike_price = round(strike_price * 2) / 2
+            else:
+                strike_price = round(strike_price)
+            
+            # Simplified option pricing based on intrinsic + time value
+            if option_type == 'C':  # Call option
+                intrinsic_value = max(0, current_price - strike_price)
+            else:  # Put option
+                intrinsic_value = max(0, strike_price - current_price)
+            
+            # Time value approximation (very simplified)
+            time_value = (expiration_days / 365) * current_price * 0.02  # 2% annualized
+            
+            # Add some volatility premium
+            volatility_premium = current_price * 0.01  # 1% of stock price
+            
+            option_price = intrinsic_value + time_value + volatility_premium
+            
+            # Ensure minimum option price
+            option_price = max(0.05, option_price)  # Minimum $0.05
+            
+            # Round to nearest $0.05
+            option_price = round(option_price * 20) / 20
+            
+            self.logger.info(f"Calculated option price: ${option_price:.2f} (Intrinsic: ${intrinsic_value:.2f}, Time: ${time_value:.2f})")
+            
+            return option_price
+            
+        except Exception as e:
+            self.logger.error(f"Error calculating option price: {e}")
+            # Fallback to simple percentage of stock price
+            return max(0.50, trade_order.entry_price * 0.02)  # 2% of stock price, minimum $0.50
 
     def get_status(self) -> Dict[str, Any]:
         """Get current trading engine status"""

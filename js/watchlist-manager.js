@@ -1,4 +1,4 @@
-// Asset Watchlist Management Module
+// Simplified Asset Watchlist Management Module - WebSocket Only
 class WatchlistManager {
     constructor() {
         this.watchlistSymbols = [];
@@ -7,52 +7,71 @@ class WatchlistManager {
     }
     
     init() {
-        console.log('Initializing watchlist manager...');
+        console.log('🔍 DEBUG: Initializing simplified watchlist manager...');
         this.bindEvents();
-        this.loadWatchlist();
+        // Watchlist will auto-populate from PostgreSQL data stream
+        this.initializeDisplay();
     }
     
     bindEvents() {
+        console.log('🔍 DEBUG: Binding watchlist events...');
+        
         const addSymbolBtn = document.getElementById('add-symbol');
-        const refreshWatchlistBtn = document.getElementById('refresh-watchlist');
         const confirmAddBtn = document.getElementById('confirm-add-symbol');
         const cancelAddBtn = document.getElementById('cancel-add-symbol');
         const symbolInput = document.getElementById('symbol-input');
+        const refreshBtn = document.getElementById('refresh-watchlist');
         
-        console.log('Binding watchlist events...', {
+        console.log('🔍 DEBUG: Element check:', {
             addSymbolBtn: !!addSymbolBtn,
-            refreshWatchlistBtn: !!refreshWatchlistBtn,
             confirmAddBtn: !!confirmAddBtn,
             cancelAddBtn: !!cancelAddBtn,
-            symbolInput: !!symbolInput
+            symbolInput: !!symbolInput,
+            refreshBtn: !!refreshBtn
         });
         
         if (addSymbolBtn) {
-            addSymbolBtn.addEventListener('click', () => this.showAddSymbolForm());
-        }
-        
-        if (refreshWatchlistBtn) {
-            refreshWatchlistBtn.addEventListener('click', () => this.refreshWatchlist());
+            addSymbolBtn.addEventListener('click', () => {
+                console.log('🔍 DEBUG: Add symbol button clicked');
+                this.showAddSymbolForm();
+            });
         }
         
         if (confirmAddBtn) {
-            confirmAddBtn.addEventListener('click', () => this.confirmAddSymbol());
+            confirmAddBtn.addEventListener('click', () => {
+                console.log('🔍 DEBUG: Confirm add button clicked');
+                this.confirmAddSymbol();
+            });
         }
         
         if (cancelAddBtn) {
-            cancelAddBtn.addEventListener('click', () => this.hideAddSymbolForm());
+            cancelAddBtn.addEventListener('click', () => {
+                console.log('🔍 DEBUG: Cancel add button clicked');
+                this.hideAddSymbolForm();
+            });
         }
         
         if (symbolInput) {
             symbolInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
+                    console.log('🔍 DEBUG: Enter key pressed in symbol input');
                     this.confirmAddSymbol();
                 }
             });
         }
+        
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                console.log('🔍 DEBUG: Refresh button clicked');
+                this.requestWatchlistUpdate();
+            });
+        }
+        
+        console.log('✅ Watchlist events bound successfully');
     }
     
     showAddSymbolForm() {
+        console.log('🔍 DEBUG: Showing add symbol form');
         const form = document.getElementById('add-symbol-form');
         const input = document.getElementById('symbol-input');
         
@@ -66,6 +85,7 @@ class WatchlistManager {
     }
     
     hideAddSymbolForm() {
+        console.log('🔍 DEBUG: Hiding add symbol form');
         const form = document.getElementById('add-symbol-form');
         const input = document.getElementById('symbol-input');
         
@@ -77,215 +97,278 @@ class WatchlistManager {
         }
     }
     
-    async confirmAddSymbol() {
+    confirmAddSymbol() {
         const input = document.getElementById('symbol-input');
-        if (!input) return;
+        if (!input) {
+            console.log('🔍 DEBUG: Symbol input not found');
+            return;
+        }
         
         const symbol = input.value.trim().toUpperCase();
+        console.log('🔍 DEBUG: confirmAddSymbol called with symbol:', symbol);
         
         if (!symbol) {
+            console.log('🔍 DEBUG: Empty symbol, showing warning');
             this.showToast('Please enter a valid symbol', 'warning');
             return;
         }
         
         if (this.watchlistSymbols.includes(symbol)) {
+            console.log('🔍 DEBUG: Symbol already exists:', this.watchlistSymbols);
             this.showToast(`${symbol} is already in your watchlist`, 'warning');
+            return;
+        }
+        
+        // Send WebSocket message immediately
+        console.log('🔍 DEBUG: Sending WebSocket add symbol message');
+        this.sendAddSymbolMessage(symbol);
+    }
+    
+    sendAddSymbolMessage(symbol) {
+        console.log('🔍 DEBUG: === sendAddSymbolMessage START ===');
+        console.log('🔍 DEBUG: Symbol to add:', symbol);
+        
+        // Check WebSocket connection - try multiple possible references
+        const wsManager = window.websocketManager || window.wsManager || (window.volflowApp && window.volflowApp.modules.websocket);
+        
+        if (!wsManager) {
+            console.error('🔍 DEBUG: WebSocket manager not found');
+            console.error('🔍 DEBUG: Available globals:', Object.keys(window).filter(k => k.includes('websocket') || k.includes('ws')));
+            this.showToast('WebSocket connection not available', 'error');
+            return;
+        }
+        
+        console.log('🔍 DEBUG: Found WebSocket manager:', !!wsManager);
+        
+        if (!wsManager.ws) {
+            console.error('🔍 DEBUG: WebSocket not created');
+            this.showToast('WebSocket not connected', 'error');
+            return;
+        }
+        
+        if (wsManager.ws.readyState !== WebSocket.OPEN) {
+            console.error('🔍 DEBUG: WebSocket not open, state:', wsManager.ws.readyState);
+            this.showToast('WebSocket not connected', 'error');
             return;
         }
         
         // Show loading state
         const confirmBtn = document.getElementById('confirm-add-symbol');
-        const originalContent = confirmBtn.innerHTML;
-        confirmBtn.disabled = true;
-        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        }
+        
+        // Create and send message
+        const message = {
+            type: 'add_watchlist_symbol',
+            symbol: symbol,
+            timestamp: new Date().toISOString()
+        };
+        
+        console.log('🔍 DEBUG: Sending WebSocket message:', message);
         
         try {
-            // Add symbol to watchlist
-            this.watchlistSymbols.push(symbol);
+            wsManager.ws.send(JSON.stringify(message));
+            console.log('✅ WebSocket message sent successfully');
             
-            // Initialize with placeholder data
-            this.watchlistData[symbol] = {
-                symbol: symbol,
-                current_price: 0.0,
-                price_change: 0.0,
-                price_change_percent: 0.0,
-                volume: 0,
-                last_updated: new Date().toISOString()
-            };
-            
-            // Save to localStorage
-            this.saveWatchlist();
-            
-            // Update display
-            this.updateWatchlistDisplay();
-            this.updateWatchlistStatus();
-            
-            // Hide form
-            this.hideAddSymbolForm();
-            
-            // Integrate with live monitor system
-            await this.integrateWithLiveMonitor(symbol);
-            
-            // Fetch initial price data
-            await this.fetchSymbolPrice(symbol);
-            
-            // Show success message
-            this.showToast(`Added ${symbol} to watchlist and live monitor`, 'success');
+            // Hide form and reset button after sending
+            setTimeout(() => {
+                this.hideAddSymbolForm();
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = '<i class="fas fa-check"></i> Add';
+                }
+            }, 1000);
             
         } catch (error) {
-            console.error('Error adding symbol:', error);
-            this.showToast(`Failed to add ${symbol} to watchlist`, 'error');
+            console.error('🔍 DEBUG: Error sending WebSocket message:', error);
+            this.showToast('Failed to send add symbol request', 'error');
             
-            // Remove from watchlist if integration failed
-            const index = this.watchlistSymbols.indexOf(symbol);
-            if (index > -1) {
-                this.watchlistSymbols.splice(index, 1);
-                delete this.watchlistData[symbol];
-                this.saveWatchlist();
-                this.updateWatchlistDisplay();
-                this.updateWatchlistStatus();
-            }
-        } finally {
-            // Restore button state
-            confirmBtn.disabled = false;
-            confirmBtn.innerHTML = originalContent;
-        }
-    }
-    
-    async removeSymbol(symbol) {
-        const index = this.watchlistSymbols.indexOf(symbol);
-        if (index > -1) {
-            try {
-                // Remove from API server first
-                const apiResult = await this.removeSymbolFromLiveMonitor(symbol);
-                
-                if (apiResult.success) {
-                    console.log(`Successfully removed ${symbol} from API server`);
-                } else {
-                    console.warn(`API removal failed for ${symbol}:`, apiResult.error);
-                }
-                
-                // Remove from local arrays regardless of API result
-                this.watchlistSymbols.splice(index, 1);
-                delete this.watchlistData[symbol];
-                
-                this.saveWatchlist();
-                this.updateWatchlistDisplay();
-                this.updateWatchlistStatus();
-                
-                this.showToast(`Removed ${symbol} from watchlist`, 'info');
-                
-            } catch (error) {
-                console.error(`Error removing ${symbol}:`, error);
-                
-                // Still remove locally even if API call fails
-                this.watchlistSymbols.splice(index, 1);
-                delete this.watchlistData[symbol];
-                
-                this.saveWatchlist();
-                this.updateWatchlistDisplay();
-                this.updateWatchlistStatus();
-                
-                this.showToast(`Removed ${symbol} from watchlist (API error)`, 'warning');
+            // Reset button state
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="fas fa-check"></i> Add';
             }
         }
     }
     
-    async refreshWatchlist() {
-        const refreshBtn = document.getElementById('refresh-watchlist');
-        if (!refreshBtn) return;
+    sendRemoveSymbolMessage(symbol) {
+        console.log('🔍 DEBUG: === sendRemoveSymbolMessage START ===');
+        console.log('🔍 DEBUG: Symbol to remove:', symbol);
         
-        const originalContent = refreshBtn.innerHTML;
+        // Check WebSocket connection - try multiple possible references
+        const wsManager = window.websocketManager || window.wsManager || (window.volflowApp && window.volflowApp.modules.websocket);
+        
+        if (!wsManager || !wsManager.ws || wsManager.ws.readyState !== WebSocket.OPEN) {
+            console.error('🔍 DEBUG: WebSocket not available for remove');
+            this.showToast('WebSocket not connected', 'error');
+            return;
+        }
+        
+        // Create and send message
+        const message = {
+            type: 'remove_watchlist_symbol',
+            symbol: symbol,
+            timestamp: new Date().toISOString()
+        };
+        
+        console.log('🔍 DEBUG: Sending remove WebSocket message:', message);
+        
+        try {
+            wsManager.ws.send(JSON.stringify(message));
+            console.log('✅ Remove WebSocket message sent successfully');
+        } catch (error) {
+            console.error('🔍 DEBUG: Error sending remove WebSocket message:', error);
+            this.showToast('Failed to send remove symbol request', 'error');
+        }
+    }
+    
+    requestWatchlistUpdate() {
+        console.log('🔍 DEBUG: Requesting watchlist refresh with database cleanup via WebSocket');
+        
+        // Check WebSocket connection - try multiple possible references
+        const wsManager = window.websocketManager || window.wsManager || (window.volflowApp && window.volflowApp.modules.websocket);
+        
+        if (!wsManager || !wsManager.ws || wsManager.ws.readyState !== WebSocket.OPEN) {
+            console.error('🔍 DEBUG: WebSocket not available for refresh');
+            this.showToast('WebSocket not connected', 'error');
+            return;
+        }
         
         // Show loading state
-        refreshBtn.disabled = true;
-        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+        const refreshBtn = document.getElementById('refresh-watchlist');
+        if (refreshBtn) {
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+        }
+        
+        // Create and send message for refresh with database cleanup
+        const message = {
+            type: 'refresh_watchlist_with_cleanup',
+            timestamp: new Date().toISOString()
+        };
+        
+        console.log('🔍 DEBUG: Sending refresh watchlist with cleanup WebSocket message:', message);
         
         try {
-            // Fetch prices for all symbols
-            const promises = this.watchlistSymbols.map(symbol => this.fetchSymbolPrice(symbol));
-            await Promise.all(promises);
+            wsManager.ws.send(JSON.stringify(message));
+            console.log('✅ Refresh watchlist with cleanup WebSocket message sent successfully');
             
-            // Update display
-            this.updateWatchlistDisplay();
-            this.updateWatchlistStatus();
-            
-            this.showToast('Watchlist refreshed successfully', 'success');
+            // Reset button after a delay
+            setTimeout(() => {
+                if (refreshBtn) {
+                    refreshBtn.disabled = false;
+                    refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                }
+            }, 3000); // 3 second delay to allow for cleanup process
             
         } catch (error) {
-            console.error('Failed to refresh watchlist:', error);
+            console.error('🔍 DEBUG: Error sending refresh watchlist WebSocket message:', error);
             this.showToast('Failed to refresh watchlist', 'error');
-        } finally {
-            // Restore button state
-            refreshBtn.disabled = false;
-            refreshBtn.innerHTML = originalContent;
+            
+            // Reset button state on error
+            if (refreshBtn) {
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+            }
         }
     }
     
-    async fetchSymbolPrice(symbol) {
-        try {
-            // Fetch real data from live monitor JSON
-            const response = await fetch('./live_monitor.json');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+    // Handle WebSocket data updates (called by app.js)
+    updateFromWebSocket(data) {
+        console.log('📡 Watchlist manager received WebSocket data:', Object.keys(data));
+        
+        // Handle specific watchlist responses (add/remove operations)
+        if (data.type === 'watchlist_symbol_added' && data.success) {
+            console.log('✅ Symbol added successfully:', data.symbol);
+            this.showToast(`Added ${data.symbol} to watchlist`, 'success');
+            
+            // Add symbol to local list if not already present
+            if (!this.watchlistSymbols.includes(data.symbol)) {
+                this.watchlistSymbols.push(data.symbol);
+                this.updateDisplay();
             }
+        }
+        
+        if (data.type === 'watchlist_symbol_removed' && data.success) {
+            console.log('✅ Symbol removed successfully:', data.symbol);
+            this.showToast(`Removed ${data.symbol} from watchlist`, 'info');
             
-            const liveData = await response.json();
+            // Remove symbol from local list
+            const index = this.watchlistSymbols.indexOf(data.symbol);
+            if (index > -1) {
+                this.watchlistSymbols.splice(index, 1);
+                this.updateDisplay();
+            }
+        }
+        
+        if (data.type === 'watchlist_refreshed_with_cleanup' && data.success) {
+            console.log('✅ Watchlist refreshed with cleanup successfully');
+            this.showToast('Watchlist refreshed with database cleanup completed', 'success');
             
-            // Check if symbol exists in integrated_watchlist
-            if (liveData.integrated_watchlist && liveData.integrated_watchlist.watchlist_data && liveData.integrated_watchlist.watchlist_data[symbol]) {
-                const symbolData = liveData.integrated_watchlist.watchlist_data[symbol];
-                
-                this.watchlistData[symbol] = {
-                    symbol: symbol,
-                    current_price: symbolData.current_price || 0,
-                    price_change: symbolData.price_change || 0,
-                    price_change_percent: symbolData.price_change_percent || 0,
-                    volume: symbolData.volume || 0,
-                    market_cap: symbolData.market_cap || null,
-                    last_updated: symbolData.last_updated || new Date().toISOString()
+            // Update local watchlist data from the response
+            if (data.watchlist && data.watchlist.symbols) {
+                this.watchlistSymbols = data.watchlist.symbols;
+                this.updateDisplay();
+            }
+        }
+        
+        if (data.type === 'watchlist_error') {
+            console.log('❌ Watchlist error:', data.error);
+            this.showToast(data.error, 'error');
+        }
+        
+        // Handle PostgreSQL data stream - extract watchlist symbols and market data
+        if (data.data_source === 'postgresql' && data.watchlist_data) {
+            console.log('📊 Processing PostgreSQL watchlist data');
+            
+            // Extract symbols from PostgreSQL watchlist_data
+            const pgWatchlistSymbols = data.watchlist_data.map(item => item.symbol);
+            console.log('📋 PostgreSQL watchlist symbols:', pgWatchlistSymbols);
+            
+            // Update our local symbols list from PostgreSQL (this represents api_watchlist.json)
+            this.watchlistSymbols = pgWatchlistSymbols;
+            
+            // Update market data for watchlist symbols from PostgreSQL
+            this.watchlistData = {};
+            data.watchlist_data.forEach(item => {
+                this.watchlistData[item.symbol] = {
+                    symbol: item.symbol,
+                    current_price: parseFloat(item.current_price) || 0.0,
+                    price_change: parseFloat(item.price_change) || 0.0,
+                    price_change_percent: parseFloat(item.price_change_percent) || 0.0,
+                    volume: parseInt(item.volume) || 0,
+                    market_status: item.market_status || 'Unknown',
+                    last_updated: item.timestamp || new Date().toISOString()
                 };
-                
-                return this.watchlistData[symbol];
-            }
+            });
             
-            // If not in integrated_watchlist, check technical_indicators for price data
-            if (liveData.technical_indicators && liveData.technical_indicators[symbol]) {
-                const techData = liveData.technical_indicators[symbol];
-                const quoteData = techData.quote_data || {};
-                
-                this.watchlistData[symbol] = {
-                    symbol: symbol,
-                    current_price: techData.current_price || 0,
-                    price_change: quoteData.change || 0,
-                    price_change_percent: quoteData.change_percent || 0,
-                    volume: quoteData.volume || 0,
-                    market_cap: null,
-                    last_updated: techData.timestamp || new Date().toISOString()
-                };
-                
-                return this.watchlistData[symbol];
-            }
-            
-            // If symbol not found in live data, return null
-            console.warn(`Symbol ${symbol} not found in live data`);
-            return null;
-            
-        } catch (error) {
-            console.error(`Failed to fetch price for ${symbol}:`, error);
-            return null;
+            console.log('✅ Updated watchlist from PostgreSQL:', this.watchlistSymbols.length, 'symbols');
+            this.updateDisplay();
         }
     }
     
-    updateWatchlistDisplay() {
+    initializeDisplay() {
+        console.log('🎨 Initializing watchlist display');
+        this.updateDisplay();
+    }
+    
+    updateDisplay() {
+        console.log('🎨 Updating watchlist display with', this.watchlistSymbols.length, 'symbols');
+        
         const watchlistList = document.getElementById('watchlist-list');
         const emptyState = document.getElementById('watchlist-empty');
         
-        if (!watchlistList || !emptyState) return;
+        if (!watchlistList || !emptyState) {
+            console.log('🔍 DEBUG: Watchlist display elements not found');
+            return;
+        }
         
         if (this.watchlistSymbols.length === 0) {
             watchlistList.style.display = 'none';
             emptyState.style.display = 'block';
+            this.updateStatus();
             return;
         }
         
@@ -299,13 +382,15 @@ class WatchlistManager {
         // Add each symbol
         this.watchlistSymbols.forEach(symbol => {
             const symbolData = this.watchlistData[symbol];
-            if (!symbolData) return;
-            
-            const item = document.createElement('div');
-            item.className = 'watchlist-item fade-in';
-            item.innerHTML = this.createWatchlistItemHTML(symbolData);
-            watchlistList.appendChild(item);
+            if (symbolData) {
+                const item = document.createElement('div');
+                item.className = 'watchlist-item fade-in';
+                item.innerHTML = this.createWatchlistItemHTML(symbolData);
+                watchlistList.appendChild(item);
+            }
         });
+        
+        this.updateStatus();
     }
     
     createWatchlistItemHTML(symbolData) {
@@ -337,7 +422,7 @@ class WatchlistManager {
         `;
     }
     
-    updateWatchlistStatus() {
+    updateStatus() {
         // Update symbols count
         const symbolsCount = document.getElementById('symbols-count');
         if (symbolsCount) {
@@ -370,303 +455,17 @@ class WatchlistManager {
         }
     }
     
-    saveWatchlist() {
-        try {
-            const watchlistState = {
-                symbols: this.watchlistSymbols,
-                data: this.watchlistData,
-                lastUpdated: new Date().toISOString()
-            };
-            localStorage.setItem('volflow-watchlist', JSON.stringify(watchlistState));
-        } catch (error) {
-            console.error('Failed to save watchlist:', error);
-        }
+    // Public method to remove symbol (called from HTML onclick)
+    removeSymbol(symbol) {
+        console.log('🔍 DEBUG: removeSymbol called for:', symbol);
+        this.sendRemoveSymbolMessage(symbol);
     }
     
-    async loadWatchlist() {
-        try {
-            console.log('Loading watchlist from API server...');
-            
-            // First try to load from API server
-            const apiWatchlist = await this.loadWatchlistFromAPI();
-            
-            if (apiWatchlist && apiWatchlist.success) {
-                console.log('Loaded watchlist from API:', apiWatchlist.symbols);
-                
-                // Use API data as the source of truth
-                this.watchlistSymbols = apiWatchlist.symbols || [];
-                
-                // Initialize watchlist data for each symbol
-                this.watchlistData = {};
-                this.watchlistSymbols.forEach(symbol => {
-                    this.watchlistData[symbol] = {
-                        symbol: symbol,
-                        current_price: 0.0,
-                        price_change: 0.0,
-                        price_change_percent: 0.0,
-                        volume: 0,
-                        last_updated: new Date().toISOString()
-                    };
-                });
-                
-                // Fetch current prices for all symbols
-                await Promise.all(this.watchlistSymbols.map(symbol => this.fetchSymbolPrice(symbol)));
-                
-                // Update display
-                this.updateWatchlistDisplay();
-                this.updateWatchlistStatus();
-                
-                // Save to localStorage as backup
-                this.saveWatchlist();
-                
-                console.log(`✅ Loaded ${this.watchlistSymbols.length} symbols from API server`);
-                
-            } else {
-                // Fallback to localStorage if API is not available
-                console.log('API not available, falling back to localStorage...');
-                await this.loadWatchlistFromLocalStorage();
-            }
-            
-        } catch (error) {
-            console.error('Failed to load watchlist from API:', error);
-            // Fallback to localStorage
-            await this.loadWatchlistFromLocalStorage();
-        }
-    }
-    
-    async loadWatchlistFromAPI() {
-        try {
-            const response = await fetch('http://localhost:8080/api/watchlist/symbols');
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const result = await response.json();
-            return result;
-            
-        } catch (error) {
-            console.error('Error loading watchlist from API:', error);
-            return null;
-        }
-    }
-    
-    async loadWatchlistFromLocalStorage() {
-        try {
-            const saved = localStorage.getItem('volflow-watchlist');
-            if (saved) {
-                const watchlistState = JSON.parse(saved);
-                this.watchlistSymbols = watchlistState.symbols || [];
-                this.watchlistData = watchlistState.data || {};
-                
-                // Update display
-                this.updateWatchlistDisplay();
-                this.updateWatchlistStatus();
-                
-                console.log(`Loaded ${this.watchlistSymbols.length} symbols from localStorage`);
-            } else {
-                this.watchlistSymbols = [];
-                this.watchlistData = {};
-                this.updateWatchlistDisplay();
-                this.updateWatchlistStatus();
-            }
-        } catch (error) {
-            console.error('Failed to load watchlist from localStorage:', error);
-            this.watchlistSymbols = [];
-            this.watchlistData = {};
-            this.updateWatchlistDisplay();
-            this.updateWatchlistStatus();
-        }
-    }
-    
-    // Live Monitor Integration Functions
-    async integrateWithLiveMonitor(symbol) {
-        try {
-            console.log(`Integrating ${symbol} with live monitor system...`);
-            
-            // Call the Python symbols monitor handler to add symbol
-            const response = await this.addSymbolToLiveMonitor(symbol);
-            
-            if (response.success) {
-                console.log(`Successfully integrated ${symbol} with live monitor`);
-                return true;
-            } else {
-                throw new Error(response.error || 'Failed to integrate with live monitor');
-            }
-            
-        } catch (error) {
-            console.error(`Failed to integrate ${symbol} with live monitor:`, error);
-            throw error;
-        }
-    }
-    
-    async addSymbolToLiveMonitor(symbol) {
-        try {
-            // Make HTTP POST request to the Python API server
-            const response = await fetch('http://localhost:8080/api/watchlist/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    symbol: symbol,
-                    timestamp: new Date().toISOString(),
-                    source: 'web_interface'
-                })
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                console.log(`Successfully added ${symbol} to live monitor via API`);
-                return result;
-            } else {
-                throw new Error(result.error || 'Failed to add symbol to live monitor');
-            }
-            
-        } catch (error) {
-            console.error(`Error adding ${symbol} to live monitor:`, error);
-            
-            // Fallback: try to add directly to watchlist file if API is not available
-            console.log('API not available, using fallback method...');
-            return await this.addSymbolFallback(symbol);
-        }
-    }
-    
-    async addSymbolFallback(symbol) {
-        try {
-            // Fallback method: add to localStorage and update local files
-            const watchlistData = await this.loadWatchlistFromFile() || { symbols: [], watchlist_data: {} };
-            
-            if (!watchlistData.symbols.includes(symbol)) {
-                watchlistData.symbols.push(symbol);
-                watchlistData.watchlist_data[symbol] = {
-                    symbol: symbol,
-                    current_price: 0.0,
-                    price_change: 0.0,
-                    price_change_percent: 0.0,
-                    volume: 0,
-                    market_cap: null,
-                    last_updated: new Date().toISOString()
-                };
-                watchlistData.last_updated = new Date().toISOString();
-            }
-            
-            return {
-                success: true,
-                message: `${symbol} added to watchlist (fallback mode)`,
-                timestamp: new Date().toISOString()
-            };
-            
-        } catch (error) {
-            console.error(`Fallback method failed for ${symbol}:`, error);
-            return {
-                success: false,
-                error: error.message,
-                timestamp: new Date().toISOString()
-            };
-        }
-    }
-    
-    async removeSymbolFromLiveMonitor(symbol) {
-        try {
-            // Make HTTP POST request to the Python API server
-            const response = await fetch('http://localhost:8080/api/watchlist/remove', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    symbol: symbol,
-                    timestamp: new Date().toISOString(),
-                    source: 'web_interface'
-                })
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                console.log(`Successfully removed ${symbol} from live monitor via API`);
-                return result;
-            } else {
-                throw new Error(result.error || 'Failed to remove symbol from live monitor');
-            }
-            
-        } catch (error) {
-            console.error(`Error removing ${symbol} from live monitor:`, error);
-            return {
-                success: false,
-                error: error.message,
-                timestamp: new Date().toISOString()
-            };
-        }
-    }
-    
-    async loadWatchlistFromFile() {
-        try {
-            // Load the watchlist data from the live monitor JSON file
-            const response = await fetch('./live_monitor.json');
-            if (response.ok) {
-                const liveData = await response.json();
-                // Return the integrated_watchlist section in the expected format
-                const integratedWatchlist = liveData.integrated_watchlist || {};
-                return {
-                    symbols: integratedWatchlist.symbols || [],
-                    watchlist_data: integratedWatchlist.watchlist_data || {},
-                    last_updated: integratedWatchlist.metadata?.last_updated || new Date().toISOString()
-                };
-            }
-            return null;
-        } catch (error) {
-            console.error('Failed to load watchlist from live monitor:', error);
-            return null;
-        }
-    }
-    
-    // Update from WebSocket data
-    updateFromWebSocket(data) {
-        if (data.watchlist_data && Array.isArray(data.watchlist_data)) {
-            console.log('📊 Updating watchlist from PostgreSQL WebSocket:', data.watchlist_data.length, 'symbols');
-            
-            // Update the global watchlist data with real-time PostgreSQL data
-            this.watchlistSymbols = [];
-            this.watchlistData = {};
-            
-            data.watchlist_data.forEach(symbolData => {
-                const symbol = symbolData.symbol;
-                this.watchlistSymbols.push(symbol);
-                this.watchlistData[symbol] = {
-                    symbol: symbol,
-                    current_price: parseFloat(symbolData.current_price || 0),
-                    price_change: parseFloat(symbolData.price_change || 0),
-                    price_change_percent: parseFloat(symbolData.price_change_percent || 0),
-                    volume: parseInt(symbolData.volume || 0),
-                    last_updated: symbolData.timestamp || new Date().toISOString()
-                };
-            });
-            
-            // Update watchlist display with real-time data
-            this.updateWatchlistDisplay();
-            this.updateWatchlistStatus();
-            
-            console.log('✅ Watchlist updated with', this.watchlistSymbols.length, 'symbols from PostgreSQL database');
-        }
-    }
-    
+
     showToast(message, type = 'info') {
-        // Use the global toast function if available
+        console.log(`Toast: ${message} (${type})`);
         if (window.showToast) {
             window.showToast(message, type);
-        } else {
-            console.log(`Toast: ${message} (${type})`);
         }
     }
 }

@@ -378,7 +378,7 @@ class AccountDataHandler:
 
     def get_all_account_summaries(self) -> List[Dict[str, Any]]:
         """
-        Get summaries for all linked accounts.
+        Get summaries for all linked accounts and automatically update account_data.json.
         
         Returns:
             List[Dict[str, Any]]: List of account summaries
@@ -393,8 +393,89 @@ class AccountDataHandler:
             except Exception as e:
                 print(f"Error processing account summary: {e}")
                 continue
+        
+        # Automatically update account_data.json every time this method is called
+        if summaries:
+            try:
+                self._update_account_data_json(summaries)
+            except Exception as e:
+                print(f"Warning: Failed to update account_data.json: {e}")
                 
         return summaries
+
+    def _update_account_data_json(self, summaries: List[Dict[str, Any]]) -> bool:
+        """
+        Internal method to update account_data.json file with current account summaries.
+        Called automatically every time get_all_account_summaries() is executed.
+        
+        Args:
+            summaries (List[Dict[str, Any]]): List of account summaries
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            import json
+            
+            # Create the JSON structure for db_inserter
+            account_data = {
+                'strategy_name': 'Account_Data',
+                'last_updated': datetime.now().isoformat(),
+                'total_accounts': len(summaries),
+                'account_data': {},
+                'metadata': {
+                    'data_source': 'schwab_api',
+                    'handler_type': 'account_data_handler',
+                    'update_frequency': 'realtime_monitor_calls',
+                    'database_integration': True,
+                    'auto_updated': True,
+                    'creation_date': datetime.now().isoformat()
+                }
+            }
+            
+            # Process each account summary to match database schema
+            for summary in summaries:
+                account_number = summary['account_number']
+                positions = summary.get('positions', {})
+                balances = summary.get('balances', {})
+                status = summary.get('status', {})
+                risk = summary.get('risk', {})
+                
+                # Create account data matching the database schema
+                account_record = {
+                    'account_number': account_number,
+                    'total_count': positions.get('total_count', 0),
+                    'total_market_value': float(positions.get('total_market_value', 0.0)),
+                    'total_unrealized_pl': float(positions.get('total_unrealized_pl', 0.0)),
+                    'total_day_pl': float(positions.get('total_day_pl', 0.0)),
+                    'equity': float(balances.get('equity', 0.0)),
+                    'buying_power': float(balances.get('buying_power', 0.0)),
+                    'available_funds': float(balances.get('available_funds', 0.0)),
+                    'day_trading_buying_power': float(balances.get('day_trading_buying_power', 0.0)),
+                    'stock_buying_power': float(balances.get('stock_buying_power', 0.0)),
+                    'option_buying_power': float(balances.get('option_buying_power', 0.0)),
+                    'is_day_trader': bool(status.get('is_day_trader', False)),
+                    'is_closing_only_restricted': bool(status.get('is_closing_only_restricted', False)),
+                    'round_trips': int(status.get('round_trips', 0)),
+                    'pfcb_flag': bool(status.get('pfcb_flag', False)),
+                    'maintenance_requirement': float(risk.get('maintenance_requirement', 0.0)),
+                    'equity_percentage': float(risk.get('equity_percentage', 0.0)),
+                    'margin_balance': float(risk.get('margin_balance', 0.0)),
+                    'is_in_call': int(risk.get('is_in_call', 0)),
+                    'timestamp': datetime.now().isoformat()
+                }
+                
+                account_data['account_data'][account_number] = account_record
+            
+            # Write to account_data.json in root directory
+            with open('account_data.json', 'w') as f:
+                json.dump(account_data, f, indent=2)
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error updating account_data.json: {e}")
+            return False
 
     def export_account_data(self, filename: str = None, include_positions: bool = True) -> Dict[str, Any]:
         """

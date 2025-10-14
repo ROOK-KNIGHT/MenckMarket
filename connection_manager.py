@@ -244,7 +244,7 @@ def refresh_tokens(refresh_token):
 
 
 # Modify ensure_valid_tokens to check expiration time
-def ensure_valid_tokens():
+def ensure_valid_tokens(refresh=True):
     tokens = load_tokens()
     if tokens:
         expires_at = tokens.get('expires_at')

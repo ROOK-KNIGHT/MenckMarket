@@ -1175,6 +1175,330 @@ class OrderHandler:
             self.logger.error(f"Error creating option symbol: {str(e)}")
             return None
 
+    def place_complex_option_order(self, order_data: Dict[str, Any], timestamp: datetime = None) -> Dict:
+        """
+        Place a complex option order (spreads, Iron Condors, etc.) using Schwab API.
+        
+        Args:
+            order_data: Complete order payload in Schwab API format
+            timestamp: Order timestamp
+            
+        Returns:
+            Order placement result
+        """
+        if timestamp is None:
+            timestamp = datetime.now()
+            
+        self.logger.info(f"Attempting to place complex option order with {len(order_data.get('orderLegCollection', []))} legs")
+        
+        try:
+            # Make API request to Schwab
+            url = f"https://api.schwabapi.com/trader/v1/accounts/{self.account_number}/orders"
+            headers = {
+                "Authorization": f"Bearer {self.tokens['access_token']}",
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+            
+            response = requests.post(url, json=order_data, headers=headers)
+            
+            if response.status_code in [200, 201]:
+                order_id = response.headers.get('Location', '').split('/')[-1]
+                
+                # Record successful order
+                order_record = {
+                    'timestamp': timestamp,
+                    'symbol': 'COMPLEX_OPTION',
+                    'action_type': 'COMPLEX',
+                    'order_type': 'complex_option',
+                    'order_data': order_data,
+                    'order_id': order_id,
+                    'status': 'submitted'
+                }
+                
+                self.order_history.append(order_record)
+                
+                self.logger.info(f"Complex option order submitted successfully, Order ID: {order_id}")
+                
+                return {
+                    'status': 'submitted',
+                    'order_type': 'complex_option',
+                    'order_id': order_id,
+                    'timestamp': timestamp
+                }
+            else:
+                error_msg = f"Failed to place complex option order: {response.status_code} - {response.text}"
+                self.logger.error(error_msg)
+                return {
+                    'status': 'rejected',
+                    'reason': error_msg,
+                    'timestamp': timestamp
+                }
+            
+        except Exception as e:
+            self.logger.error(f"Error placing complex option order: {str(e)}")
+            return {
+                'status': 'error',
+                'reason': str(e),
+                'timestamp': timestamp
+            }
+
+    # ==================== STOCK OCO ORDER METHODS ====================
+    
+    def place_stock_oco_order_with_targets(self, action_type: str, symbol: str, shares: int, 
+                                         entry_price: float, profit_target: float, stop_loss: float,
+                                         timestamp: datetime = None) -> Dict:
+        """
+        Place a "One Triggers A One Cancels Another" order for STOCKS with automatic profit targets and stop losses.
+        
+        This is the core method for implementing automated risk management on stock trades.
+        It creates a complex order structure that:
+        1. Places an entry order (BUY or SELL_SHORT) at the specified limit price
+        2. Once the entry order fills, automatically submits TWO exit orders:
+           - A profit target LIMIT order (to capture gains)
+           - A stop loss STOP order (to limit losses)
+        3. If either exit order fills, the other is automatically cancelled (OCO = One Cancels Other)
+        
+        This eliminates the need for manual order management and ensures every trade has
+        both profit protection and loss protection from the moment of entry.
+        
+        Args:
+            action_type: Entry action ("BUY" for long positions, "SELL_SHORT" for short positions)
+            symbol: Stock symbol (e.g., "AAPL", "TSLA")
+            shares: Number of shares to trade
+            entry_price: Entry limit price - the price at which we want to enter the position
+            profit_target: Profit target limit price - where we want to take profits
+            stop_loss: Stop loss price - where we want to cut losses
+            timestamp: Order timestamp (defaults to current time)
+            
+        Returns:
+            Dict containing order placement result with status, order_id, and trade details
+        """
+        if timestamp is None:
+            timestamp = datetime.now()
+            
+        # Validate action type - only BUY and SELL_SHORT supported for OCO with targets
+        valid_actions = ["BUY", "SELL_SHORT"]
+        if action_type not in valid_actions:
+            return {
+                'status': 'rejected',
+                'reason': f'Invalid action type for stock OCO order: {action_type}. Must be BUY or SELL_SHORT',
+                'timestamp': timestamp
+            }
+        
+        # Determine exit actions based on entry action
+        if action_type == "BUY":
+            exit_action = "SELL"
+        else:  # SELL_SHORT
+            exit_action = "BUY_TO_COVER"
+        
+        self.logger.info(f"Attempting to place STOCK OCO order: {action_type} {shares} shares of {symbol} @ ${entry_price:.2f}")
+        self.logger.info(f"  Profit target: {exit_action} @ ${profit_target:.2f}")
+        self.logger.info(f"  Stop loss: {exit_action} @ ${stop_loss:.2f}")
+        
+        try:
+            if shares <= 0:
+                return {
+                    'status': 'rejected',
+                    'reason': 'Invalid share quantity',
+                    'timestamp': timestamp
+                }
+            
+            # Validate price relationships
+            if action_type == "BUY":
+                # For BUY orders: profit_target > entry_price > stop_loss
+                if not (profit_target > entry_price > stop_loss):
+                    return {
+                        'status': 'rejected',
+                        'reason': f'Invalid price relationship for BUY: profit_target ({profit_target}) > entry_price ({entry_price}) > stop_loss ({stop_loss})',
+                        'timestamp': timestamp
+                    }
+            else:  # SELL_SHORT
+                # For SELL_SHORT orders: stop_loss > entry_price > profit_target
+                if not (stop_loss > entry_price > profit_target):
+                    return {
+                        'status': 'rejected',
+                        'reason': f'Invalid price relationship for SELL_SHORT: stop_loss ({stop_loss}) > entry_price ({entry_price}) > profit_target ({profit_target})',
+                        'timestamp': timestamp
+                    }
+            
+            # Create the 1st Trigger OCO order payload using Schwab API format for STOCKS
+            order_payload = {
+                "orderStrategyType": "TRIGGER",
+                "session": "NORMAL",
+                "duration": "DAY",
+                "orderType": "LIMIT",
+                "price": entry_price,
+                "orderLegCollection": [
+                    {
+                        "instruction": action_type,
+                        "quantity": shares,
+                        "instrument": {
+                            "assetType": "EQUITY",
+                            "symbol": symbol
+                        }
+                    }
+                ],
+                "childOrderStrategies": [
+                    {
+                        "orderStrategyType": "OCO",
+                        "childOrderStrategies": [
+                            {
+                                "orderStrategyType": "SINGLE",
+                                "session": "NORMAL",
+                                "duration": "GOOD_TILL_CANCEL",
+                                "orderType": "LIMIT",
+                                "price": profit_target,
+                                "orderLegCollection": [
+                                    {
+                                        "instruction": exit_action,
+                                        "quantity": shares,
+                                        "instrument": {
+                                            "assetType": "EQUITY",
+                                            "symbol": symbol
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "orderStrategyType": "SINGLE",
+                                "session": "NORMAL",
+                                "duration": "GOOD_TILL_CANCEL",
+                                "orderType": "STOP",
+                                "stopPrice": stop_loss,
+                                "orderLegCollection": [
+                                    {
+                                        "instruction": exit_action,
+                                        "quantity": shares,
+                                        "instrument": {
+                                            "assetType": "EQUITY",
+                                            "symbol": symbol
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+            
+            # Make API request to Schwab
+            url = f"https://api.schwabapi.com/trader/v1/accounts/{self.account_number}/orders"
+            headers = {
+                "Authorization": f"Bearer {self.tokens['access_token']}",
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+            
+            response = requests.post(url, json=order_payload, headers=headers)
+            
+            if response.status_code in [200, 201]:
+                order_id = response.headers.get('Location', '').split('/')[-1]
+                
+                # Calculate potential profit and risk
+                if action_type == "BUY":
+                    potential_profit = (profit_target - entry_price) * shares
+                    potential_loss = (entry_price - stop_loss) * shares
+                else:  # SELL_SHORT
+                    potential_profit = (entry_price - profit_target) * shares
+                    potential_loss = (stop_loss - entry_price) * shares
+                
+                # Record successful order
+                order_record = {
+                    'timestamp': timestamp,
+                    'symbol': symbol,
+                    'action_type': action_type,
+                    'order_type': 'stock_oco_with_targets',
+                    'shares': shares,
+                    'entry_price': entry_price,
+                    'profit_target': profit_target,
+                    'stop_loss': stop_loss,
+                    'potential_profit': potential_profit,
+                    'potential_loss': potential_loss,
+                    'order_id': order_id,
+                    'status': 'submitted'
+                }
+                
+                self.order_history.append(order_record)
+                
+                self.logger.info(f"STOCK OCO order with targets submitted successfully:")
+                self.logger.info(f"  Entry: {action_type} {shares} shares of {symbol} @ ${entry_price:.2f}")
+                self.logger.info(f"  Profit Target: {exit_action} @ ${profit_target:.2f} (${potential_profit:.2f} profit)")
+                self.logger.info(f"  Stop Loss: {exit_action} @ ${stop_loss:.2f} (${potential_loss:.2f} loss)")
+                self.logger.info(f"  Order ID: {order_id}")
+                
+                return {
+                    'status': 'submitted',
+                    'symbol': symbol,
+                    'action_type': action_type,
+                    'order_type': 'stock_oco_with_targets',
+                    'shares': shares,
+                    'entry_price': entry_price,
+                    'profit_target': profit_target,
+                    'stop_loss': stop_loss,
+                    'exit_action': exit_action,
+                    'potential_profit': potential_profit,
+                    'potential_loss': potential_loss,
+                    'risk_reward_ratio': potential_profit / potential_loss if potential_loss > 0 else 0,
+                    'order_id': order_id,
+                    'timestamp': timestamp
+                }
+            else:
+                error_msg = f"Failed to place STOCK OCO order with targets: {response.status_code} - {response.text}"
+                self.logger.error(error_msg)
+                return {
+                    'status': 'rejected',
+                    'reason': error_msg,
+                    'timestamp': timestamp
+                }
+            
+        except Exception as e:
+            self.logger.error(f"Error placing STOCK OCO order with targets: {str(e)}")
+            return {
+                'status': 'error',
+                'reason': str(e),
+                'timestamp': timestamp
+            }
+
+    # Convenience methods for STOCK OCO orders with targets
+    def buy_stock_with_targets(self, symbol: str, shares: int, entry_price: float, 
+                              profit_target: float, stop_loss: float, timestamp: datetime = None) -> Dict:
+        """
+        Convenience method for BUY STOCK orders with automatic profit targets and stop losses.
+        
+        Args:
+            symbol: Stock symbol
+            shares: Number of shares
+            entry_price: Entry limit price
+            profit_target: Profit target price (must be > entry_price)
+            stop_loss: Stop loss price (must be < entry_price)
+            timestamp: Order timestamp
+            
+        Returns:
+            Order placement result
+        """
+        return self.place_stock_oco_order_with_targets("BUY", symbol, shares, entry_price, 
+                                                     profit_target, stop_loss, timestamp)
+
+    def sell_short_stock_with_targets(self, symbol: str, shares: int, entry_price: float, 
+                                     profit_target: float, stop_loss: float, timestamp: datetime = None) -> Dict:
+        """
+        Convenience method for SELL_SHORT STOCK orders with automatic profit targets and stop losses.
+        
+        Args:
+            symbol: Stock symbol
+            shares: Number of shares
+            entry_price: Entry limit price
+            profit_target: Profit target price (must be < entry_price)
+            stop_loss: Stop loss price (must be > entry_price)
+            timestamp: Order timestamp
+            
+        Returns:
+            Order placement result
+        """
+        return self.place_stock_oco_order_with_targets("SELL_SHORT", symbol, shares, entry_price, 
+                                                     profit_target, stop_loss, timestamp)
+
 
 def main():
     """Command-line interface for OrderHandler."""

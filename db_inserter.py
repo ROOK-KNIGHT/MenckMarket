@@ -66,21 +66,44 @@ class DatabaseInserter:
         self.logger.info(f"Monitoring {len(self.json_files)} JSON files")
 
     def load_json_file(self, file_path: str) -> Optional[Dict[str, Any]]:
-        """Load data from a JSON file."""
-        try:
-            if not os.path.exists(file_path):
-                self.logger.warning(f"JSON file not found: {file_path}")
+        """Load data from a JSON file with retry logic to handle file access conflicts."""
+        import time
+        
+        max_retries = 3
+        retry_delay = 0.1  # 100ms delay between retries
+        
+        for attempt in range(max_retries):
+            try:
+                if not os.path.exists(file_path):
+                    self.logger.warning(f"JSON file not found: {file_path}")
+                    return None
+                
+                # Use a shorter timeout for file operations to prevent blocking
+                with open(file_path, 'r') as f:
+                    data = json.load(f)
+                
+                if attempt > 0:
+                    self.logger.info(f"Successfully loaded JSON file on attempt {attempt + 1}: {file_path}")
+                else:
+                    self.logger.debug(f"Loaded JSON file: {file_path}")
+                return data
+                
+            except (IOError, OSError, PermissionError) as e:
+                if attempt < max_retries - 1:
+                    self.logger.warning(f"File access conflict for {file_path} (attempt {attempt + 1}), retrying in {retry_delay}s: {e}")
+                    time.sleep(retry_delay)
+                    continue
+                else:
+                    self.logger.error(f"Failed to load JSON file {file_path} after {max_retries} attempts: {e}")
+                    return None
+            except json.JSONDecodeError as e:
+                self.logger.error(f"JSON decode error in {file_path}: {e}")
                 return None
-            
-            with open(file_path, 'r') as f:
-                data = json.load(f)
-            
-            self.logger.info(f"Loaded JSON file: {file_path}")
-            return data
-            
-        except Exception as e:
-            self.logger.error(f"Error loading JSON file {file_path}: {e}")
-            return None
+            except Exception as e:
+                self.logger.error(f"Unexpected error loading JSON file {file_path}: {e}")
+                return None
+        
+        return None
 
     def insert_iron_condor_signals(self, data: Dict[str, Any]) -> bool:
         """Insert iron condor signals into database."""
@@ -96,20 +119,14 @@ class DatabaseInserter:
             
             for symbol, signal_data in signals.items():
                 try:
-                    setup_data = signal_data.get('setup', {})
-                    strikes = setup_data.get('strikes', {})
-                    
+                    # Simplified insert matching actual JSON structure
                     insert_sql = """
                     INSERT INTO iron_condor_signals (
-                        timestamp, symbol, signal_type, confidence, entry_reason, exit_reason,
+                        timestamp, symbol, signal_type, confidence, entry_reason,
                         position_size, stop_loss, profit_target, market_condition, volatility_environment,
-                        expiration_date, dte, long_put_strike, short_put_strike, short_call_strike, long_call_strike,
-                        long_put_price, short_put_price, short_call_price, long_call_price,
-                        net_credit, max_profit, max_loss, breakeven_lower, breakeven_upper, prob_profit,
-                        delta, gamma, theta, vega, implied_vol, iv_rank, auto_approve
+                        auto_approve
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
                     """
                     
@@ -119,34 +136,11 @@ class DatabaseInserter:
                         signal_data.get('signal_type', 'NO_SIGNAL'),
                         signal_data.get('confidence', 0.0),
                         signal_data.get('entry_reason', ''),
-                        signal_data.get('exit_reason', ''),
                         signal_data.get('position_size', 0.0),
                         signal_data.get('stop_loss', 0.0),
                         signal_data.get('profit_target', 0.0),
                         signal_data.get('market_condition', 'UNCERTAIN'),
                         signal_data.get('volatility_environment', 'Unknown'),
-                        setup_data.get('expiration_date'),
-                        setup_data.get('dte', 0),
-                        strikes.get('long_put', 0.0),
-                        strikes.get('short_put', 0.0),
-                        strikes.get('short_call', 0.0),
-                        strikes.get('long_call', 0.0),
-                        setup_data.get('long_put_price', 0.0),
-                        setup_data.get('short_put_price', 0.0),
-                        setup_data.get('short_call_price', 0.0),
-                        setup_data.get('long_call_price', 0.0),
-                        setup_data.get('net_credit', 0.0),
-                        setup_data.get('max_profit', 0.0),
-                        setup_data.get('max_loss', 0.0),
-                        setup_data.get('breakeven_lower', 0.0),
-                        setup_data.get('breakeven_upper', 0.0),
-                        setup_data.get('prob_profit', 0.0),
-                        setup_data.get('delta', 0.0),
-                        setup_data.get('gamma', 0.0),
-                        setup_data.get('theta', 0.0),
-                        setup_data.get('vega', 0.0),
-                        setup_data.get('implied_vol', 0.0),
-                        setup_data.get('iv_rank', 50.0),
                         signal_data.get('auto_approve', True)
                     )
                     
@@ -184,20 +178,14 @@ class DatabaseInserter:
             
             for symbol, signal_data in signals.items():
                 try:
-                    setup_data = signal_data.get('setup', {})
-                    
+                    # Simplified insert matching actual JSON structure
                     insert_sql = """
                     INSERT INTO pml_signals (
-                        timestamp, symbol, signal_type, confidence, entry_reason, exit_reason,
+                        timestamp, symbol, signal_type, confidence, entry_reason,
                         position_size, stop_loss, profit_target, market_condition, volatility_environment,
-                        expiration_date, dte, strike, option_type, current_price, bid, ask,
-                        pml_price, ceiling_price, floor_price, green_line_price,
-                        call_delta, put_delta, net_delta, delta, gamma, theta, vega,
-                        implied_vol, intrinsic_value, time_value, potential_profit, max_loss,
-                        spot_price, volume, open_interest, auto_approve
+                        auto_approve
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
                     """
                     
@@ -207,38 +195,11 @@ class DatabaseInserter:
                         signal_data.get('signal_type', 'NO_SIGNAL'),
                         signal_data.get('confidence', 0.0),
                         signal_data.get('entry_reason', ''),
-                        signal_data.get('exit_reason', ''),
                         signal_data.get('position_size', 0.0),
                         signal_data.get('stop_loss', 0.0),
                         signal_data.get('profit_target', 0.0),
                         signal_data.get('market_condition', 'UNCERTAIN'),
                         signal_data.get('volatility_environment', 'Unknown'),
-                        setup_data.get('expiration_date'),
-                        setup_data.get('dte', 0),
-                        setup_data.get('strike', 0.0),
-                        setup_data.get('option_type', 'CALL'),
-                        setup_data.get('current_price', 0.0),
-                        setup_data.get('bid', 0.0),
-                        setup_data.get('ask', 0.0),
-                        setup_data.get('pml_price', 0.0),
-                        setup_data.get('ceiling_price', 0.0),
-                        setup_data.get('floor_price', 0.0),
-                        setup_data.get('green_line_price', 0.0),
-                        setup_data.get('call_delta', 0.0),
-                        setup_data.get('put_delta', 0.0),
-                        setup_data.get('net_delta', 0.0),
-                        setup_data.get('delta', 0.0),
-                        setup_data.get('gamma', 0.0),
-                        setup_data.get('theta', 0.0),
-                        setup_data.get('vega', 0.0),
-                        setup_data.get('implied_vol', 0.0),
-                        setup_data.get('intrinsic_value', 0.0),
-                        setup_data.get('time_value', 0.0),
-                        setup_data.get('potential_profit', 0.0),
-                        setup_data.get('max_loss', 0.0),
-                        setup_data.get('spot_price', 0.0),
-                        setup_data.get('volume', 0),
-                        setup_data.get('open_interest', 0),
                         signal_data.get('auto_approve', True)
                     )
                     
@@ -276,21 +237,14 @@ class DatabaseInserter:
             
             for symbol, signal_data in signals.items():
                 try:
-                    setup_data = signal_data.get('setup', {})
-                    
+                    # Simplified insert matching actual JSON structure
                     insert_sql = """
                     INSERT INTO divergence_signals (
-                        timestamp, symbol, signal_type, confidence, entry_reason, exit_reason,
+                        timestamp, symbol, signal_type, confidence, entry_reason,
                         position_size, stop_loss, profit_target, market_condition, volatility_environment,
-                        timeframe, divergence_type, direction, current_price, entry_price, take_profit,
-                        first_swing_timestamp, first_swing_price, first_swing_rsi, first_swing_type,
-                        second_swing_timestamp, second_swing_price, second_swing_rsi, second_swing_type,
-                        risk_amount, reward_amount, reward_risk_ratio, rsi_value, macd_value,
-                        trend_direction, atr_value, support_level, resistance_level,
-                        timeframe_confirmed, confirmation_timeframes, auto_approve
+                        auto_approve
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
                     """
                     
@@ -300,37 +254,11 @@ class DatabaseInserter:
                         signal_data.get('signal_type', 'NO_SIGNAL'),
                         signal_data.get('confidence', 0.0),
                         signal_data.get('entry_reason', ''),
-                        signal_data.get('exit_reason', ''),
                         signal_data.get('position_size', 0.0),
                         signal_data.get('stop_loss', 0.0),
                         signal_data.get('profit_target', 0.0),
                         signal_data.get('market_condition', 'UNCERTAIN'),
                         signal_data.get('volatility_environment', 'Unknown'),
-                        setup_data.get('timeframe', '15min'),
-                        setup_data.get('divergence_type', 'MEDIUM'),
-                        setup_data.get('direction', 'neutral'),
-                        setup_data.get('current_price', 0.0),
-                        setup_data.get('entry_price', 0.0),
-                        setup_data.get('take_profit', 0.0),
-                        setup_data.get('first_swing', {}).get('timestamp') if setup_data.get('first_swing') else None,
-                        setup_data.get('first_swing', {}).get('price', 0.0) if setup_data.get('first_swing') else 0.0,
-                        setup_data.get('first_swing', {}).get('rsi', 0.0) if setup_data.get('first_swing') else 0.0,
-                        setup_data.get('first_swing', {}).get('swing_type', 'unknown') if setup_data.get('first_swing') else 'unknown',
-                        setup_data.get('second_swing', {}).get('timestamp') if setup_data.get('second_swing') else None,
-                        setup_data.get('second_swing', {}).get('price', 0.0) if setup_data.get('second_swing') else 0.0,
-                        setup_data.get('second_swing', {}).get('rsi', 0.0) if setup_data.get('second_swing') else 0.0,
-                        setup_data.get('second_swing', {}).get('swing_type', 'unknown') if setup_data.get('second_swing') else 'unknown',
-                        setup_data.get('risk_amount', 0.0),
-                        setup_data.get('reward_amount', 0.0),
-                        setup_data.get('reward_risk_ratio', 0.0),
-                        setup_data.get('rsi_value', 50.0),
-                        setup_data.get('macd_value', 0.0),
-                        setup_data.get('trend_direction', 'neutral'),
-                        setup_data.get('atr_value', 0.0),
-                        setup_data.get('support_level'),
-                        setup_data.get('resistance_level'),
-                        setup_data.get('timeframe_confirmed', False),
-                        setup_data.get('confirmation_timeframes', []) or None,
                         signal_data.get('auto_approve', True)
                     )
                     

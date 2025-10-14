@@ -1,0 +1,79 @@
+{
+  "pml_LYFT_2025-10-14T11:12:02.354181": {
+    "strategy": "pml",
+    "symbol": "LYFT",
+    "signal_timestamp": "2025-10-14T11:12:02.354181",
+    "signal_type": "STRONG_BUY",
+    "confidence": 0.7649999999999991,
+    "processed_at": "2025-10-14T11:12:08.129923",
+    "entry_reason": "Strong PML bullish cross with confirmation",
+    "market_condition": "PML_CROSS_BULLISH",
+    "auto_approve": true
+  },
+  "iron_condor_V_2025-10-14T11:12:07.114908": {
+    "strategy": "iron_condor",
+    "symbol": "V",
+    "signal_timestamp": "2025-10-14T11:12:07.114908",
+    "signal_type": "STRONG_BUY",
+    "confidence": 0.9947147917776178,
+    "processed_at": "2025-10-14T11:12:08.531554",
+    "entry_reason": "Excellent Iron Condor conditions - range-bound low volatility market - No suitable Iron Condor setups found with current options data",
+    "market_condition": "RANGE_BOUND",
+    "auto_approve": true
+  },
+  "iron_condor_AAPL_2025-10-14T11:12:07.113721": {
+    "strategy": "iron_condor",
+    "symbol": "AAPL",
+    "signal_timestamp": "2025-10-14T11:12:07.113721",
+    "signal_type": "BUY",
+    "confidence": 0.6937977947567802,
+    "processed_at": "2025-10-14T11:12:08.911098",
+    "entry_reason": "Good Iron Condor setup - suitable market conditions - No suitable Iron Condor setups found with current options data",
+    "market_condition": "RANGE_BOUND",
+    "auto_approve": true
+  },
+  "divergence_AMZN_2025-10-14T11:12:00.560664": {
+    "strategy": "divergence",
+    "symbol": "AMZN",
+    "signal_timestamp": "2025-10-14T11:12:00.560664",
+    "signal_type": "STRONG_BUY",
+    "confidence": 0.9,
+    "processed_at": "2025-10-14T11:12:09.266146",
+    "entry_reason": "Strong bullish divergence detected in technical indicators",
+    "market_condition": "BULLISH_DIVERGENCE",
+    "auto_approve": true
+  },
+  "pml_LYFT_2025-10-14T16:33:43.655828": {
+    "strategy": "pml",
+    "symbol": "LYFT",
+    "signal_timestamp": "2025-10-14T16:33:43.655828",
+    "signal_type": "STRONG_BUY",
+    "confidence": 0.729999999999999,
+    "processed_at": "2025-10-14T16:33:45.818940",
+    "entry_reason": "Strong PML bullish cross with confirmation",
+    "market_condition": "PML_CROSS_BULLISH",
+    "auto_approve": true
+  },
+  "divergence_AMZN_2025-10-14T16:36:36.905115": {
+    "strategy": "divergence",
+    "symbol": "AMZN",
+    "signal_timestamp": "2025-10-14T16:36:36.905115",
+    "signal_type": "STRONG_BUY",
+    "confidence": 0.9,
+    "processed_at": "2025-10-14T16:36:43.582819",
+    "entry_reason": "Strong bullish divergence detected in technical indicators",
+    "market_condition": "BULLISH_DIVERGENCE",
+    "auto_approve": true
+  },
+  "divergence_AAPL_2025-10-14T16:36:36.905416": {
+    "strategy": "divergence",
+    "symbol": "AAPL",
+    "signal_timestamp": "2025-10-14T16:36:36.905416",
+    "signal_type": "STRONG_SELL",
+    "confidence": 0.9,
+    "processed_at": "2025-10-14T16:36:44.349665",
+    "entry_reason": "Strong bearish divergence detected in technical indicators",
+    "market_condition": "BEARISH_DIVERGENCE",
+    "auto_approve": true
+  }
+}

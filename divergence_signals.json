@@ -1,58 +1,46 @@
 {
   "strategy_name": "Divergence_Strategy",
-  "last_updated": "2025-10-11T18:09:50.278856",
+  "last_updated": "2025-10-14T16:49:11.061735",
   "total_symbols_analyzed": 7,
-  "signals_generated": 0,
+  "signals_generated": 1,
   "analysis_summary": {
-    "strong_buy": 0,
+    "strong_buy": 1,
     "buy": 0,
     "hold": 0,
-    "no_signal": 5
+    "no_signal": 4
   },
   "signals": {
-    "AMZN": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-11T18:09:50.205981",
-      "market_condition": "TRENDING_DOWN",
-      "volatility_environment": "Medium Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": true
-    },
-    "AAPL": {
+    "LYFT": {
       "signal_type": "STRONG_SELL",
       "confidence": 0.9,
       "entry_reason": "Strong bearish divergence detected in technical indicators",
-      "timestamp": "2025-10-11T18:09:50.225250",
+      "timestamp": "2025-10-14T16:49:11.032074",
       "market_condition": "BEARISH_DIVERGENCE",
-      "volatility_environment": "Medium Volatility",
-      "position_size": 2.0,
-      "stop_loss": 252.64946407671263,
-      "profit_target": 230.51107184657477,
-      "auto_approve": true
-    },
-    "BAC": {
-      "signal_type": "STRONG_SELL",
-      "confidence": 0.9,
-      "entry_reason": "Strong bearish divergence detected in technical indicators",
-      "timestamp": "2025-10-11T18:09:50.228325",
-      "market_condition": "BEARISH_DIVERGENCE",
-      "volatility_environment": "Medium Volatility",
-      "position_size": 2.0,
-      "stop_loss": 50.032444415768786,
-      "profit_target": 45.88511116846242,
+      "volatility_environment": "High Volatility",
+      "position_size": 1.0,
+      "stop_loss": 21.69618415788706,
+      "profit_target": 16.997631684225876,
       "auto_approve": true
     },
     "PLTR": {
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-11T18:09:50.229398",
-      "market_condition": "RANGE_BOUND",
+      "timestamp": "2025-10-14T16:49:11.031273",
+      "market_condition": "TRENDING_UP",
       "volatility_environment": "High Volatility",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": true
+    },
+    "V": {
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "No divergence signals detected",
+      "timestamp": "2025-10-14T16:49:10.945749",
+      "market_condition": "TRENDING_UP",
+      "volatility_environment": "Medium Volatility",
       "position_size": 0.0,
       "stop_loss": 0.0,
       "profit_target": 0.0,
@@ -62,36 +50,48 @@
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-11T18:09:50.229100",
-      "market_condition": "TRENDING_UP",
+      "timestamp": "2025-10-14T16:49:11.031619",
+      "market_condition": "RANGE_BOUND",
       "volatility_environment": "High Volatility",
       "position_size": 0.0,
       "stop_loss": 0.0,
       "profit_target": 0.0,
       "auto_approve": true
     },
-    "GOOGL": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-11T18:09:50.209222",
-      "market_condition": "RANGE_BOUND",
+    "AMZN": {
+      "signal_type": "STRONG_BUY",
+      "confidence": 0.9,
+      "entry_reason": "Strong bullish divergence detected in technical indicators",
+      "timestamp": "2025-10-14T16:49:11.031691",
+      "market_condition": "BULLISH_DIVERGENCE",
       "volatility_environment": "Medium Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
+      "position_size": 2.0,
+      "stop_loss": 208.53908835133984,
+      "profit_target": 233.0536232973203,
       "auto_approve": true
     },
     "INTC": {
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-11T18:09:50.250090",
+      "timestamp": "2025-10-14T16:49:11.048855",
       "market_condition": "TRENDING_UP",
       "volatility_environment": "High Volatility",
       "position_size": 0.0,
       "stop_loss": 0.0,
       "profit_target": 0.0,
+      "auto_approve": true
+    },
+    "AAPL": {
+      "signal_type": "STRONG_SELL",
+      "confidence": 0.9,
+      "entry_reason": "Strong bearish divergence detected in technical indicators",
+      "timestamp": "2025-10-14T16:49:11.049118",
+      "market_condition": "BEARISH_DIVERGENCE",
+      "volatility_environment": "Medium Volatility",
+      "position_size": 2.0,
+      "stop_loss": 255.0363929442737,
+      "profit_target": 233.2972141114526,
       "auto_approve": true
     }
   },
@@ -107,7 +107,7 @@
     "update_frequency": "on_demand",
     "data_source": "schwab_historical_data",
     "optimal_conditions": "oversold_bullish_divergence_or_overbought_bearish_divergence",
-    "auto_approve_last_updated": "2025-10-11T18:09:50.279902",
+    "auto_approve_last_updated": "2025-10-14T16:49:11.062538",
     "auto_approve_status": true
   }
 }

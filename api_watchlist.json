@@ -1,13 +1,15 @@
 {
   "watchlist": {
     "symbols": [
-      "NVDA"
+      "AAPL",
+      "LYFT",
+      "V"
     ],
     "metadata": {
       "created": "2025-10-06T19:55:41.000000",
-      "last_updated": "2025-10-10T14:51:49.483645",
-      "total_symbols": 1,
-      "managed_by": "watchlist_api_server"
+      "last_updated": "2025-10-13T11:00:20.514102",
+      "total_symbols": 3,
+      "managed_by": "websocket_server"
     }
   }
 }

@@ -441,7 +441,7 @@ class SchwabTransactionHandler:
     
     def get_all_transactions(self, days: int = None, csv_output: bool = True) -> pd.DataFrame:
         """
-        Get transactions for all accounts over the specified period.
+        Get transactions for all accounts over the specified period and automatically update transactions.json.
         
         Args:
             days (int, optional): Number of days to look back (default: None, uses today only)
@@ -506,12 +506,86 @@ class SchwabTransactionHandler:
                 combined_filename = f"schwab_transactions_all_accounts_{from_date}_{to_date}.csv"
                 self.save_to_csv(combined_df, combined_filename)
                 
+            # Automatically update transactions.json every time this method is called
+            if not combined_df.empty:
+                try:
+                    self._update_transactions_json(combined_df)
+                except Exception as e:
+                    print(f"Warning: Failed to update transactions.json: {e}")
+                    
             return combined_df
         elif len(all_data) == 1:
+            # Automatically update transactions.json every time this method is called
+            if not all_data[0].empty:
+                try:
+                    self._update_transactions_json(all_data[0])
+                except Exception as e:
+                    print(f"Warning: Failed to update transactions.json: {e}")
             return all_data[0]
         else:
             print("\nNo transaction data found for any accounts")
             return pd.DataFrame()
+
+    def _update_transactions_json(self, df: pd.DataFrame) -> bool:
+        """
+        Internal method to update transactions.json file with current transaction data.
+        Called automatically every time get_all_transactions() is executed.
+        
+        Args:
+            df (pd.DataFrame): DataFrame containing transaction data
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            import json
+            
+            if df.empty:
+                print("❌ No transaction data to update")
+                return False
+            
+            # Create the JSON structure for db_inserter
+            transactions_data = {
+                'strategy_name': 'Transaction_Data',
+                'last_updated': datetime.now().isoformat(),
+                'total_transactions': len(df),
+                'transactions': [],
+                'metadata': {
+                    'data_source': 'schwab_api',
+                    'handler_type': 'schwab_transaction_handler',
+                    'update_frequency': 'realtime_monitor_calls',
+                    'database_integration': True,
+                    'auto_updated': True,
+                    'creation_date': datetime.now().isoformat()
+                }
+            }
+            
+            # Process each transaction to match database schema
+            for _, row in df.iterrows():
+                # Create transaction record matching the database schema
+                transaction_record = {
+                    'transaction_id': str(row.get('transaction_id', '')),
+                    'symbol': str(row.get('symbol', '')),
+                    'transaction_type': str(row.get('type', 'UNKNOWN')),
+                    'quantity': float(row.get('quantity', 0.0)),
+                    'price': float(row.get('price', 0.0)),
+                    'amount': float(row.get('amount', 0.0)),
+                    'fees': float(row.get('fees', 0.0)),
+                    'account': str(row.get('account_name', row.get('account_hash', 'Unknown'))),
+                    'timestamp': row.get('date', datetime.now()).isoformat() if pd.notna(row.get('date')) else datetime.now().isoformat()
+                }
+                
+                transactions_data['transactions'].append(transaction_record)
+            
+            # Write to transactions.json in root directory
+            with open('transactions.json', 'w') as f:
+                json.dump(transactions_data, f, indent=2)
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error updating transactions.json: {e}")
+            return False
 
     def calculate_win_loss_stats(self, df: pd.DataFrame) -> Dict[str, Any]:
         """

@@ -816,7 +816,11 @@ def main():
     
     print(f"📊 Testing options data for: {test_symbols}")
     
-    # Run the main update method
+    # Run the main update me
+    # 
+    # 
+    # 
+    # thod
     result = handler.run_options_data_update(
         symbols=test_symbols,
         output_json=True

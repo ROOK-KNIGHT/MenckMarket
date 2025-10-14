@@ -143,6 +143,110 @@ class HistoricalDataHandler:
 
         return None
 
+    def get_quotes(self, symbols, fields="quote,reference", indicative=False):
+        """
+        Get quotes for multiple symbols using Schwab quotes API.
+        
+        Args:
+            symbols (list or str): List of symbols or comma-separated string of symbols to get quotes for
+            fields (str): Comma separated list of fields (quote, fundamental, extended, reference, regular)
+            indicative (bool): Include indicative symbol quotes for ETF symbols
+            
+        Returns:
+            dict: Quotes data or None if failed
+            
+        Example:
+            handler = HistoricalDataHandler()
+            quotes = handler.get_quotes(['AAPL', 'GOOGL', 'MSFT'])
+            quotes = handler.get_quotes('AAPL,GOOGL,MSFT')
+        """
+        retry_delay = self.retry_delay
+        
+        # Convert symbols to comma-separated string if it's a list
+        if isinstance(symbols, list):
+            symbols_str = ','.join(symbols)
+        else:
+            symbols_str = symbols
+            
+        if not symbols_str:
+            print("No symbols provided for quotes request")
+            return None
+
+        for attempt in range(self.max_retries):
+            try:
+                # Get valid tokens
+                tokens = ensure_valid_tokens()
+                access_token = tokens["access_token"]
+
+                # Prepare headers
+                headers = {
+                    "Authorization": f"Bearer {access_token}",
+                    "Accept": "application/json"
+                }
+
+                # Build URL with parameters
+                url = f"{self.base_url}/marketdata/v1/quotes"
+                params = {
+                    'symbols': symbols_str,
+                    'fields': fields
+                }
+                
+                if indicative:
+                    params['indicative'] = 'true'
+
+                print(f"Fetching quotes for symbols: {symbols_str}")
+
+                # Make API request
+                response = requests.get(url, headers=headers, params=params)
+                response.raise_for_status()
+
+                quotes_data = response.json()
+                
+                # Check for errors in response
+                if 'errors' in quotes_data and quotes_data['errors'].get('invalidSymbols'):
+                    invalid_symbols = quotes_data['errors']['invalidSymbols']
+                    print(f"Warning: Invalid symbols returned by API: {invalid_symbols}")
+                
+                # Remove errors from the data before returning
+                if 'errors' in quotes_data:
+                    del quotes_data['errors']
+
+                print(f"Successfully fetched quotes for {len(quotes_data)} symbols")
+                return quotes_data
+
+            except requests.exceptions.HTTPError as http_err:
+                if response.status_code == 401:
+                    print("Token expired, refreshing tokens...")
+                    ensure_valid_tokens(refresh=True)
+                    # Continue to retry with new token
+                elif response.status_code == 429:
+                    print("Rate limit exceeded, waiting before retry...")
+                    time.sleep(self.rate_limit_delay)
+                    # Continue to retry after rate limit delay
+                else:
+                    print(f"HTTP error occurred: {http_err}")
+                    if attempt < self.max_retries - 1:
+                        time.sleep(retry_delay)
+                        retry_delay *= 2  # Exponential backoff
+                    else:
+                        print("Maximum retry attempts reached")
+                        return None
+
+            except requests.exceptions.RequestException as e:
+                print(f"Request failed on attempt {attempt + 1}: {e}")
+                if attempt < self.max_retries - 1:
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                else:
+                    print("Maximum retry attempts reached")
+                    return None
+
+            except Exception as e:
+                print(f"Unexpected error fetching quotes data: {e}")
+                return None
+
+        return None
+
     def _convert_timestamp(self, timestamp):
         """
         Convert a timestamp to a formatted datetime string.

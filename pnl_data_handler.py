@@ -32,7 +32,7 @@ class PnLDataHandler:
 
     def calculate_win_loss_stats(self, df: pd.DataFrame) -> Dict[str, Any]:
         """
-        Calculate comprehensive win/loss statistics for trades, including short vs long breakdown.
+        Calculate comprehensive win/loss statistics for trades and automatically update pnl_statistics.json.
         
         Args:
             df (pd.DataFrame): DataFrame containing transaction data
@@ -119,7 +119,105 @@ class PnLDataHandler:
                                           long_win_amounts, long_loss_amounts,
                                           short_win_amounts, short_loss_amounts)
         
+        # Automatically update pnl_statistics.json every time this method is called
+        if stats and (stats['overall']['wins'] + stats['overall']['losses'] > 0):
+            try:
+                self._update_pnl_statistics_json(stats)
+            except Exception as e:
+                print(f"Warning: Failed to update pnl_statistics.json: {e}")
+        
         return stats
+
+    def _update_pnl_statistics_json(self, stats: Dict[str, Any]) -> bool:
+        """
+        Internal method to update pnl_statistics.json file with current P&L statistics.
+        Called automatically every time calculate_win_loss_stats() is executed.
+        
+        Args:
+            stats (Dict[str, Any]): P&L statistics dictionary
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            # Create the JSON structure for db_inserter
+            pnl_data = {
+                'strategy_name': 'PnL_Statistics',
+                'last_updated': datetime.now().isoformat(),
+                'total_statistics': 1,
+                'statistics': {
+                    'overall_performance': {
+                        'account': 'All_Accounts',
+                        'total_pnl': stats.get('overall', {}).get('profit_loss', 0.0),
+                        'realized_pnl': stats.get('overall', {}).get('profit_loss', 0.0),
+                        'unrealized_pnl': 0.0,
+                        'total_trades': stats.get('overall', {}).get('wins', 0) + stats.get('overall', {}).get('losses', 0),
+                        'winning_trades': stats.get('overall', {}).get('wins', 0),
+                        'losing_trades': stats.get('overall', {}).get('losses', 0),
+                        'win_rate': stats.get('overall', {}).get('win_rate', 0.0),
+                        'avg_win': stats.get('overall', {}).get('avg_win', 0.0),
+                        'avg_loss': stats.get('overall', {}).get('avg_loss', 0.0),
+                        'profit_factor': stats.get('overall', {}).get('win_loss_ratio', 0.0),
+                        'max_drawdown': 0.0,
+                        'sharpe_ratio': 0.0,
+                        'sortino_ratio': 0.0,
+                        'calmar_ratio': 0.0
+                    },
+                    'long_performance': {
+                        'account': 'Long_Strategy',
+                        'total_pnl': stats.get('long', {}).get('profit_loss', 0.0),
+                        'realized_pnl': stats.get('long', {}).get('profit_loss', 0.0),
+                        'unrealized_pnl': 0.0,
+                        'total_trades': stats.get('long', {}).get('wins', 0) + stats.get('long', {}).get('losses', 0),
+                        'winning_trades': stats.get('long', {}).get('wins', 0),
+                        'losing_trades': stats.get('long', {}).get('losses', 0),
+                        'win_rate': stats.get('long', {}).get('win_rate', 0.0),
+                        'avg_win': stats.get('long', {}).get('avg_win', 0.0),
+                        'avg_loss': stats.get('long', {}).get('avg_loss', 0.0),
+                        'profit_factor': stats.get('long', {}).get('win_loss_ratio', 0.0),
+                        'max_drawdown': 0.0,
+                        'sharpe_ratio': 0.0,
+                        'sortino_ratio': 0.0,
+                        'calmar_ratio': 0.0
+                    },
+                    'short_performance': {
+                        'account': 'Short_Strategy',
+                        'total_pnl': stats.get('short', {}).get('profit_loss', 0.0),
+                        'realized_pnl': stats.get('short', {}).get('profit_loss', 0.0),
+                        'unrealized_pnl': 0.0,
+                        'total_trades': stats.get('short', {}).get('wins', 0) + stats.get('short', {}).get('losses', 0),
+                        'winning_trades': stats.get('short', {}).get('wins', 0),
+                        'losing_trades': stats.get('short', {}).get('losses', 0),
+                        'win_rate': stats.get('short', {}).get('win_rate', 0.0),
+                        'avg_win': stats.get('short', {}).get('avg_win', 0.0),
+                        'avg_loss': stats.get('short', {}).get('avg_loss', 0.0),
+                        'profit_factor': stats.get('short', {}).get('win_loss_ratio', 0.0),
+                        'max_drawdown': 0.0,
+                        'sharpe_ratio': 0.0,
+                        'sortino_ratio': 0.0,
+                        'calmar_ratio': 0.0
+                    }
+                },
+                'metadata': {
+                    'strategy_type': 'pnl_analysis',
+                    'analysis_method': 'transaction_based_win_loss_calculation',
+                    'update_frequency': 'realtime_monitor_calls',
+                    'database_integration': True,
+                    'auto_updated': True,
+                    'data_source': 'schwab_transactions',
+                    'calculation_date': datetime.now().isoformat()
+                }
+            }
+            
+            # Write to pnl_statistics.json in root directory
+            with open('pnl_statistics.json', 'w') as f:
+                json.dump(pnl_data, f, indent=2)
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error updating pnl_statistics.json: {e}")
+            return False
 
     def _analyze_symbol_trades(self, symbol: str, symbol_trades: pd.DataFrame) -> Dict[str, Any]:
         """

@@ -1,8 +1,52 @@
 {
   "strategy_name": "Transaction_Data",
-  "last_updated": "2025-10-10T14:45:29.500352",
-  "total_transactions": 131,
+  "last_updated": "2025-10-14T16:49:13.143269",
+  "total_transactions": 135,
   "transactions": [
+    {
+      "transaction_id": "104763481732",
+      "symbol": "BAC",
+      "transaction_type": "TRADE",
+      "quantity": -6.0,
+      "price": 50.19,
+      "amount": 301.14,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-14T15:54:16+00:00"
+    },
+    {
+      "transaction_id": "104705723773",
+      "symbol": "GOOGL",
+      "transaction_type": "TRADE",
+      "quantity": -1.0,
+      "price": 244.32,
+      "amount": 244.32,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-13T19:44:10+00:00"
+    },
+    {
+      "transaction_id": "104640884575",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 247.19,
+      "amount": -247.19,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-13T13:39:31+00:00"
+    },
+    {
+      "transaction_id": "104636831141",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": -1.0,
+      "price": 249.46,
+      "amount": 498.92,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-13T13:30:04+00:00"
+    },
     {
       "transaction_id": "104565693793",
       "symbol": "AMD",
@@ -477,23 +521,23 @@
       "timestamp": "2025-10-10T13:37:59+00:00"
     },
     {
-      "transaction_id": "104529369798",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 227.56,
-      "amount": -227.56,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-10T13:37:59+00:00"
-    },
-    {
       "transaction_id": "104529369817",
       "symbol": "BAC",
       "transaction_type": "TRADE",
       "quantity": 6.0,
       "price": 50.0499,
       "amount": -300.3,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-10T13:37:59+00:00"
+    },
+    {
+      "transaction_id": "104529369798",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 227.56,
+      "amount": -227.56,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-10T13:37:59+00:00"
@@ -675,23 +719,23 @@
       "timestamp": "2025-10-09T16:52:02+00:00"
     },
     {
-      "transaction_id": "104465271949",
-      "symbol": "AAPL",
-      "transaction_type": "TRADE",
-      "quantity": 100.0,
-      "price": 254.279,
-      "amount": -25427.9,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-09T15:48:12+00:00"
-    },
-    {
       "transaction_id": "104465271951",
       "symbol": "AAPL",
       "transaction_type": "TRADE",
       "quantity": 301.0,
       "price": 254.2799,
       "amount": -76538.25,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-09T15:48:12+00:00"
+    },
+    {
+      "transaction_id": "104465271949",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": 100.0,
+      "price": 254.279,
+      "amount": -25427.9,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-09T15:48:12+00:00"
@@ -1448,8 +1492,9 @@
   "metadata": {
     "data_source": "schwab_api",
     "handler_type": "schwab_transaction_handler",
-    "update_frequency": "on_demand",
+    "update_frequency": "realtime_monitor_calls",
     "database_integration": true,
-    "creation_date": "2025-10-10T14:45:29.500358"
+    "auto_updated": true,
+    "creation_date": "2025-10-14T16:49:13.143286"
   }
 }

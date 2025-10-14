@@ -79,6 +79,8 @@ class VolFlowApp {
         
         // Store references globally for backward compatibility
         window.wsManager = this.modules.websocket;
+        window.websocketManager = this.modules.websocket; // Add this for watchlist manager compatibility
+        window.webSocketManager = this.modules.websocket; // Add this for trading controls compatibility
         window.watchlistManager = this.modules.watchlist;
         window.positionsManager = this.modules.positions;
         window.strategyManager = this.modules.strategy;
@@ -129,7 +131,7 @@ class VolFlowApp {
         
         // Set up periodic ping to keep connection alive
         setInterval(() => {
-            if (this.modules.websocket.isConnected) {
+            if (this.modules.websocket && typeof this.modules.websocket.isConnected === 'function' && this.modules.websocket.isConnected()) {
                 this.modules.websocket.ping();
             }
         }, 30000); // Ping every 30 seconds
@@ -143,6 +145,17 @@ class VolFlowApp {
             
             // Update last data timestamp
             this.lastWebSocketUpdate = new Date();
+            
+            // Handle specific watchlist response messages first
+            if (data.type === 'watchlist_symbol_added' || 
+                data.type === 'watchlist_symbol_removed' || 
+                data.type === 'watchlist_refreshed_with_cleanup' ||
+                data.type === 'watchlist_error' ||
+                data.type === 'watchlist_data' ||
+                data.type === 'watchlist_updated') {
+                console.log('📋 Routing watchlist response message to watchlist manager:', data.type);
+                this.modules.watchlist.updateFromWebSocket(data);
+            }
             
             // Route positions data
             if (data.positions && Array.isArray(data.positions)) {
@@ -159,7 +172,7 @@ class VolFlowApp {
                 this.modules.risk.updateFromWebSocket(data);
             }
             
-            // Route watchlist data
+            // Route watchlist data (for regular data stream)
             if (data.watchlist_data && Array.isArray(data.watchlist_data)) {
                 console.log('📋 Routing watchlist data to watchlist manager');
                 this.modules.watchlist.updateFromWebSocket(data);
