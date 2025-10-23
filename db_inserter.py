@@ -42,7 +42,7 @@ class DatabaseInserter:
         self.db_config = {
             'host': 'localhost',
             'database': 'volflow_options',
-            'user': 'isaac',
+            'user': 'eduardomenck',
             'password': None  # Will use peer authentication
         }
         

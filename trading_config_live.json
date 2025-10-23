@@ -41,11 +41,11 @@
         "market_hours_only": true
       },
       "running_state": {
-        "is_running": true,
-        "last_updated": "2025-10-23T06:59:31.506984",
+        "is_running": false,
+        "last_updated": "2025-10-23T12:56:03.136943",
         "updated_by": "auto_timer_monitor"
       },
-      "auto_approve": true,
+      "auto_approve": false,
       "risk_management": {
         "strategy_allocation": 2,
         "position_size": 10,
@@ -66,11 +66,11 @@
         "market_close": "16:00"
       },
       "running_state": {
-        "is_running": true,
-        "last_updated": "2025-10-23T06:59:31.507184",
+        "is_running": false,
+        "last_updated": "2025-10-23T13:01:03.749355",
         "updated_by": "auto_timer_monitor"
       },
-      "auto_approve": true,
+      "auto_approve": false,
       "risk_management": {
         "strategy_allocation": 10,
         "position_size": 25,

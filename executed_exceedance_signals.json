@@ -1,7 +1,7 @@
 {
   "strategy_name": "Exceedance_Strategy_Executed_Signals",
-  "last_updated": "2025-10-23T12:44:56.517341",
-  "total_executed_signals": 69,
+  "last_updated": "2025-10-23T12:54:57.685058",
+  "total_executed_signals": 72,
   "executed_signals": {
     "AMZN_21788_41_NEW": {
       "signal": {
@@ -2003,6 +2003,93 @@
       },
       "executed_at": "2025-10-23T12:44:56.517331",
       "signal_id": "TSLA_44788_39_NEW"
+    },
+    "AMZN_22115_41_NEW": {
+      "signal": {
+        "symbol": "AMZN",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-23T12:54:55.173051",
+        "entry_reason": "NEW: Price below lower band ($0.14)",
+        "position_size": 1,
+        "auto_approve": true,
+        "current_price": 221.15,
+        "position_in_range": 49.244618759537765,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.13728504429880672,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMZN_22115_41_NEW",
+        "profit_target": 221.25
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMZN",
+        "quantity": 1,
+        "profit_target": 221.25,
+        "executed_at": "2025-10-23T12:54:56.792987"
+      },
+      "executed_at": "2025-10-23T12:54:56.794215",
+      "signal_id": "AMZN_22115_41_NEW"
+    },
+    "TSLA_44872_41_NEW": {
+      "signal": {
+        "symbol": "TSLA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-23T12:54:55.173136",
+        "entry_reason": "NEW: Price below lower band ($0.19)",
+        "position_size": 1,
+        "auto_approve": true,
+        "current_price": 448.7245,
+        "position_in_range": 49.46327904622984,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.1947872949729117,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "TSLA_44872_41_NEW",
+        "profit_target": 448.93
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "TSLA",
+        "quantity": 1,
+        "profit_target": 448.93,
+        "executed_at": "2025-10-23T12:54:57.264589"
+      },
+      "executed_at": "2025-10-23T12:54:57.266109",
+      "signal_id": "TSLA_44872_41_NEW"
+    },
+    "AAPL_25954_41_NEW": {
+      "signal": {
+        "symbol": "AAPL",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-23T12:54:55.173452",
+        "entry_reason": "NEW: Price below lower band ($0.06)",
+        "position_size": 1,
+        "auto_approve": true,
+        "current_price": 259.5382,
+        "position_in_range": 51.72513276588191,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.055988384260615476,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AAPL_25954_41_NEW",
+        "profit_target": 259.65
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AAPL",
+        "quantity": 1,
+        "profit_target": 259.65,
+        "executed_at": "2025-10-23T12:54:57.683265"
+      },
+      "executed_at": "2025-10-23T12:54:57.685043",
+      "signal_id": "AAPL_25954_41_NEW"
     }
   },
   "metadata": {
