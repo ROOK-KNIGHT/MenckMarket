@@ -71,7 +71,7 @@ class UnifiedTechnicalIndicators:
                 "1min": {"period_type": "day", "period": 10, "frequency_type": "minute", "frequency": 1},
                 "5min": {"period_type": "day", "period": 10, "frequency_type": "minute", "frequency": 5},
                 "15min": {"period_type": "day", "period": 10, "frequency_type": "minute", "frequency": 15},
-                "1hour": {"period_type": "day", "period": 20, "frequency_type": "minute", "frequency": 60},
+                "30min": {"period_type": "day", "period": 20, "frequency_type": "minute", "frequency": 30},
                 "daily": {"period_type": "month", "period": 6, "frequency_type": "daily", "frequency": 1}
             }
             

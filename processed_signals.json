@@ -75,5 +75,126 @@
     "entry_reason": "Strong bearish divergence detected in technical indicators",
     "market_condition": "BEARISH_DIVERGENCE",
     "auto_approve": true
+  },
+  "divergence_AMZN_2025-10-15T06:48:04.173780": {
+    "strategy": "divergence",
+    "symbol": "AMZN",
+    "signal_timestamp": "2025-10-15T06:48:04.173780",
+    "signal_type": "STRONG_BUY",
+    "confidence": 0.9,
+    "processed_at": "2025-10-15T06:48:05.080770",
+    "entry_reason": "Strong bullish divergence detected in technical indicators",
+    "market_condition": "BULLISH_DIVERGENCE",
+    "auto_approve": true
+  },
+  "divergence_AAPL_2025-10-15T06:48:04.171091": {
+    "strategy": "divergence",
+    "symbol": "AAPL",
+    "signal_timestamp": "2025-10-15T06:48:04.171091",
+    "signal_type": "STRONG_SELL",
+    "confidence": 0.9,
+    "processed_at": "2025-10-15T06:48:05.609434",
+    "entry_reason": "Strong bearish divergence detected in technical indicators",
+    "market_condition": "BEARISH_DIVERGENCE",
+    "auto_approve": true
+  },
+  "divergence_LYFT_2025-10-15T06:48:04.170460": {
+    "strategy": "divergence",
+    "symbol": "LYFT",
+    "signal_timestamp": "2025-10-15T06:48:04.170460",
+    "signal_type": "STRONG_SELL",
+    "confidence": 0.9,
+    "processed_at": "2025-10-15T06:48:06.037386",
+    "entry_reason": "Strong bearish divergence detected in technical indicators",
+    "market_condition": "BEARISH_DIVERGENCE",
+    "auto_approve": true
+  },
+  "divergence_LYFT_2025-10-17T10:11:11.178848": {
+    "strategy": "divergence",
+    "symbol": "LYFT",
+    "signal_timestamp": "2025-10-17T10:11:11.178848",
+    "signal_type": "STRONG_SELL",
+    "confidence": 0.9,
+    "processed_at": "2025-10-17T10:11:24.833969",
+    "entry_reason": "Strong bearish divergence detected in technical indicators",
+    "market_condition": "BEARISH_DIVERGENCE",
+    "auto_approve": true
+  },
+  "divergence_AAPL_2025-10-17T10:11:11.184216": {
+    "strategy": "divergence",
+    "symbol": "AAPL",
+    "signal_timestamp": "2025-10-17T10:11:11.184216",
+    "signal_type": "STRONG_SELL",
+    "confidence": 0.9,
+    "processed_at": "2025-10-17T10:11:25.356707",
+    "entry_reason": "Strong bearish divergence detected in technical indicators",
+    "market_condition": "BEARISH_DIVERGENCE",
+    "auto_approve": true
+  },
+  "divergence_LYFT_2025-10-17T10:49:04.515127": {
+    "strategy": "divergence",
+    "symbol": "LYFT",
+    "signal_timestamp": "2025-10-17T10:49:04.515127",
+    "signal_type": "STRONG_SELL",
+    "confidence": 0.9,
+    "processed_at": "2025-10-17T10:49:18.265845",
+    "entry_reason": "Strong bearish divergence detected in technical indicators",
+    "market_condition": "BEARISH_DIVERGENCE",
+    "auto_approve": true
+  },
+  "divergence_AAPL_2025-10-17T10:49:04.519394": {
+    "strategy": "divergence",
+    "symbol": "AAPL",
+    "signal_timestamp": "2025-10-17T10:49:04.519394",
+    "signal_type": "STRONG_SELL",
+    "confidence": 0.9,
+    "processed_at": "2025-10-17T10:49:19.348790",
+    "entry_reason": "Strong bearish divergence detected in technical indicators",
+    "market_condition": "BEARISH_DIVERGENCE",
+    "auto_approve": true
+  },
+  "divergence_LYFT_2025-10-17T14:10:53.024204": {
+    "strategy": "divergence",
+    "symbol": "LYFT",
+    "signal_timestamp": "2025-10-17T14:10:53.024204",
+    "signal_type": "STRONG_SELL",
+    "confidence": 0.9,
+    "processed_at": "2025-10-17T14:11:00.605203",
+    "entry_reason": "Strong bearish divergence detected in technical indicators",
+    "market_condition": "BEARISH_DIVERGENCE",
+    "auto_approve": true
+  },
+  "divergence_AAPL_2025-10-17T14:10:53.026567": {
+    "strategy": "divergence",
+    "symbol": "AAPL",
+    "signal_timestamp": "2025-10-17T14:10:53.026567",
+    "signal_type": "STRONG_SELL",
+    "confidence": 0.9,
+    "processed_at": "2025-10-17T14:11:01.246776",
+    "entry_reason": "Strong bearish divergence detected in technical indicators",
+    "market_condition": "BEARISH_DIVERGENCE",
+    "auto_approve": true
+  },
+  "divergence_AAPL_2025-10-17T15:03:19.882563": {
+    "strategy": "divergence",
+    "symbol": "AAPL",
+    "signal_timestamp": "2025-10-17T15:03:19.882563",
+    "signal_type": "STRONG_SELL",
+    "confidence": 0.9,
+    "processed_at": "2025-10-17T15:03:25.310112",
+    "entry_reason": "Strong bearish divergence detected in technical indicators",
+    "market_condition": "BEARISH_DIVERGENCE",
+    "auto_approve": true
+  },
+  "divergence_LYFT_2025-10-17T15:03:19.882190": {
+    "strategy": "divergence",
+    "symbol": "LYFT",
+    "signal_timestamp": "2025-10-17T15:03:19.882190",
+    "signal_type": "STRONG_SELL",
+    "confidence": 0.9,
+    "processed_at": "2025-10-17T15:03:25.915444",
+    "entry_reason": "Strong bearish divergence detected in technical indicators",
+    "market_condition": "BEARISH_DIVERGENCE",
+    "auto_approve": true
   }
 }

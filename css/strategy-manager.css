@@ -1,0 +1,1423 @@
+/* Strategy Dashboard Styles */
+.strategy-grid {
+    padding: 1.5rem 2rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.strategy-card {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.strategy-card:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.strategy-header {
+    padding: 1rem;
+    border-bottom: .5px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.strategy-icon {
+    width: 24px;
+    height: 24x;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .875rem;
+    flex-shrink: 0;
+}
+
+.strategy-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.strategy-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.strategy-type-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.strategy-type {
+    font-size: 0.8rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.strategy-controls-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.strategy-type-row .strategy-control-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.strategy-type-row .control-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #4a5568;
+    white-space: nowrap;
+}
+
+.strategy-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-indicator.no-signal {
+    background: #cbd5e0;
+}
+
+.status-indicator.buy {
+    background: #38a169;
+    box-shadow: 0 0 8px rgba(56, 161, 105, 0.4);
+}
+
+.status-indicator.sell {
+    background: #e53e3e;
+    box-shadow: 0 0 8px rgba(229, 62, 62, 0.4);
+}
+
+.status-indicator.hold {
+    background: #d69e2e;
+    box-shadow: 0 0 8px rgba(214, 158, 46, 0.4);
+}
+
+.status-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.strategy-controls {
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #e2e8f0;
+}
+
+.strategy-control-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.control-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #4a5568;
+    white-space: nowrap;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.strategy-signals {
+    flex: 1;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.signal-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #718096;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.signal-placeholder i {
+    font-size: 1.2rem;
+    opacity: 0.5;
+}
+
+.signal-item {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.2s ease;
+}
+
+.signal-item:hover {
+    border-color: #cbd5e0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.signal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.signal-symbol {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.signal-type {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.signal-type.buy {
+    background: #c6f6d5;
+    color: #38a169;
+}
+
+.signal-type.sell {
+    background: #fed7d7;
+    color: #e53e3e;
+}
+
+.signal-type.hold {
+    background: #faf089;
+    color: #d69e2e;
+}
+
+.signal-type.no-signal {
+    background: #edf2f7;
+    color: #718096;
+}
+
+.signal-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+}
+
+.signal-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.signal-detail-label {
+    color: #718096;
+    font-weight: 500;
+}
+
+.signal-detail-value {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.signal-confidence {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.confidence-bar {
+    flex: 1;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.confidence-fill {
+    height: 100%;
+    background: linear-gradient(90deg, hsl(142, 100%, 30%) 0%, hsl(52, 100%, 50%),hsl(220,100,23));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.confidence-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4a5568;
+    min-width: 40px;
+    text-align: right;
+}
+
+/* Manual Approval Styles for Individual Signal Cards */
+.signal-manual-approval {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #fff8e1;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.approval-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #e65100;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.approval-label::before {
+    content: "⚠️";
+    font-size: 1rem;
+}
+
+.approval-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.btn-approve,
+.btn-reject {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-approve {
+    background: linear-gradient(135deg, #38a169, #2f855a);
+    color: white;
+    box-shadow: 0 2px 8px rgba(56, 161, 105, 0.3);
+}
+
+.btn-approve:hover {
+    background: linear-gradient(135deg, #2f855a, #276749);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(56, 161, 105, 0.4);
+}
+
+.btn-reject {
+    background: linear-gradient(135deg, #e53e3e, #c53030);
+    color: white;
+    box-shadow: 0 2px 8px rgba(229, 62, 62, 0.3);
+}
+
+.btn-reject:hover {
+    background: linear-gradient(135deg, #c53030, #9c2626);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(229, 62, 62, 0.4);
+}
+
+.btn-approve:active,
+.btn-reject:active {
+    transform: translateY(0);
+}
+
+.btn-approve i,
+.btn-reject i {
+    font-size: 0.9rem;
+}
+
+/* Signal card with manual approval styling */
+.signal-item:has(.signal-manual-approval) {
+    border-left: 4px solid #ffc107;
+    background: linear-gradient(135deg, #ffffff, #fffbf0);
+}
+
+/* Strategy Controls Container */
+.strategy-controls-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.75rem;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Strategy Risk Management Controls */
+.strategy-risk-controls {
+    margin-top: 0;
+    padding: 0.5rem;
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border: 1px solid #bae6fd;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.strategy-risk-controls.collapsed {
+    padding: 0.4rem 0.5rem;
+}
+
+.strategy-risk-controls.collapsed .risk-save-btn {
+    display: none;
+}
+
+.strategy-risk-controls.collapsed .risk-controls-grid {
+    display: none !important;
+}
+
+.strategy-risk-controls:not(.collapsed) .risk-controls-grid {
+    display: grid !important;
+}
+
+.risk-controls-header {
+    margin-bottom: 0.5rem;
+    padding: 0;
+    border-bottom: 1px solid #bae6fd;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.risk-controls-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #0c4a6e;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex: 1;
+    white-space: nowrap;
+}
+
+.risk-controls-title i {
+    color: #0284c7;
+    font-size: 0.7rem;
+}
+
+.risk-toggle-btn {
+    background: none;
+    border: none;
+    color: #0284c7;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.risk-toggle-btn:hover {
+    background: rgba(2, 132, 199, 0.1);
+    color: #0c4a6e;
+}
+
+.risk-toggle-btn i {
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.risk-toggle-btn.collapsed i {
+    transform: rotate(-90deg);
+}
+
+.risk-save-btn {
+    background: none;
+    border: none;
+    color: #0284c7;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.risk-save-btn:hover {
+    background: rgba(2, 132, 199, 0.1);
+    color: #0c4a6e;
+}
+
+.risk-save-btn i {
+    font-size: 0.8rem;
+}
+
+.risk-save-btn:active {
+    transform: scale(0.95);
+}
+
+.risk-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.risk-control-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.risk-control-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #075985;
+    margin: 0;
+}
+
+.risk-input {
+    width: 100%;
+    padding: 0.4rem 0.8rem;
+    border: 2px solid #bae6fd;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.9);
+    color: #0c4a6e;
+    font-weight: 500;
+    text-align: center;
+    min-width: 80px;
+}
+
+.risk-input:focus {
+    outline: none;
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+    background: white;
+}
+
+.risk-input:hover {
+    border-color: #0ea5e9;
+    background: white;
+}
+
+/* Risk Controls Input Group Styling */
+.risk-control-item .input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.risk-control-item .input-suffix {
+    position: absolute;
+    right: 0.5rem;
+    color: #0284c7;
+    font-size: 0.7rem;
+    font-weight: 500;
+    pointer-events: none;
+    background: rgba(240, 249, 255, 0.8);
+    padding: 0.1rem 0.25rem;
+    border-radius: 2px;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+/* Hide suffix when input is focused or has content */
+.risk-input:focus + .input-suffix,
+.risk-input:not(:placeholder-shown) + .input-suffix {
+    opacity: 0;
+}
+
+/* Show suffix when input loses focus and is empty */
+.risk-input:not(:focus):placeholder-shown + .input-suffix {
+    opacity: 1;
+}
+
+/* Strategy Watchlist Styles */
+.strategy-watchlist {
+    margin-top: 0;
+    padding: 0.5rem;
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border: 1px solid #bae6fd;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.strategy-watchlist.collapsed {
+    padding: 0.4rem 0.5rem;
+}
+
+.strategy-watchlist.collapsed .watchlist-add-btn {
+    display: none;
+}
+
+.strategy-watchlist.collapsed .watchlist-content {
+    display: none !important;
+}
+
+.strategy-watchlist:not(.collapsed) .watchlist-content {
+    display: block !important;
+}
+
+.watchlist-header {
+    margin-bottom: 0.5rem;
+    padding: 0;
+    border-bottom: 1px solid #bae6fd;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.watchlist-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #0c4a6e;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex: 1;
+    white-space: nowrap;
+}
+
+.watchlist-title i {
+    color: #0284c7;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+}
+
+.watchlist-toggle-btn {
+    background: none;
+    border: none;
+    color: #0284c7;
+    cursor: pointer;
+    padding: 0.2rem;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+}
+
+.watchlist-toggle-btn:hover {
+    background: rgba(2, 132, 199, 0.1);
+    color: #0c4a6e;
+}
+
+.watchlist-toggle-btn i {
+    font-size: 0.7rem;
+    transition: transform 0.2s ease;
+}
+
+.watchlist-toggle-btn.collapsed i {
+    transform: rotate(-90deg);
+}
+
+.watchlist-add-btn {
+    background: none;
+    border: none;
+    color: #0284c7;
+    cursor: pointer;
+    padding: 0.2rem;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+}
+
+.watchlist-add-btn:hover {
+    background: rgba(2, 132, 199, 0.1);
+    color: #0c4a6e;
+}
+
+.watchlist-add-btn i {
+    font-size: 0.7rem;
+}
+
+.watchlist-add-btn:active {
+    transform: scale(0.95);
+}
+
+.watchlist-content {
+    padding: 0;
+    margin-top: 0.5rem;
+}
+
+.watchlist-symbols {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 150px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #0284c7 #e0f2fe;
+    padding-right: 0.25rem;
+}
+
+.watchlist-symbols::-webkit-scrollbar {
+    width: 8px;
+}
+
+.watchlist-symbols::-webkit-scrollbar-track {
+    background: #e0f2fe;
+    border-radius: 4px;
+    margin: 2px 0;
+}
+
+.watchlist-symbols::-webkit-scrollbar-thumb {
+    background: #0284c7;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    border: 1px solid #bae6fd;
+}
+
+.watchlist-symbols::-webkit-scrollbar-thumb:hover {
+    background: #0369a1;
+    border-color: #7dd3fc;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+.watchlist-symbols::-webkit-scrollbar-thumb:active {
+    background: #075985;
+}
+
+/* Enhanced scrollbar for better visibility */
+.watchlist-symbols::-webkit-scrollbar-corner {
+    background: #e0f2fe;
+}
+
+.watchlist-symbol-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e0f2fe;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.watchlist-symbol-item:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: #bae6fd;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.1);
+}
+
+.symbol-text {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #0c4a6e;
+    letter-spacing: 0.5px;
+}
+
+.remove-symbol-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.remove-symbol-btn:hover {
+    background: #fed7d7;
+    color: #dc2626;
+}
+
+.remove-symbol-btn i {
+    font-size: 0.7rem;
+}
+
+/* Strategy Timing Controls */
+.strategy-timing-controls {
+    margin-top: 0;
+    padding: 0.5rem;
+    background: linear-gradient(135deg, #fff7ed, #fed7aa);
+    border: 1px solid #fdba74;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.strategy-timing-controls.collapsed {
+    padding: 0.4rem 0.5rem;
+}
+
+.strategy-timing-controls.collapsed .timing-save-btn {
+    display: none;
+}
+
+.strategy-timing-controls.collapsed .timing-controls-grid {
+    display: none !important;
+}
+
+.strategy-timing-controls:not(.collapsed) .timing-controls-grid {
+    display: grid !important;
+}
+
+.timing-controls-header {
+    margin-bottom: 0.5rem;
+    padding: 0;
+    border-bottom: 1px solid #fdba74;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.timing-controls-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #9a3412;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex: 1;
+    white-space: nowrap;
+}
+
+.timing-controls-title i {
+    color: #ea580c;
+    font-size: 0.7rem;
+}
+
+.timing-toggle-btn {
+    background: none;
+    border: none;
+    color: #ea580c;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.timing-toggle-btn:hover {
+    background: rgba(234, 88, 12, 0.1);
+    color: #9a3412;
+}
+
+.timing-toggle-btn i {
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.timing-toggle-btn.collapsed i {
+    transform: rotate(-90deg);
+}
+
+.timing-save-btn {
+    background: none;
+    border: none;
+    color: #ea580c;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.timing-save-btn:hover {
+    background: rgba(234, 88, 12, 0.1);
+    color: #9a3412;
+}
+
+.timing-save-btn i {
+    font-size: 0.8rem;
+}
+
+.timing-save-btn:active {
+    transform: scale(0.95);
+}
+
+.timing-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.timing-control-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.timing-control-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #9a3412;
+    margin: 0;
+}
+
+.timing-input {
+    width: 100%;
+    padding: 0.4rem 0.8rem;
+    border: 2px solid #fdba74;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.9);
+    color: #9a3412;
+    font-weight: 500;
+    text-align: center;
+    min-width: 80px;
+}
+
+.timing-input:focus {
+    outline: none;
+    border-color: #ea580c;
+    box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+    background: white;
+}
+
+.timing-input:hover {
+    border-color: #f97316;
+    background: white;
+}
+
+/* Responsive adjustments for Strategy Dashboard */
+@media (max-width: 1400px) {
+    .risk-controls-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+    
+    .timing-controls-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 1200px) {
+    .strategy-dashboard {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    
+    .strategy-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .strategy-card {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+    }
+    
+    .strategy-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        min-width: 200px;
+        border-right: 1px solid #e2e8f0;
+        border-bottom: none;
+    }
+    
+    .strategy-signals {
+        flex: 1;
+        min-height: auto;
+    }
+    
+    .risk-controls-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .timing-controls-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .strategy-grid {
+        padding: 1rem;
+        grid-template-columns: 1fr;
+    }
+    
+    .strategy-card {
+        flex-direction: column;
+    }
+    
+    .strategy-header {
+        flex-direction: row;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        min-width: auto;
+        text-align: left;
+    }
+    
+    .strategy-signals {
+        padding: 1rem;
+    }
+    
+    .signal-details {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .strategy-controls-container {
+        gap: 0.25rem;
+    }
+    
+    .strategy-risk-controls,
+    .strategy-timing-controls,
+    .strategy-watchlist {
+        padding: 0.4rem;
+    }
+    
+    .risk-controls-grid,
+    .timing-controls-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .approval-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .btn-approve,
+    .btn-reject {
+        justify-content: center;
+        padding: 0.75rem 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .strategy-risk-controls {
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .risk-controls-header {
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.4rem;
+    }
+    
+    .risk-controls-title {
+        font-size: 0.8rem;
+        gap: 0.4rem;
+    }
+    
+    .risk-controls-grid {
+        gap: 0.5rem;
+    }
+    
+    .risk-control-item {
+        gap: 0.4rem;
+    }
+    
+    .risk-control-label {
+        font-size: 0.7rem;
+    }
+    
+    .risk-input {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.7rem;
+    }
+    
+    .risk-control-item .input-suffix {
+        right: 0.5rem;
+        font-size: 0.65rem;
+    }
+    
+    .strategy-timing-controls {
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .timing-controls-header {
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.4rem;
+    }
+    
+    .timing-controls-title {
+        font-size: 0.8rem;
+        gap: 0.4rem;
+    }
+    
+    .timing-controls-grid {
+        gap: 0.5rem;
+    }
+    
+    .timing-control-item {
+        gap: 0.4rem;
+    }
+    
+    .timing-control-label {
+        font-size: 0.7rem;
+    }
+    
+    .timing-input {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.7rem;
+    }
+}
+
+/* Strategy Card Enhanced Styling with Risk Controls */
+.strategy-card:has(.strategy-risk-controls) {
+    min-height: 420px;
+}
+
+.strategy-card:has(.strategy-risk-controls) .strategy-header {
+    padding-bottom: 1rem;
+}
+
+.strategy-card:has(.strategy-risk-controls) .strategy-signals {
+    margin-top: 0.75rem;
+}
+
+/* Run Strategy Button Styles */
+.strategy-run-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+}
+
+.run-strategy-btn {
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #f0f0f0, #cacaca);
+    box-shadow: 
+        4px 4px 5px #bebebe,
+        -4px -4px 5px #ffffff,
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+}
+
+.run-strategy-btn:hover {
+    background: linear-gradient(145deg, #e8e8e8, #c2c2c2);
+    box-shadow: 
+        6px 6px 15px #bebebe,
+        -6px -6px 15px #ffffff,
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.run-strategy-btn:active {
+    background: linear-gradient(145deg, #cacaca, #f0f0f0);
+    box-shadow: 
+        inset 4px 4px 8px #bebebe,
+        inset -4px -4px 8px #ffffff;
+    transform: translateY(0);
+}
+
+.run-strategy-btn.running {
+    background: linear-gradient(145deg, #d4edda, #a8d4b0);
+    box-shadow: 
+        8px 8px 20px #9cb89f,
+        -8px -8px 20px #ffffff,
+        inset 0 0 0 1px rgba(40, 167, 69, 0.2);
+}
+
+.run-strategy-btn.running:hover {
+    background: linear-gradient(145deg, #c8e6c9, #9ccc9c);
+    box-shadow: 
+        6px 6px 15px #9cb89f,
+        -6px -6px 15px #ffffff,
+        inset 0 0 0 1px rgba(40, 167, 69, 0.3);
+}
+
+.run-strategy-btn.stopped {
+    background: linear-gradient(145deg, #f8d7da, #e2a6ab);
+    box-shadow: 
+        8px 8px 20px #c5a0a5,
+        -8px -8px 20px #ffffff,
+        inset 0 0 0 1px rgba(220, 53, 69, 0.2);
+}
+
+.run-strategy-btn.stopped:hover {
+    background: linear-gradient(145deg, #f1b0b7, #d6949a);
+    box-shadow: 
+        6px 6px 15px #c5a0a5,
+        -6px -6px 15px #ffffff,
+        inset 0 0 0 1px rgba(220, 53, 69, 0.3);
+}
+
+.power-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #e0e0e0, #b8b8b8);
+    box-shadow: 
+        4px 4px 8px #a8a8a8,
+        -4px -4px 8px #ffffff,
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.run-strategy-btn:hover .power-icon {
+    background: linear-gradient(145deg, #d8d8d8, #b0b0b0);
+    box-shadow: 
+        3px 3px 6px #a8a8a8,
+        -3px -3px 6px #ffffff,
+        inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.run-strategy-btn.running .power-icon {
+    background: linear-gradient(145deg, #b8e6c1, #90d695);
+    box-shadow: 
+        4px 4px 8px #7fb584,
+        -4px -4px 8px #ffffff,
+        inset 0 0 0 1px rgba(40, 167, 69, 0.2);
+}
+
+.run-strategy-btn.stopped .power-icon {
+    background: linear-gradient(145deg, #f5c2c7, #e2a6ab);
+    box-shadow: 
+        4px 4px 8px #c5a0a5,
+        -4px -4px 8px #ffffff,
+        inset 0 0 0 1px rgba(220, 53, 69, 0.2);
+}
+
+.power-icon i {
+    font-size: 12px;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.run-strategy-btn:hover .power-icon i {
+    color: #555;
+}
+
+.run-strategy-btn.running .power-icon i {
+    color: #28a745;
+}
+
+.run-strategy-btn.stopped .power-icon i {
+    color: #dc3545;
+}
+
+.run-strategy-btn:active .power-icon {
+    box-shadow: 
+        inset 2px 2px 4px #a8a8a8,
+        inset -2px -2px 4px #ffffff;
+}
+
+/* Loading animation for running state */
+.run-strategy-btn.running .power-icon i {
+    animation: pulse 2s infinite;
+}
+
+/* Stop animation for stopped state */
+.run-strategy-btn.stopped .power-icon i {
+    animation: stopPulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+@keyframes stopPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+/* Strategy Toggle Switches */
+.strategy-controls-row .toggle-switch {
+    width: 40px;
+    height: 20px;
+    position: relative;
+    display: inline-block;
+}
+
+.strategy-controls-row .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.strategy-controls-row .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e0;
+    transition: all 0.3s ease;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.strategy-controls-row .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 1px;
+    background-color: white;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.strategy-controls-row .toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #48cc6c, #38a169);
+    border-color: #38a169;
+}
+
+.strategy-controls-row .toggle-switch input:focus + .toggle-slider {
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.strategy-controls-row .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(18px);
+}
+
+.strategy-controls-row .toggle-switch:hover .toggle-slider {
+    background-color: #a0aec0;
+}
+
+.strategy-controls-row .toggle-switch input:checked:hover + .toggle-slider {
+    background: linear-gradient(135deg, #38a169, #2f855a);
+}
+
+/* Timing Controls Toggle Switches */
+.timing-controls-grid .toggle-switch {
+    width: 40px;
+    height: 20px;
+    position: relative;
+    display: inline-block;
+}
+
+.timing-controls-grid .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.timing-controls-grid .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e0;
+    transition: all 0.3s ease;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.timing-controls-grid .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 1px;
+    background-color: white;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.timing-controls-grid .toggle-switch input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    border-color: #ea580c;
+}
+
+.timing-controls-grid .toggle-switch input:focus + .toggle-slider {
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.timing-controls-grid .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(18px);
+}
+
+.timing-controls-grid .toggle-switch:hover .toggle-slider {
+    background-color: #a0aec0;
+}
+
+.timing-controls-grid .toggle-switch input:checked:hover + .toggle-slider {
+    background: linear-gradient(135deg, #ea580c, #c2410c);
+}
+
+/* Strategy Animation */
+.strategy-card {
+    animation: fadeInUp 0.3s ease-out;
+}

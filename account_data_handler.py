@@ -17,7 +17,7 @@ import pandas as pd
 import time
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
-from connection_manager import ensure_valid_tokens
+from connection_manager import ensure_valid_tokens, is_authentication_paused, make_authenticated_request
 from config_loader import get_config
 
 class AccountDataHandler:
@@ -52,7 +52,7 @@ class AccountDataHandler:
 
     def get_all_accounts(self, include_positions: bool = True) -> List[Dict[str, Any]]:
         """
-        Get all linked account information for the user.
+        Get all linked account information for the user with authentication pause support.
         
         Args:
             include_positions (bool): Whether to include position details (default: True)
@@ -60,64 +60,40 @@ class AccountDataHandler:
         Returns:
             List[Dict[str, Any]]: List of account dictionaries with full details
         """
-        retry_delay = self.retry_delay
+        # Check if authentication is paused
+        if is_authentication_paused():
+            print("🛑 Authentication paused - skipping get_all_accounts")
+            return []
         
-        for attempt in range(self.max_retries):
-            try:
-                # Get valid tokens
-                tokens = ensure_valid_tokens()
-                access_token = tokens["access_token"]
-                
-                # Build URL with optional fields parameter
-                url = f"{self.base_url}/trader/v1/accounts"
-                params = {}
-                if include_positions:
-                    params['fields'] = 'positions'
-                
-                headers = {
-                    "Authorization": f"Bearer {access_token}",
-                    "Accept": "application/json"
-                }
-                
-                response = requests.get(url, headers=headers, params=params, timeout=self.request_timeout)
-                response.raise_for_status()
-                
-                accounts = response.json()
-                
+        try:
+            # Build URL with optional fields parameter
+            url = f"{self.base_url}/trader/v1/accounts"
+            params = {}
+            if include_positions:
+                params['fields'] = 'positions'
+            
+            # Use the improved authenticated request method
+            success, accounts = make_authenticated_request(
+                url, 
+                "get all accounts", 
+                max_retries=self.max_retries,
+                params=params,
+                timeout=self.request_timeout
+            )
+            
+            if success and accounts:
                 if isinstance(accounts, list) and len(accounts) > 0:
                     return accounts
                 else:
                     print(f"No accounts found in response: {accounts}")
                     return []
-                    
-            except requests.exceptions.HTTPError as http_err:
-                if response.status_code == 401:
-                    print("Token expired, refreshing tokens...")
-                    ensure_valid_tokens(refresh=True)
-                    # Continue to retry with new token
-                elif response.status_code == 429:
-                    print("Rate limit exceeded, waiting before retry...")
-                    time.sleep(self.rate_limit_delay)
-                    # Continue to retry after rate limit delay
-                else:
-                    print(f"HTTP error occurred: {http_err}")
-                    if attempt < self.max_retries - 1:
-                        time.sleep(retry_delay)
-                        retry_delay *= 2  # Exponential backoff
-                    else:
-                        print("Maximum retry attempts reached")
-                        return []
-                        
-            except requests.exceptions.RequestException as e:
-                print(f"Request failed on attempt {attempt + 1}: {e}")
-                if attempt < self.max_retries - 1:
-                    time.sleep(retry_delay)
-                    retry_delay *= 2  # Exponential backoff
-                else:
-                    print("Maximum retry attempts reached")
-                    return []
-                    
-        return []
+            else:
+                print("❌ Failed to get accounts data")
+                return []
+                
+        except Exception as e:
+            print(f"❌ Unexpected error getting all accounts: {e}")
+            return []
 
     def get_account_details(self, account_number: str, include_positions: bool = True) -> Dict[str, Any]:
         """

@@ -18,6 +18,7 @@ class PositionsManager {
         }
     }
     
+    
     async refreshPositions() {
         // Positions are automatically updated via WebSocket from PostgreSQL
         // This method just provides user feedback
@@ -309,3 +310,6 @@ class PositionsManager {
         }
     }
 }
+
+// Export to global scope for app.js to access
+window.PositionsManager = PositionsManager;

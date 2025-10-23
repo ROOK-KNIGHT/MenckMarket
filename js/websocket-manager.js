@@ -44,13 +44,33 @@ class WebSocketManager {
                     const data = JSON.parse(event.data);
                     console.log('📡 Received WebSocket data:', data.timestamp || data.type);
                     
-                    // Route strategy configuration messages to strategy manager
-                    if (data.type && data.type.includes('strategy_config')) {
-                        console.log('🎯 Routing strategy config message to strategy manager:', data.type);
+                    // Route strategy and trading configuration messages to strategy manager
+                    if (data.type && (data.type.includes('strategy_config') || data.type.includes('trading_config'))) {
+                        console.log('🎯 Routing config message to strategy manager:', data.type);
                         if (window.strategyManager && typeof window.strategyManager.handleWebSocketMessage === 'function') {
                             window.strategyManager.handleWebSocketMessage(data);
                         } else {
                             console.warn('⚠️ Strategy manager not available for config message routing');
+                        }
+                    }
+                    
+                    // Route risk settings messages to strategy manager
+                    if (data.type && data.type.includes('risk_settings')) {
+                        console.log('🎯 Routing risk settings message to strategy manager:', data.type);
+                        if (window.strategyManager && typeof window.strategyManager.handleWebSocketMessage === 'function') {
+                            window.strategyManager.handleWebSocketMessage(data);
+                        } else {
+                            console.warn('⚠️ Strategy manager not available for risk settings message routing');
+                        }
+                    }
+                    
+                    // Route strategy watchlist messages to strategy manager
+                    if (data.type && data.type.includes('strategy_watchlist')) {
+                        console.log('🎯 Routing strategy watchlist message to strategy manager:', data.type);
+                        if (window.strategyManager && typeof window.strategyManager.handleWebSocketMessage === 'function') {
+                            window.strategyManager.handleWebSocketMessage(data);
+                        } else {
+                            console.warn('⚠️ Strategy manager not available for strategy watchlist message routing');
                         }
                     }
                     
@@ -153,12 +173,15 @@ class WebSocketManager {
     
     // Add message listener for specific message types (used by API manager)
     addMessageListener(callback) {
-        this.on('onData', callback);
+        this.callbacks.onData.push(callback);
     }
     
     // Remove message listener
     removeMessageListener(callback) {
-        this.off('onData', callback);
+        const index = this.callbacks.onData.indexOf(callback);
+        if (index > -1) {
+            this.callbacks.onData.splice(index, 1);
+        }
     }
     
     isConnected() {
@@ -171,3 +194,7 @@ class WebSocketManager {
         }
     }
 }
+
+// Export to global scope for app.js to access
+window.WebSocketManager = WebSocketManager;
+console.log('🔍 DEBUG: WebSocketManager exported to window object');

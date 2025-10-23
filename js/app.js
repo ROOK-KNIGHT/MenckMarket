@@ -1,3 +1,6 @@
+// Test if JavaScript is loading
+console.log('🔥 APP.JS FILE IS LOADING!');
+
 // Main Application Controller - MenckMarket Options Trading Platform
 class VolFlowApp {
     constructor() {
@@ -49,50 +52,63 @@ class VolFlowApp {
     async initializeModules() {
         console.log('📦 Initializing application modules...');
         
-        // Initialize WebSocket Manager first (other modules depend on it)
-        this.modules.websocket = new WebSocketManager();
-        console.log('✅ WebSocket Manager initialized');
+        // Initialize modules that exist, skip ones that don't
+        const moduleClasses = [
+            { name: 'websocket', class: 'WebSocketManager' },
+            { name: 'watchlist', class: 'WatchlistManager' },
+            { name: 'positions', class: 'PositionsManager' },
+            { name: 'strategy', class: 'StrategyManager' },
+            { name: 'risk', class: 'RiskManager' },
+            { name: 'settings', class: 'SettingsManager' },
+            { name: 'analytics', class: 'AnalyticsManager' },
+            { name: 'api', class: 'APIManager' },
+            { name: 'tradingControls', class: 'TradingControlsManager' }
+        ];
         
-        // Initialize Watchlist Manager
-        this.modules.watchlist = new WatchlistManager();
-        console.log('✅ Watchlist Manager initialized');
+        moduleClasses.forEach(module => {
+            try {
+                if (window[module.class]) {
+                    this.modules[module.name] = new window[module.class]();
+                    console.log(`✅ ${module.class} initialized`);
+                    
+                    // Store global reference for backward compatibility
+                    window[module.name + 'Manager'] = this.modules[module.name];
+                } else {
+                    console.warn(`⚠️ ${module.class} not found, skipping...`);
+                }
+            } catch (error) {
+                console.error(`❌ Failed to initialize ${module.class}:`, error);
+            }
+        });
         
-        // Initialize Positions Manager
-        this.modules.positions = new PositionsManager();
-        console.log('✅ Positions Manager initialized');
+        // Store additional global references for backward compatibility
+        if (this.modules.websocket) {
+            window.wsManager = this.modules.websocket;
+            window.websocketManager = this.modules.websocket;
+            window.webSocketManager = this.modules.websocket;
+        }
         
-        // Initialize Strategy Manager
-        this.modules.strategy = new StrategyManager();
-        console.log('✅ Strategy Manager initialized');
+        // Store strategy manager global reference
+        if (this.modules.strategy) {
+            window.strategyManager = this.modules.strategy;
+        }
         
-        // Initialize Risk Manager
-        this.modules.risk = new RiskManager();
-        console.log('✅ Risk Manager initialized');
+        // Store risk manager global reference
+        if (this.modules.risk) {
+            window.riskManager = this.modules.risk;
+        }
         
-        // Initialize Settings Manager
-        this.modules.settings = new SettingsManager();
-        console.log('✅ Settings Manager initialized');
-        
-        // Initialize Analytics Manager
-        this.modules.analytics = new AnalyticsManager();
-        console.log('✅ Analytics Manager initialized');
-        
-        // Store references globally for backward compatibility
-        window.wsManager = this.modules.websocket;
-        window.websocketManager = this.modules.websocket; // Add this for watchlist manager compatibility
-        window.webSocketManager = this.modules.websocket; // Add this for trading controls compatibility
-        window.watchlistManager = this.modules.watchlist;
-        window.positionsManager = this.modules.positions;
-        window.strategyManager = this.modules.strategy;
-        window.riskManager = this.modules.risk;
-        window.settingsManager = this.modules.settings;
-        window.analyticsManager = this.modules.analytics;
-        
-        console.log('📦 All modules initialized successfully');
+        console.log('📦 Module initialization completed');
     }
     
     setupModuleIntegration() {
         console.log('🔗 Setting up module integration...');
+        
+        // Only set up WebSocket integration if WebSocket module exists
+        if (!this.modules.websocket) {
+            console.log('🔗 WebSocket module not available, skipping integration setup');
+            return;
+        }
         
         // Set up WebSocket data flow to modules
         this.modules.websocket.on('onConnect', () => {
@@ -314,6 +330,9 @@ class VolFlowApp {
             }
         });
         
+        // Panel collapse/expand functionality
+        this.initializePanelCollapse();
+        
         console.log('🎯 Global event handlers bound successfully');
     }
     
@@ -369,6 +388,9 @@ class VolFlowApp {
         
         // Initialize navigation
         this.initializeNavigation();
+        
+        // Load saved panel states
+        this.loadPanelStates();
         
         console.log('🎨 UI components initialized');
     }
@@ -433,27 +455,82 @@ class VolFlowApp {
                     navItems.forEach(nav => nav.classList.remove('active'));
                     item.classList.add('active');
                     
-                    // Calculate offset to stop slightly above the section
-                    const elementTop = targetElement.offsetTop;
-                    const offset = 220; // Fixed header (120px) + nav bar (60px) + buffer (40px)
-                    const scrollPosition = elementTop - offset;
+                    // Find the section anchor element
+                    const sectionAnchor = targetElement.querySelector('.section-anchor');
+                    const sectionHeader = targetElement.querySelector('.panel-header') || 
+                                        targetElement.querySelector('.panel-title') || 
+                                        targetElement;
                     
-                    // Smooth scroll to position with offset
-                    window.scrollTo({
-                        top: scrollPosition,
-                        behavior: 'smooth'
-                    });
+                    if (sectionAnchor) {
+                        // Scroll to the anchor element which is positioned above the header
+                        sectionAnchor.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'start' 
+                        });
+                        console.log(`🧭 Scrolling to ${targetSection} using section anchor`);
+                    } else {
+                        // Fallback to header with scroll margin
+                        sectionHeader.style.scrollMarginTop = '100x';
+                        sectionHeader.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'start' 
+                        });
+                        console.log(`🧭 Scrolling to ${targetSection} using fallback method`);
+                    }
                     
-                    // Add visual feedback
-                    targetElement.style.transform = 'scale(1.01)';
+                    // Add visual feedback to the section header
+                    sectionHeader.style.transform = 'scale(1.01)';
+                    sectionHeader.style.background = 'rgba(102, 126, 234, 0.1)';
                     setTimeout(() => {
-                        targetElement.style.transform = 'scale(1)';
-                    }, 200);
+                        sectionHeader.style.transform = 'scale(1)';
+                        sectionHeader.style.background = '';
+                    }, 300);
                 }
             });
         });
         
+        // Add scroll spy functionality to update active nav item based on scroll position
+        this.initializeScrollSpy();
+        
         console.log('🧭 Navigation initialized');
+    }
+    
+    initializeScrollSpy() {
+        console.log('👁️ Initializing scroll spy...');
+        
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('section[id]');
+        
+        if (sections.length === 0) return;
+        
+        const observerOptions = {
+            root: null,
+            rootMargin: '-20% 0px -70% 0px', // Trigger when section is 20% from top
+            threshold: 0
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const sectionId = entry.target.id;
+                    
+                    // Update active nav item
+                    navItems.forEach(nav => {
+                        nav.classList.remove('active');
+                        if (nav.getAttribute('data-section') === sectionId) {
+                            nav.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all sections
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+        
+        console.log('👁️ Scroll spy initialized for', sections.length, 'sections');
     }
     
     // Configuration Management
@@ -562,16 +639,21 @@ class VolFlowApp {
         this.showToast(`Trading ${status.toLowerCase()}`, isActive ? 'success' : 'warning');
         
         // Update status text
-        document.getElementById('trade-status').textContent = status;
+        const tradeStatus = document.getElementById('trade-status');
+        if (tradeStatus) {
+            tradeStatus.textContent = status;
+        }
         
         // Update trading status in the interface
         const startBtn = document.getElementById('start-screening');
-        if (isActive) {
-            startBtn.classList.add('btn-success');
-            startBtn.classList.remove('btn-primary');
-        } else {
-            startBtn.classList.add('btn-primary');
-            startBtn.classList.remove('btn-success');
+        if (startBtn) {
+            if (isActive) {
+                startBtn.classList.add('btn-success');
+                startBtn.classList.remove('btn-primary');
+            } else {
+                startBtn.classList.add('btn-primary');
+                startBtn.classList.remove('btn-success');
+            }
         }
     }
     
@@ -616,6 +698,159 @@ class VolFlowApp {
         this.showToast(`Export functionality will be implemented`, 'info');
     }
     
+    // Panel Collapse/Expand Functionality
+    initializePanelCollapse() {
+        console.log('📋 Initializing panel collapse functionality...');
+        
+        // Find all collapse toggle buttons
+        const collapseToggles = document.querySelectorAll('.collapse-toggle');
+        console.log('📋 Found collapse toggles:', collapseToggles.length);
+        
+        collapseToggles.forEach((toggle, index) => {
+            console.log(`📋 Setting up toggle ${index}:`, toggle);
+            toggle.addEventListener('click', (e) => {
+                console.log('📋 Collapse toggle clicked!', e.target);
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const targetId = toggle.getAttribute('data-target');
+                console.log('📋 Target ID:', targetId);
+                const panelContent = document.getElementById(targetId);
+                console.log('📋 Panel content element:', panelContent);
+                
+                if (panelContent) {
+                    console.log('📋 Calling togglePanel...');
+                    this.togglePanel(panelContent, toggle);
+                } else {
+                    console.error('📋 Panel content not found for ID:', targetId);
+                }
+            });
+        });
+        
+        // Also allow clicking on panel headers to toggle
+        const panelHeaders = document.querySelectorAll('.panel-header[data-panel]');
+        
+        panelHeaders.forEach(header => {
+            header.addEventListener('click', (e) => {
+                // Don't trigger if clicking on buttons or other interactive elements
+                if (e.target.closest('button') || e.target.closest('.btn')) {
+                    return;
+                }
+                
+                const panelName = header.getAttribute('data-panel');
+                const panelContent = document.getElementById(`${panelName}-content`);
+                const collapseToggle = header.querySelector('.collapse-toggle');
+                
+                if (panelContent && collapseToggle) {
+                    this.togglePanel(panelContent, collapseToggle);
+                }
+            });
+        });
+        
+        console.log(`📋 Panel collapse initialized for ${collapseToggles.length} panels`);
+    }
+    
+    togglePanel(panelContent, toggleButton) {
+        const isExpanded = panelContent.classList.contains('expanded');
+        const panel = panelContent.closest('.panel');
+        const chevronIcon = toggleButton.querySelector('i');
+        
+        console.log(`📋 Toggling panel: ${panelContent.id}, currently expanded: ${isExpanded}`);
+        
+        if (isExpanded) {
+            // Collapse the panel
+            panelContent.classList.remove('expanded');
+            panelContent.classList.add('collapsed');
+            toggleButton.classList.add('collapsed');
+            
+            if (panel) {
+                panel.classList.add('collapsed');
+            }
+            
+            // Rotate chevron icon
+            if (chevronIcon) {
+                chevronIcon.style.transform = 'rotate(-90deg)';
+            }
+            
+            // Add collapsing animation class
+            panelContent.classList.add('collapsing');
+            setTimeout(() => {
+                panelContent.classList.remove('collapsing');
+            }, 300);
+            
+            console.log(`📋 Panel ${panelContent.id} collapsed`);
+            
+        } else {
+            // Expand the panel
+            panelContent.classList.remove('collapsed');
+            panelContent.classList.add('expanded');
+            toggleButton.classList.remove('collapsed');
+            
+            if (panel) {
+                panel.classList.remove('collapsed');
+            }
+            
+            // Reset chevron icon rotation
+            if (chevronIcon) {
+                chevronIcon.style.transform = 'rotate(0deg)';
+            }
+            
+            // Add expanding animation class
+            panelContent.classList.add('expanding');
+            setTimeout(() => {
+                panelContent.classList.remove('expanding');
+            }, 300);
+            
+            console.log(`📋 Panel ${panelContent.id} expanded`);
+        }
+        
+        // Save panel state to localStorage
+        this.savePanelState(panelContent.id, !isExpanded);
+    }
+    
+    savePanelState(panelId, isExpanded) {
+        try {
+            const panelStates = JSON.parse(localStorage.getItem('volflow-panel-states') || '{}');
+            panelStates[panelId] = isExpanded;
+            localStorage.setItem('volflow-panel-states', JSON.stringify(panelStates));
+        } catch (error) {
+            console.warn('Failed to save panel state:', error);
+        }
+    }
+    
+    loadPanelStates() {
+        try {
+            const panelStates = JSON.parse(localStorage.getItem('volflow-panel-states') || '{}');
+            
+            Object.entries(panelStates).forEach(([panelId, isExpanded]) => {
+                const panelContent = document.getElementById(panelId);
+                const panel = panelContent?.closest('.panel');
+                const toggleButton = panel?.querySelector('.collapse-toggle');
+                const chevronIcon = toggleButton?.querySelector('i');
+                
+                if (panelContent && toggleButton) {
+                    if (isExpanded) {
+                        panelContent.classList.remove('collapsed');
+                        panelContent.classList.add('expanded');
+                        toggleButton.classList.remove('collapsed');
+                        if (panel) panel.classList.remove('collapsed');
+                        if (chevronIcon) chevronIcon.style.transform = 'rotate(0deg)';
+                    } else {
+                        panelContent.classList.remove('expanded');
+                        panelContent.classList.add('collapsed');
+                        toggleButton.classList.add('collapsed');
+                        if (panel) panel.classList.add('collapsed');
+                        if (chevronIcon) chevronIcon.style.transform = 'rotate(-90deg)';
+                    }
+                }
+            });
+            
+            console.log('📋 Panel states loaded from localStorage');
+        } catch (error) {
+            console.warn('Failed to load panel states:', error);
+        }
+    }
+
     // Utility Methods
     showToast(message, type = 'info') {
         // Create toast notification
@@ -702,9 +937,74 @@ function showToast(message, type = 'info') {
     }
 }
 
+// Add debugging to see what's happening
+console.log('🔍 Setting up DOM event listener...');
+
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🌟 DOM Content Loaded - Starting VolFlow Application...');
+    console.log('🌟 DOM Content Loaded - Waiting for templates...');
+    
+    // Check if templates are loaded, if not wait a bit
+    const checkTemplatesLoaded = () => {
+        console.log('🔍 Checking if templates are loaded...');
+        const positionsPanel = document.getElementById('positions');
+        console.log('🔍 Positions panel found:', !!positionsPanel);
+        
+        if (positionsPanel) {
+            console.log('🌟 Templates loaded - Starting VolFlow Application...');
+            
+            try {
+                // Create global app instance
+                window.volflowApp = new VolFlowApp();
+                console.log('✅ VolFlowApp instance created successfully');
+                
+                // Store global reference for backward compatibility
+                window.volflowScreener = window.volflowApp;
+                
+                // Make showToast globally available
+                window.showToast = showToast;
+                
+            } catch (error) {
+                console.error('❌ Failed to create VolFlowApp instance:', error);
+            }
+        } else {
+            console.log('🌟 Templates not ready yet, waiting...');
+            setTimeout(checkTemplatesLoaded, 100);
+        }
+    };
+    
+    checkTemplatesLoaded();
+});
+
+// Also check if DOM is already loaded
+console.log('🔍 Document ready state:', document.readyState);
+if (document.readyState === 'loading') {
+    console.log('🔍 Document still loading, waiting for DOMContentLoaded...');
+} else {
+    console.log('🔍 Document already loaded, initializing immediately...');
+    // DOM is already loaded, initialize immediately
+    setTimeout(() => {
+        console.log('🌟 Manual initialization - DOM was already loaded');
+        
+        const positionsPanel = document.getElementById('positions');
+        console.log('🔍 Positions panel found:', !!positionsPanel);
+        
+        if (positionsPanel) {
+            try {
+                window.volflowApp = new VolFlowApp();
+                console.log('✅ VolFlowApp instance created successfully (manual init)');
+                window.volflowScreener = window.volflowApp;
+                window.showToast = showToast;
+            } catch (error) {
+                console.error('❌ Failed to create VolFlowApp instance (manual init):', error);
+            }
+        }
+    }, 100);
+}
+
+// Also provide a global initialization function that can be called after templates load
+window.initializeVolFlowApp = () => {
+    console.log('🌟 Manual initialization - Starting VolFlow Application...');
     
     // Create global app instance
     window.volflowApp = new VolFlowApp();
@@ -714,7 +1014,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Make showToast globally available
     window.showToast = showToast;
-});
+};
 
 // Handle window resize for responsive behavior
 window.addEventListener('resize', () => {

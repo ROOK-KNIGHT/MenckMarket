@@ -11,6 +11,9 @@ class APIManager {
         this.authCheckInterval = null;
         this.tokenExpiry = null;
         this.isRefreshing = false;
+        this.connectionStatus = {
+            schwab: 'disconnected'
+        };
         
         this.init();
     }
@@ -20,6 +23,9 @@ class APIManager {
         
         // Bind event listeners
         this.bindEventListeners();
+        
+        // Setup WebSocket for API connection monitoring
+        this.setupWebSocket();
         
         // Start authentication monitoring
         this.startAuthMonitoring();
@@ -33,14 +39,6 @@ class APIManager {
     bindEventListeners() {
         console.log('🔗 Binding API Manager event listeners...');
         
-        // Refresh tokens button
-        const refreshTokensBtn = document.getElementById('refresh-tokens-btn');
-        if (refreshTokensBtn) {
-            refreshTokensBtn.addEventListener('click', () => {
-                this.handleRefreshTokens();
-            });
-        }
-
         // Re-authenticate button
         const reauthBtn = document.getElementById('reauth-btn');
         if (reauthBtn) {
@@ -54,21 +52,6 @@ class APIManager {
             console.error('❌ Re-authenticate button not found!');
         }
 
-        // Check auth status button
-        const checkAuthBtn = document.getElementById('check-auth-btn');
-        if (checkAuthBtn) {
-            checkAuthBtn.addEventListener('click', () => {
-                this.checkAuthStatus();
-            });
-        }
-
-        // Test API connection button
-        const testApiBtn = document.getElementById('test-api-btn');
-        if (testApiBtn) {
-            testApiBtn.addEventListener('click', () => {
-                this.testAPIConnection();
-            });
-        }
 
         // Exchange tokens button
         const exchangeTokensBtn = document.getElementById('exchange-tokens-btn');
@@ -622,6 +605,213 @@ class APIManager {
 
     async refreshStatus() {
         await this.checkAuthStatus();
+    }
+
+    setupWebSocket() {
+        // Wait for WebSocket manager to be available and connected
+        const waitForWebSocket = () => {
+            if (window.webSocketManager && window.webSocketManager.isConnected()) {
+                console.log('🔌 Setting up API connection WebSocket listener...');
+                
+                // Set up listener for API status updates
+                const handleApiStatusUpdate = (data) => {
+                    if (data.type === 'api_status_update') {
+                        console.log('📊 API status update:', data);
+                        this.processApiStatusUpdate(data.data);
+                    } else if (data.type === 'api_connection_status') {
+                        console.log('📊 API connection status update:', data);
+                        this.updateConnectionStatus(data.data);
+                    }
+                };
+                
+                window.webSocketManager.addMessageListener(handleApiStatusUpdate);
+                
+                // Also register this client with the API connection handler
+                // This ensures the handler starts monitoring when we connect
+                setTimeout(() => {
+                    window.webSocketManager.send({
+                        type: 'get_status',
+                        timestamp: new Date().toISOString()
+                    });
+                }, 1000); // Small delay to ensure handler is ready
+                
+                console.log('✅ API connection WebSocket listener set up successfully');
+            } else {
+                console.warn('⚠️ WebSocket manager not available, retrying in 2 seconds...');
+                setTimeout(waitForWebSocket, 2000);
+            }
+        };
+        
+        // Start waiting for WebSocket
+        waitForWebSocket();
+        
+        // Also set up initial display with default values
+        this.updateConnectionDisplay();
+    }
+
+    processApiStatusUpdate(statusData) {
+        console.log('🔄 Processing API status update:', statusData);
+        
+        try {
+            // Update authentication status using frontend_fields
+            if (statusData.frontend_fields) {
+                const fields = statusData.frontend_fields;
+                
+                // Update auth status elements directly using the frontend_fields
+                this.updateElementById('auth-status', fields['auth-status']);
+                this.updateElementById('schwab-status', fields['schwab-status']);
+                this.updateElementById('token-expiry', fields['token-expiry']);
+                this.updateElementById('last-auth-check', fields['last-auth-check']);
+                this.updateElementById('auth-account-info', fields['auth-account-info']);
+                this.updateElementById('connection-last-updated', fields['connection-last-updated']);
+                
+                // Update indicators
+                this.updateIndicatorById('auth-indicator', fields['auth-indicator']);
+                this.updateIndicatorById('schwab-indicator', fields['schwab-indicator']);
+                
+                console.log('✅ Updated frontend elements from API status');
+            }
+            
+            // Update internal state
+            if (statusData.authentication) {
+                this.authStatus = statusData.authentication.status || 'unknown';
+                this.lastAuthCheck = statusData.authentication.last_check ? new Date(statusData.authentication.last_check) : new Date();
+                
+                if (statusData.authentication.expires_at) {
+                    this.tokenExpiry = new Date(statusData.authentication.expires_at);
+                }
+            }
+            
+            // Update connection status
+            if (statusData.connections && statusData.connections.schwab) {
+                this.connectionStatus.schwab = statusData.connections.schwab.status;
+            }
+            
+            // Dispatch custom event for other components
+            window.dispatchEvent(new CustomEvent('apiStatusUpdate', {
+                detail: { statusData, apiManager: this }
+            }));
+            
+        } catch (error) {
+            console.error('❌ Error processing API status update:', error);
+        }
+    }
+
+    updateConnectionStatus(statusData) {
+        // Update connection status from WebSocket data
+        if (statusData.schwab) {
+            this.connectionStatus.schwab = statusData.schwab.status;
+        }
+        
+        this.updateConnectionDisplay();
+        
+        // Dispatch custom event for other components
+        window.dispatchEvent(new CustomEvent('apiConnectionStatusUpdate', {
+            detail: { statusData, connectionStatus: this.connectionStatus }
+        }));
+    }
+
+    testConnection(apiName) {
+        // Test specific API connection
+        if (window.webSocketManager && window.webSocketManager.isConnected()) {
+            window.webSocketManager.send({ 
+                type: 'test_connection', 
+                api: apiName,
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            console.warn('WebSocket not available for connection test');
+        }
+    }
+
+    refreshAllConnections() {
+        console.log('🔄 Refreshing all connections...');
+        // Refresh all connection statuses
+        if (window.webSocketManager && window.webSocketManager.isConnected()) {
+            window.webSocketManager.send({ 
+                type: 'refresh_status',
+                timestamp: new Date().toISOString()
+            });
+            console.log('📤 Sent refresh_status message');
+        } else {
+            console.warn('WebSocket not available for connection refresh');
+            this.showNotification('WebSocket not connected - cannot refresh status', 'warning');
+        }
+        console.log('🔄 Updating connection display...', this.connectionStatus);
+        
+        // Update Schwab status
+        const schwabStatus = document.getElementById('schwab-status');
+        const schwabIndicator = document.getElementById('schwab-indicator');
+        
+        if (schwabStatus && schwabIndicator) {
+            schwabStatus.textContent = this.getStatusText(this.connectionStatus.schwab);
+            schwabIndicator.className = `status-indicator ${this.getStatusClass(this.connectionStatus.schwab)}`;
+            console.log('✅ Updated Schwab status:', this.connectionStatus.schwab);
+        } else {
+            console.warn('⚠️ Schwab status elements not found');
+        }
+
+
+        // Update last updated time
+        const lastUpdated = document.getElementById('connection-last-updated');
+        if (lastUpdated) {
+            lastUpdated.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+        } else {
+            console.warn('⚠️ Last updated element not found');
+        }
+    }
+
+    getStatusText(status) {
+        switch (status) {
+            case 'connected': return 'Connected';
+            case 'disconnected': return 'Disconnected';
+            case 'expired': return 'Token Expired';
+            case 'error': return 'Error';
+            case 'no_token': return 'No Token';
+            case 'no_key': return 'No API Key';
+            case 'invalid_token': return 'Invalid Token';
+            case 'unauthorized': return 'Unauthorized';
+            case 'connection_error': return 'Connection Error';
+            case 'rate_limited': return 'Rate Limited';
+            default: return 'Unknown';
+        }
+    }
+
+    getStatusClass(status) {
+        switch (status) {
+            case 'connected': return 'connected';
+            case 'disconnected': return 'disconnected';
+            case 'expired': return 'warning';
+            case 'error': return 'error';
+            case 'no_token': return 'error';
+            case 'no_key': return 'error';
+            case 'invalid_token': return 'error';
+            case 'unauthorized': return 'error';
+            case 'connection_error': return 'warning';
+            case 'rate_limited': return 'warning';
+            default: return 'unknown';
+        }
+    }
+
+    updateElementById(elementId, value) {
+        const element = document.getElementById(elementId);
+        if (element && value !== undefined && value !== null) {
+            element.textContent = value;
+        }
+    }
+
+    updateIndicatorById(elementId, className) {
+        const element = document.getElementById(elementId);
+        if (element && className) {
+            element.className = `status-indicator ${className}`;
+        }
+    }
+
+    updateConnectionDisplay() {
+        // This method is called by the old connection status system
+        // We'll keep it for backward compatibility but it may not be needed
+        // with the new API status system
+        console.log('🔄 Updating connection display (legacy method)');
     }
 
     destroy() {

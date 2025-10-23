@@ -1,0 +1,362 @@
+/* Settings Panel Styles */
+.settings-panel {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    grid-column: 1 / 3;
+    grid-row: 5;
+}
+
+.settings-content {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.settings-section-header {
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 1rem;
+}
+
+.settings-section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.settings-section-title i {
+    color: #667eea;
+    font-size: 1.3rem;
+}
+
+.settings-section-description {
+    color: #718096;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.settings-group {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.settings-group-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.setting-item:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.setting-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.setting-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.setting-description {
+    font-size: 0.8rem;
+    color: #718096;
+    line-height: 1.4;
+}
+
+.setting-control {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.setting-control .config-input,
+.setting-control .config-select {
+    min-width: 200px;
+}
+
+.setting-control .input-group {
+    min-width: 200px;
+}
+
+.time-range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 280px;
+}
+
+.time-range-inputs .config-input {
+    flex: 1;
+    min-width: 0;
+    width: 100px;
+    max-width: 120px;
+    font-size: 0.6rem;
+}
+
+.time-separator {
+    font-size: 0.9rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+/* Settings Toggle Switches */
+.setting-control .toggle-switch {
+    width: 50px;
+    height: 28px;
+}
+
+.setting-control .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.setting-control .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e0;
+    transition: .3s;
+    border-radius: 28px;
+}
+
+.setting-control .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.setting-control .toggle-switch input:checked + .toggle-slider {
+    background-color: #667eea;
+}
+
+.setting-control .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(22px);
+}
+
+/* Settings Buttons */
+.setting-control .btn {
+    min-width: 120px;
+}
+
+/* Conditional Settings Display */
+.setting-item[style*="display: none"] {
+    display: none !important;
+}
+
+/* Settings Responsive Design */
+@media (max-width: 1200px) {
+    .settings-panel {
+        grid-column: 1;
+        grid-row: 5;
+    }
+    
+    .settings-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .settings-content {
+        padding: 1.5rem;
+        gap: 2rem;
+    }
+    
+    .settings-section-title {
+        font-size: 1.3rem;
+    }
+    
+    .settings-group {
+        padding: 1rem;
+    }
+    
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .setting-control {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .setting-control .config-input,
+    .setting-control .config-select,
+    .setting-control .input-group {
+        min-width: 100%;
+    }
+    
+    .time-range-inputs {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+    
+    .time-range-inputs .config-input {
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .settings-content {
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+    
+    .settings-section-title {
+        font-size: 1.2rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .settings-group {
+        padding: 0.75rem;
+    }
+    
+    .setting-item {
+        padding: 0.75rem;
+    }
+    
+    .setting-label {
+        font-size: 0.9rem;
+    }
+    
+    .setting-description {
+        font-size: 0.75rem;
+    }
+}
+
+/* Settings Animation */
+.setting-item {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Settings Status Indicators */
+.settings-status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.settings-status-indicator.connected {
+    background: #c6f6d5;
+    color: #38a169;
+}
+
+.settings-status-indicator.disconnected {
+    background: #fed7d7;
+    color: #e53e3e;
+}
+
+.settings-status-indicator.testing {
+    background: #faf089;
+    color: #d69e2e;
+}
+
+/* Settings Form Validation */
+.setting-control .config-input.error {
+    border-color: #e53e3e;
+    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+}
+
+.setting-control .config-input.success {
+    border-color: #38a169;
+    box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.1);
+}
+
+/* Settings Help Text */
+.setting-help {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-top: 0.25rem;
+    line-height: 1.4;
+}
+
+.setting-help.error {
+    color: #e53e3e;
+}
+
+.setting-help.success {
+    color: #38a169;
+}

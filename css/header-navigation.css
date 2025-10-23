@@ -1,0 +1,301 @@
+/* Header Styles */
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 1rem 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logo-icon {
+    font-size: 2rem;
+    color: #667eea;
+}
+
+.app-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+}
+
+.account-info {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+/* Emergency Controls in Header */
+.emergency-controls-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    border: 1px solid #cbd5e0;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(203, 213, 224, 0.2);
+}
+
+.emergency-controls-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.emergency-controls-title i {
+    color: #667eea;
+    font-size: 0.9rem;
+}
+
+.emergency-buttons-header {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Trading Controls */
+.trading-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.toggle-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #2d3748;
+    opacity: 0.9;
+    min-width: 80px;
+}
+
+.toggle-option {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #4a5568;
+    margin-left: 0.75rem;
+}
+
+.account-card {
+    background: linear-gradient(135deg, #7dd3fc, #38bdf8);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    gap: 2rem;
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+}
+
+.account-details, .equity-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.account-label, .equity-label {
+    font-size: 0.75rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.account-number, .equity-amount {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+}
+
+/* Section Navigation */
+.section-nav {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 140px;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.nav-items {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f7fafc;
+    padding-bottom: 2px;
+}
+
+.nav-items::-webkit-scrollbar {
+    height: 4px;
+}
+
+.nav-items::-webkit-scrollbar-track {
+    background: #f7fafc;
+    border-radius: 2px;
+}
+
+.nav-items::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 2px;
+    transition: background 0.2s ease;
+}
+
+.nav-items::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    color: #718096;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    position: relative;
+    flex-shrink: 0;
+    min-width: fit-content;
+}
+
+.nav-item:hover {
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.nav-item.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    background: rgba(102, 126, 234, 0.08);
+}
+
+.nav-item i {
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.nav-item span {
+    font-weight: 500;
+}
+
+/* Navigation Responsive Improvements */
+@media (max-width: 1024px) {
+    .nav-container {
+        padding: 0 1rem;
+    }
+    
+    .nav-item {
+        padding: 1rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .nav-item span {
+        display: none;
+    }
+    
+    .nav-item i {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-items {
+        gap: 0.25rem;
+        padding: 0 0.5rem;
+    }
+    
+    .nav-item {
+        padding: 0.75rem 0.75rem;
+        min-width: 60px;
+        justify-content: center;
+    }
+    
+    .nav-item span {
+        display: none;
+    }
+    
+    .nav-item i {
+        font-size: 1.2rem;
+    }
+}
+
+/* Add navigation hint for mobile */
+.nav-container::after {
+    content: "← Scroll for more tabs →";
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: #718096;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .nav-container::after {
+        opacity: 1;
+    }
+    
+    .header-content {
+        padding: 0 1rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .account-card {
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-title {
+        font-size: 1.25rem;
+    }
+    
+    .account-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+}

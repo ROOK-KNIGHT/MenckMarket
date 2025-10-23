@@ -379,9 +379,11 @@ class WatchlistManager {
         // Clear existing items
         watchlistList.innerHTML = '';
         
-        // Add each symbol
+        // Add each symbol - only if it has market data
         this.watchlistSymbols.forEach(symbol => {
             const symbolData = this.watchlistData[symbol];
+            
+            // Only create item if we have market data
             if (symbolData) {
                 const item = document.createElement('div');
                 item.className = 'watchlist-item fade-in';
@@ -390,6 +392,7 @@ class WatchlistManager {
             }
         });
         
+        console.log('🎨 Created', watchlistList.children.length, 'watchlist items');
         this.updateStatus();
     }
     
@@ -460,7 +463,6 @@ class WatchlistManager {
         console.log('🔍 DEBUG: removeSymbol called for:', symbol);
         this.sendRemoveSymbolMessage(symbol);
     }
-    
 
     showToast(message, type = 'info') {
         console.log(`Toast: ${message} (${type})`);
@@ -476,3 +478,6 @@ function removeSymbol(symbol) {
         window.watchlistManager.removeSymbol(symbol);
     }
 }
+
+// Export to global scope for app.js to access
+window.WatchlistManager = WatchlistManager;

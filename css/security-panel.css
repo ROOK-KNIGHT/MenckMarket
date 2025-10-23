@@ -1,0 +1,499 @@
+/* Security Panel Styles */
+.security-panel {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    grid-column: 1 / 3;
+    grid-row: 4;
+}
+
+.security-panel .settings-content {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.security-panel .settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.security-panel .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.security-panel .settings-group {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 300px;
+}
+
+.security-panel .settings-group-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0 0 0.5rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.security-panel .settings-group-title i {
+    color: #667eea;
+    font-size: 1rem;
+}
+
+/* ==================== API AUTHENTICATION STATUS STYLES ==================== */
+
+/* Authentication Status Display */
+.auth-status-display {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    min-width: 180px;
+}
+
+.auth-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.auth-indicator.authenticated {
+    background: #38a169;
+    box-shadow: 0 0 8px rgba(56, 161, 105, 0.4);
+}
+
+.auth-indicator.expiring {
+    background: #d69e2e;
+    box-shadow: 0 0 8px rgba(214, 158, 46, 0.4);
+    animation: pulse 2s infinite;
+}
+
+.auth-indicator.expired {
+    background: #e53e3e;
+    box-shadow: 0 0 8px rgba(229, 62, 62, 0.4);
+    animation: pulse 1s infinite;
+}
+
+.auth-indicator.unauthenticated {
+    background: #cbd5e0;
+}
+
+.auth-indicator.checking {
+    background: #667eea;
+    animation: spin 1s linear infinite;
+}
+
+.auth-indicator.refreshing {
+    background: #667eea;
+    animation: spin 1s linear infinite;
+}
+
+.auth-indicator.error {
+    background: #e53e3e;
+    box-shadow: 0 0 8px rgba(229, 62, 62, 0.4);
+}
+
+.auth-indicator.unknown {
+    background: #9ca3af;
+}
+
+.auth-status {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2d3748;
+    transition: color 0.3s ease;
+}
+
+.auth-status.authenticated {
+    color: #38a169;
+}
+
+.auth-status.expiring {
+    color: #d69e2e;
+}
+
+.auth-status.expired {
+    color: #e53e3e;
+}
+
+.auth-status.unauthenticated {
+    color: #718096;
+}
+
+.auth-status.checking {
+    color: #667eea;
+}
+
+.auth-status.refreshing {
+    color: #667eea;
+}
+
+.auth-status.error {
+    color: #e53e3e;
+}
+
+.auth-status.unknown {
+    color: #9ca3af;
+}
+
+/* Token Expiry Display */
+.token-expiry {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+}
+
+.token-expiry.warning {
+    background: #faf089;
+    color: #d69e2e;
+    border: 1px solid #f6e05e;
+}
+
+.token-expiry.expired {
+    background: #fed7d7;
+    color: #e53e3e;
+    border: 1px solid #feb2b2;
+}
+
+.token-expiry.unknown {
+    background: #edf2f7;
+    color: #718096;
+    border: 1px solid #e2e8f0;
+}
+
+.token-expiry:not(.warning):not(.expired):not(.unknown) {
+    background: #c6f6d5;
+    color: #38a169;
+    border: 1px solid #9ae6b4;
+}
+
+/* Last Check Time Display */
+.last-check-time {
+    font-size: 0.85rem;
+    color: #718096;
+    font-weight: 500;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Account Info Display */
+.auth-account-info {
+    font-size: 0.9rem;
+    color: #4a5568;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+/* Authentication Action Buttons */
+.security-panel .setting-control .btn {
+    min-width: 140px;
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.security-panel .setting-control .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.security-panel .setting-control .btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* API Status Animations */
+@keyframes authPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+@keyframes authSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.auth-indicator.checking,
+.auth-indicator.refreshing {
+    animation: authSpin 1s linear infinite;
+}
+
+.auth-indicator.expiring {
+    animation: authPulse 2s infinite;
+}
+
+.auth-indicator.expired {
+    animation: authPulse 1s infinite;
+}
+
+/* API Connection Status Section Styling */
+.security-panel .settings-section:first-child {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 1rem;
+}
+
+.security-panel .settings-section:first-child .settings-section-title {
+    color: #0c4a6e;
+}
+
+.security-panel .settings-section:first-child .settings-section-title i {
+    color: #0284c7;
+}
+
+.security-panel .settings-section:first-child .settings-section-description {
+    color: #075985;
+}
+
+/* API Status Grid Enhancements */
+.security-panel .settings-section:first-child .settings-grid {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.security-panel .settings-section:first-child .settings-group {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e0f2fe;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.1);
+}
+
+.security-panel .settings-section:first-child .settings-group:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: #bae6fd;
+    box-shadow: 0 4px 15px rgba(2, 132, 199, 0.15);
+}
+
+/* Responsive API Status */
+@media (max-width: 768px) {
+    .auth-status-display {
+        min-width: 150px;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .auth-status {
+        font-size: 0.8rem;
+    }
+    
+    .token-expiry {
+        font-size: 0.8rem;
+        min-width: 70px;
+        padding: 0.2rem 0.6rem;
+    }
+    
+    .auth-account-info {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.6rem;
+    }
+    
+    .security-panel .setting-control .btn {
+        min-width: 120px;
+        font-size: 0.8rem;
+        padding: 0.5rem 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-status-display {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .security-panel .settings-section:first-child {
+        padding: 1.5rem;
+    }
+    
+    .security-panel .settings-section:first-child .settings-grid {
+        padding: 0.75rem;
+    }
+}
+
+/* API Status Success States */
+.auth-status-display.success {
+    background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+    border-color: #9ae6b4;
+}
+
+.auth-status-display.warning {
+    background: linear-gradient(135deg, #fffbeb, #faf089);
+    border-color: #f6e05e;
+}
+
+.auth-status-display.error {
+    background: linear-gradient(135deg, #fff5f5, #fed7d7);
+    border-color: #feb2b2;
+}
+
+/* API Management Action Button States */
+.security-panel .btn-primary:disabled {
+    background: linear-gradient(135deg, #cbd5e0, #a0aec0);
+    color: #718096;
+}
+
+.security-panel .btn-secondary:disabled {
+    background: #f7fafc;
+    color: #a0aec0;
+    border-color: #e2e8f0;
+}
+
+.security-panel .btn-warning:disabled {
+    background: linear-gradient(135deg, #edf2f7, #e2e8f0);
+    color: #a0aec0;
+}
+
+.security-panel .btn-outline:disabled {
+    background: transparent;
+    color: #cbd5e0;
+    border-color: #e2e8f0;
+}
+
+/* Security Panel Responsive Design */
+@media (max-width: 1200px) {
+    .security-panel {
+        grid-column: 1;
+        grid-row: 4;
+    }
+    
+    .security-panel .settings-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .security-panel .settings-content {
+        padding: 1.5rem;
+        gap: 2rem;
+    }
+    
+    .security-panel .settings-group {
+        padding: 1rem;
+        min-height: auto;
+    }
+    
+    .security-panel .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .security-panel .setting-control {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 480px) {
+    .security-panel .settings-content {
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+    
+    .security-panel .settings-group {
+        padding: 0.75rem;
+    }
+}
+
+/* Security Status Indicators */
+.security-status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.security-status-indicator.enabled {
+    background: #c6f6d5;
+    color: #38a169;
+}
+
+.security-status-indicator.disabled {
+    background: #fed7d7;
+    color: #e53e3e;
+}
+
+.security-status-indicator.pending {
+    background: #faf089;
+    color: #d69e2e;
+}
+
+/* Security Form Styles */
+.security-panel .config-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.security-panel .config-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.security-panel .config-input.error {
+    border-color: #e53e3e;
+    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+}
+
+.security-panel .config-input.success {
+    border-color: #38a169;
+    box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.1);
+}
+
+/* Callback URL Form */
+.callback-url-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.callback-url-form .config-input {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.8rem;
+}

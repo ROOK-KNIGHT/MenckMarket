@@ -1,0 +1,44 @@
+[
+  {
+    "timestamp": "2025-10-20T11:14:36.217365",
+    "order_id": "divergence_AAPL_1760984075",
+    "symbol": "AAPL",
+    "strategy": "divergence",
+    "signal_type": "BUY",
+    "confidence": 0.75,
+    "confirmation_strength": "weak",
+    "confirmed_timeframes": [
+      "5min",
+      "15min"
+    ],
+    "quantity": 1,
+    "entry_price": 263.57,
+    "stop_loss": 257.29755,
+    "profit_target": 275.0649,
+    "risk_amount": 6.272449999999992,
+    "entry_reason": "Bullish divergence confirmed on 5min, 15min",
+    "market_condition": "BULLISH_DIVERGENCE",
+    "volatility_environment": "Medium Volatility"
+  },
+  {
+    "timestamp": "2025-10-20T11:15:40.443929",
+    "order_id": "divergence_AAPL_1760984139",
+    "symbol": "AAPL",
+    "strategy": "divergence",
+    "signal_type": "BUY",
+    "confidence": 0.75,
+    "confirmation_strength": "weak",
+    "confirmed_timeframes": [
+      "5min",
+      "15min"
+    ],
+    "quantity": 1,
+    "entry_price": 263.67,
+    "stop_loss": 257.639675,
+    "profit_target": 275.43065,
+    "risk_amount": 6.030325000000005,
+    "entry_reason": "Bullish divergence confirmed on 5min, 15min",
+    "market_condition": "BULLISH_DIVERGENCE",
+    "volatility_environment": "Medium Volatility"
+  }
+]

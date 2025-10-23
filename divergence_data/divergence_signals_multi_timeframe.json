@@ -1,0 +1,249 @@
+{
+  "strategy_name": "Multi_Timeframe_Divergence_Strategy",
+  "last_updated": "2025-10-22T20:59:12.536596",
+  "total_symbols_analyzed": 5,
+  "confirmed_signals": 0,
+  "analysis_summary": {
+    "strong_buy": 0,
+    "buy": 0,
+    "strong_sell": 0,
+    "sell": 0,
+    "no_signal": 5
+  },
+  "signals": {
+    "AAPL": {
+      "symbol": "AAPL",
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "No multi-timeframe confirmation",
+      "timestamp": "2025-10-22T20:59:12.536128",
+      "market_condition": "NEUTRAL",
+      "volatility_environment": "Unknown",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": false,
+      "multi_timeframe_confirmation": false,
+      "confirmed_timeframes": [],
+      "timeframe_analysis": {
+        "1min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        },
+        "5min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": true,
+          "strength": "weak",
+          "signal_type": "SELL",
+          "trend_direction": "neutral"
+        },
+        "15min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        }
+      },
+      "confirmation_strength": "none"
+    },
+    "AMZN": {
+      "symbol": "AMZN",
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "No multi-timeframe confirmation",
+      "timestamp": "2025-10-22T20:59:12.536369",
+      "market_condition": "NEUTRAL",
+      "volatility_environment": "Unknown",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": false,
+      "multi_timeframe_confirmation": false,
+      "confirmed_timeframes": [],
+      "timeframe_analysis": {
+        "1min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        },
+        "5min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        },
+        "15min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        }
+      },
+      "confirmation_strength": "none"
+    },
+    "INTC": {
+      "symbol": "INTC",
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "No multi-timeframe confirmation",
+      "timestamp": "2025-10-22T20:59:12.536395",
+      "market_condition": "NEUTRAL",
+      "volatility_environment": "Unknown",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": false,
+      "multi_timeframe_confirmation": false,
+      "confirmed_timeframes": [],
+      "timeframe_analysis": {
+        "1min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        },
+        "5min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        },
+        "15min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        }
+      },
+      "confirmation_strength": "none"
+    },
+    "NVDA": {
+      "symbol": "NVDA",
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "No multi-timeframe confirmation",
+      "timestamp": "2025-10-22T20:59:12.536408",
+      "market_condition": "NEUTRAL",
+      "volatility_environment": "Unknown",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": false,
+      "multi_timeframe_confirmation": false,
+      "confirmed_timeframes": [],
+      "timeframe_analysis": {
+        "1min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        },
+        "5min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        },
+        "15min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        }
+      },
+      "confirmation_strength": "none"
+    },
+    "PLTR": {
+      "symbol": "PLTR",
+      "signal_type": "NO_SIGNAL",
+      "confidence": 0.0,
+      "entry_reason": "No multi-timeframe confirmation",
+      "timestamp": "2025-10-22T20:59:12.536420",
+      "market_condition": "NEUTRAL",
+      "volatility_environment": "Unknown",
+      "position_size": 0.0,
+      "stop_loss": 0.0,
+      "profit_target": 0.0,
+      "auto_approve": false,
+      "multi_timeframe_confirmation": false,
+      "confirmed_timeframes": [],
+      "timeframe_analysis": {
+        "1min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        },
+        "5min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        },
+        "15min": {
+          "available": true,
+          "bullish_divergence": false,
+          "bearish_divergence": false,
+          "strength": "weak",
+          "signal_type": "NO_SIGNAL",
+          "trend_direction": "neutral"
+        }
+      },
+      "confirmation_strength": "none"
+    }
+  },
+  "metadata": {
+    "strategy_type": "multi_timeframe_divergence",
+    "timeframes_used": [
+      "1min",
+      "5min",
+      "15min"
+    ],
+    "confirmation_timeframes": [
+      "5min",
+      "15min"
+    ],
+    "execution_timeframe": "1min",
+    "signal_types": [
+      "STRONG_BUY",
+      "BUY",
+      "STRONG_SELL",
+      "SELL",
+      "NO_SIGNAL"
+    ],
+    "analysis_method": "multi_timeframe_divergence_confirmation",
+    "update_frequency": "on_demand",
+    "data_source": "divergence_data_directory",
+    "output_directory": "divergence_data"
+  }
+}

@@ -1,0 +1,201 @@
+{
+  "strategy_name": "Divergence_Indicators_1MIN",
+  "last_updated": "2025-10-22T20:59:05.077188",
+  "total_symbols_analyzed": 5,
+  "analysis_summary": {
+    "symbols_with_data": 5,
+    "symbols_with_errors": 0,
+    "bullish_divergences": 0,
+    "bearish_divergences": 0,
+    "strong_divergences": 0,
+    "trade_signals": 0
+  },
+  "indicators": {
+    "INTC": {
+      "symbol": "INTC",
+      "timeframe": "1min",
+      "timestamp": "2025-10-22T20:59:04.584335",
+      "current_price": 36.5797,
+      "current_rsi": 34.218705338410416,
+      "current_volume": 8083,
+      "swing_highs": [
+        36.92,
+        36.94,
+        36.81,
+        36.65,
+        36.6299
+      ],
+      "swing_lows": [
+        36.75,
+        36.76,
+        36.6203,
+        36.6201,
+        36.6401
+      ],
+      "bullish_divergence_detected": false,
+      "bearish_divergence_detected": false,
+      "bullish_divergence_strong": false,
+      "bullish_divergence_medium": false,
+      "bullish_divergence_weak": false,
+      "bearish_divergence_strong": false,
+      "bearish_divergence_medium": false,
+      "bearish_divergence_weak": false,
+      "divergence_strength": "weak",
+      "trend_direction": "neutral",
+      "signal_type": "NO_SIGNAL",
+      "has_trade_signal": false
+    },
+    "NVDA": {
+      "symbol": "NVDA",
+      "timeframe": "1min",
+      "timestamp": "2025-10-22T20:59:04.282802",
+      "current_price": 179.6601,
+      "current_rsi": 18.287169664911644,
+      "current_volume": 2584,
+      "swing_highs": [
+        180.55,
+        180.03,
+        179.89,
+        179.96,
+        179.99
+      ],
+      "swing_lows": [
+        179.88,
+        179.85,
+        179.91,
+        179.91,
+        179.95
+      ],
+      "bullish_divergence_detected": false,
+      "bearish_divergence_detected": false,
+      "bullish_divergence_strong": false,
+      "bullish_divergence_medium": false,
+      "bullish_divergence_weak": false,
+      "bearish_divergence_strong": false,
+      "bearish_divergence_medium": false,
+      "bearish_divergence_weak": false,
+      "divergence_strength": "weak",
+      "trend_direction": "neutral",
+      "signal_type": "NO_SIGNAL",
+      "has_trade_signal": false
+    },
+    "PLTR": {
+      "symbol": "PLTR",
+      "timeframe": "1min",
+      "timestamp": "2025-10-22T20:59:03.497745",
+      "current_price": 174.8,
+      "current_rsi": 38.43352915821566,
+      "current_volume": 2776,
+      "swing_highs": [
+        175.1,
+        175.25,
+        175.2491,
+        175.0,
+        174.99
+      ],
+      "swing_lows": [
+        174.85,
+        175.0,
+        174.8601,
+        174.8605,
+        174.77
+      ],
+      "bullish_divergence_detected": false,
+      "bearish_divergence_detected": false,
+      "bullish_divergence_strong": false,
+      "bullish_divergence_medium": false,
+      "bullish_divergence_weak": false,
+      "bearish_divergence_strong": false,
+      "bearish_divergence_medium": false,
+      "bearish_divergence_weak": false,
+      "divergence_strength": "weak",
+      "trend_direction": "neutral",
+      "signal_type": "NO_SIGNAL",
+      "has_trade_signal": false
+    },
+    "AAPL": {
+      "symbol": "AAPL",
+      "timeframe": "1min",
+      "timestamp": "2025-10-22T20:59:04.670783",
+      "current_price": 258.892,
+      "current_rsi": 38.62702455406408,
+      "current_volume": 223,
+      "swing_highs": [
+        259.55,
+        259.44,
+        259.39,
+        259.5592,
+        259.25
+      ],
+      "swing_lows": [
+        259.1501,
+        259.0442,
+        259.0,
+        259.07,
+        258.8237
+      ],
+      "bullish_divergence_detected": false,
+      "bearish_divergence_detected": false,
+      "bullish_divergence_strong": false,
+      "bullish_divergence_medium": false,
+      "bullish_divergence_weak": false,
+      "bearish_divergence_strong": false,
+      "bearish_divergence_medium": false,
+      "bearish_divergence_weak": false,
+      "divergence_strength": "weak",
+      "trend_direction": "neutral",
+      "signal_type": "NO_SIGNAL",
+      "has_trade_signal": false
+    },
+    "AMZN": {
+      "symbol": "AMZN",
+      "timeframe": "1min",
+      "timestamp": "2025-10-22T20:59:04.924681",
+      "current_price": 218.13,
+      "current_rsi": 42.09308658858744,
+      "current_volume": 718,
+      "swing_highs": [
+        218.5,
+        218.49,
+        218.48,
+        218.4099,
+        218.3
+      ],
+      "swing_lows": [
+        218.16,
+        218.25,
+        218.25,
+        218.07,
+        218.2
+      ],
+      "bullish_divergence_detected": false,
+      "bearish_divergence_detected": false,
+      "bullish_divergence_strong": false,
+      "bullish_divergence_medium": false,
+      "bullish_divergence_weak": false,
+      "bearish_divergence_strong": false,
+      "bearish_divergence_medium": false,
+      "bearish_divergence_weak": false,
+      "divergence_strength": "weak",
+      "trend_direction": "neutral",
+      "signal_type": "NO_SIGNAL",
+      "has_trade_signal": false
+    }
+  },
+  "metadata": {
+    "analysis_type": "divergence_indicators",
+    "timeframe": "1min",
+    "indicator_focus": [
+      "rsi",
+      "swing_points",
+      "divergence_detection"
+    ],
+    "lookback_constraint": "30_bars",
+    "price_comparison": "actual_high_low",
+    "update_frequency": "on_demand",
+    "data_source": "schwab_historical_data",
+    "output_directory": "divergence_data",
+    "talib_available": true,
+    "scipy_available": true
+  }
+}

@@ -1,0 +1,64 @@
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <div class="logo-section">
+            <i class="fas fa-chart-line logo-icon"></i>
+            <h1 class="app-title">VolFlow Options Breakout</h1>
+        </div>
+        <div class="account-info">
+            <!-- Emergency Controls -->
+            <div class="emergency-controls-header">
+                <div class="emergency-controls-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Emergency Controls</span>
+                </div>
+                <div class="emergency-buttons-header">
+                    <button class="btn btn-danger btn-xs" id="emergency-stop">
+                        <i class="fas fa-stop"></i>
+                        Emergency Stop
+                    </button>
+                    <button class="btn btn-warning btn-xs" id="close-all-positions">
+                        <i class="fas fa-times-circle"></i>
+                        Close All
+                    </button>
+                    <button class="btn btn-secondary btn-xs" id="pause-trading">
+                        <i class="fas fa-pause"></i>
+                        Pause
+                    </button>
+                </div>
+            </div>
+
+            <div class="account-card">
+                <div class="account-details">
+                    <span class="account-label">Account</span>
+                    <span class="account-number">Check Connections</span>
+                </div>
+                <div class="equity-details">
+                    <span class="equity-label">Total Equity</span>
+                    <span class="equity-amount">Connection Lost</span>
+                </div>
+            </div>
+            
+            <!-- Trading Controls -->
+            <div class="trading-controls">
+                <div class="toggle-group">
+                    <label class="toggle-label">Environment:</label>
+                    <div class="toggle-switch" id="environment-toggle">
+                        <input type="checkbox" id="env-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span class="toggle-option" id="env-status">Live</span>
+                </div>
+                
+                <div class="toggle-group">
+                    <label class="toggle-label">Trading:</label>
+                    <div class="toggle-switch" id="trading-toggle">
+                        <input type="checkbox" id="trade-toggle">
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span class="toggle-option" id="trade-status">Stopped</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

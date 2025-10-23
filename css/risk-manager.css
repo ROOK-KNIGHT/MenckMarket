@@ -1,0 +1,585 @@
+/* Risk Management Panel Styles */
+.risk-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(56, 161, 105, 0.1);
+    border: 1px solid rgba(56, 161, 105, 0.2);
+    border-radius: 20px;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-dot.safe {
+    background: #38a169;
+    box-shadow: 0 0 8px rgba(56, 161, 105, 0.4);
+}
+
+.status-dot.warning {
+    background: #d69e2e;
+    box-shadow: 0 0 8px rgba(214, 158, 46, 0.4);
+}
+
+.status-dot.danger {
+    background: #e53e3e;
+    box-shadow: 0 0 8px rgba(229, 62, 62, 0.4);
+}
+
+.risk-status-indicator .status-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #38a169;
+}
+
+/* Risk Overview Cards */
+.risk-overview {
+    padding: 1.5rem 2rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: rgba(102, 126, 234, 0.02);
+}
+
+.risk-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.risk-card:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.risk-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.risk-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.risk-label {
+    font-size: 0.7rem;
+    color: #718096;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.risk-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.risk-change {
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.risk-change.positive {
+    color: #38a169;
+}
+
+.risk-change.negative {
+    color: #e53e3e;
+}
+
+.risk-limit {
+    font-size: 0.75rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+/* Risk Parameters Grid */
+.risk-parameters-grid {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.risk-parameter-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-height: 80px;
+}
+
+.risk-parameter-card:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.risk-parameter-card.emergency-card {
+    background: linear-gradient(135deg, #fed7d7, #fbb6ce);
+    border-color: #f56565;
+}
+
+.risk-parameter-card.emergency-card:hover {
+    background: linear-gradient(135deg, #fecaca, #f9a8d4);
+    border-color: #ef4444;
+}
+
+.parameter-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.parameter-toggle {
+    flex-shrink: 0;
+}
+
+.parameter-toggle .toggle-switch {
+    width: 40px;
+    height: 20px;
+}
+
+.parameter-toggle .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.parameter-toggle .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e0;
+    transition: .3s;
+    border-radius: 20px;
+}
+
+.parameter-toggle .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.parameter-toggle .toggle-switch input:checked + .toggle-slider {
+    background-color: #667eea;
+}
+
+.parameter-toggle .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
+
+/* Disabled state for parameter cards */
+.risk-parameter-card.disabled {
+    opacity: 0.6;
+    background: #f8f9fa;
+}
+
+.risk-parameter-card.disabled .config-input,
+.risk-parameter-card.disabled .config-select {
+    background: #f1f3f4;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.risk-parameter-card.disabled .parameter-title {
+    color: #6c757d;
+}
+
+.risk-parameter-card.disabled .parameter-description {
+    color: #9ca3af;
+}
+
+.parameter-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.parameter-icon.emergency-icon {
+    background: linear-gradient(135deg, #e53e3e, #c53030);
+}
+
+.parameter-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.parameter-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+}
+
+.parameter-description {
+    font-size: 0.8rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.parameter-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.parameter-control .input-group {
+    width: 100%;
+}
+
+.parameter-control .config-select {
+    width: 100%;
+}
+
+/* Emergency Buttons */
+.emergency-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+    padding: 0 2rem 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Dynamic Stop Loss Unit Update */
+#stop-loss-unit {
+    transition: all 0.2s ease;
+}
+
+/* Risk Management Responsive Design */
+@media (max-width: 1400px) {
+    .risk-parameters-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1100px) {
+    .risk-parameters-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 1200px) {
+    .risk-management-panel {
+        grid-column: 1;
+        grid-row: 3;
+    }
+    
+    .risk-overview {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .risk-parameters-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .risk-overview {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .risk-card {
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+    
+    .risk-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+    
+    .risk-value {
+        font-size: 1.1rem;
+    }
+    
+    .risk-parameters-grid {
+        padding: 1rem;
+        gap: 1rem;
+    }
+    
+    .risk-parameter-card {
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+    
+    .parameter-header {
+        gap: 0.75rem;
+    }
+    
+    .parameter-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+    
+    .parameter-title {
+        font-size: 0.9rem;
+    }
+    
+    .parameter-description {
+        font-size: 0.75rem;
+    }
+    
+    .emergency-buttons {
+        gap: 0.5rem;
+    }
+    
+    .action-buttons {
+        padding: 0 1rem 1rem;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .risk-overview {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    .risk-card {
+        padding: 0.75rem;
+        gap: 0.5rem;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .risk-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+    
+    .risk-details {
+        align-items: center;
+    }
+    
+    .risk-parameters-grid {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    .risk-parameter-card {
+        padding: 0.75rem;
+        gap: 0.5rem;
+    }
+    
+    .parameter-header {
+        gap: 0.5rem;
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .parameter-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+    
+    .parameter-info {
+        align-items: center;
+        text-align: center;
+    }
+    
+    .parameter-title {
+        font-size: 0.85rem;
+    }
+    
+    .parameter-description {
+        font-size: 0.7rem;
+    }
+    
+    .emergency-buttons {
+        gap: 0.5rem;
+    }
+    
+    .emergency-buttons .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .action-buttons {
+        padding: 0 0.75rem 0.75rem;
+    }
+}
+
+/* Risk Status Animations */
+@keyframes riskPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.status-dot.warning {
+    animation: riskPulse 2s infinite;
+}
+
+.status-dot.danger {
+    animation: riskPulse 1s infinite;
+}
+
+/* Risk Utilization Progress Bar */
+.risk-utilization-bar {
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.risk-utilization-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #38a169, #d69e2e, #e53e3e);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* Enhanced Button Styles for Risk Management */
+.action-buttons .btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.action-buttons .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.action-buttons .btn:hover::before {
+    left: 100%;
+}
+
+/* Risk Alert Styles */
+.risk-alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.risk-alert.info {
+    background: #bee3f8;
+    border: 1px solid #90cdf4;
+    color: #2c5282;
+}
+
+.risk-alert.warning {
+    background: #faf089;
+    border: 1px solid #f6e05e;
+    color: #744210;
+}
+
+.risk-alert.danger {
+    background: #fed7d7;
+    border: 1px solid #feb2b2;
+    color: #742a2a;
+}
+
+.risk-alert i {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+/* Tooltip Styles for Risk Management */
+.risk-tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.risk-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2d3748;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+
+.risk-tooltip:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-5px);
+}

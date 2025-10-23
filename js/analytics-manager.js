@@ -221,3 +221,6 @@ class AnalyticsManager {
         }
     }
 }
+
+// Export to global scope for app.js to access
+window.AnalyticsManager = AnalyticsManager;

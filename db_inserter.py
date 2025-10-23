@@ -58,10 +58,6 @@ class DatabaseInserter:
             'account_data': 'account_data.json'
         }
         
-        # Database insertion throttling (30-second intervals)
-        self.last_db_insertion = 0
-        self.db_insertion_interval = 30  # seconds
-        
         self.logger.info("DatabaseInserter initialized")
         self.logger.info(f"Monitoring {len(self.json_files)} JSON files")
 
@@ -863,19 +859,7 @@ class DatabaseInserter:
                 conn.close()
             return False
 
-    def run_with_throttling(self) -> Dict[str, bool]:
-        """Run database insertion with 30-second throttling."""
-        current_time = time.time()
-        
-        if current_time - self.last_db_insertion >= self.db_insertion_interval:
-            self.logger.info(f"⏰ Database insertion interval reached ({self.db_insertion_interval}s), processing all JSON files...")
-            results = self.process_all_json_files()
-            self.last_db_insertion = current_time
-            return results
-        else:
-            time_remaining = self.db_insertion_interval - (current_time - self.last_db_insertion)
-            self.logger.info(f"⏳ Database insertion throttled - {time_remaining:.1f}s remaining until next insertion")
-            return {}
+    # Removed run_with_throttling method - timing now controlled by realtime_monitor.py
 
 
 def main():

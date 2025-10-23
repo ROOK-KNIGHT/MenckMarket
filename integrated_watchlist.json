@@ -1,143 +1,113 @@
 {
   "strategy_name": "Integrated_Watchlist",
-  "last_updated": "2025-10-14T16:52:37.858059",
+  "last_updated": "2025-10-22T23:04:02.085874",
   "total_symbols": 7,
   "watchlist_data": {
-    "V": {
-      "symbol": "V",
-      "current_price": 348.29,
-      "price_change": 4.99,
-      "price_change_percent": 1.45353918,
-      "volume": 5731298,
+    "PLTR": {
+      "symbol": "PLTR",
+      "current_price": 174.84,
+      "price_change": -6.67,
+      "price_change_percent": -3.67472867,
+      "volume": 58263102,
       "market_cap": null,
-      "last_updated": "2025-10-14T16:52:37.838360",
+      "last_updated": "2025-10-22T23:04:02.084294",
       "source": [
-        "api_watchlist"
+        "trading_strategies"
       ]
+    },
+    "AMD": {
+      "symbol": "AMD",
+      "current_price": 229.33,
+      "price_change": -8.7,
+      "price_change_percent": -3.65500147,
+      "volume": 59668778,
+      "market_cap": null,
+      "last_updated": "2025-10-22T23:04:02.084389",
+      "source": [
+        "current_positions"
+      ],
+      "position_details": {
+        "quantity": -50.0,
+        "market_value": -11526.5,
+        "cost_basis": 0.0,
+        "unrealized_pl": -51.5,
+        "unrealized_pl_percent": 3.64,
+        "account": "74680244",
+        "position_type": "SHORT",
+        "instrument_type": "EQUITY"
+      }
     },
     "NVDA": {
       "symbol": "NVDA",
-      "current_price": 181.31,
-      "price_change": -7.01,
-      "price_change_percent": -3.72238743,
-      "volume": 205567989,
+      "current_price": 179.7,
+      "price_change": -1.46,
+      "price_change_percent": -0.80591742,
+      "volume": 162249552,
       "market_cap": null,
-      "last_updated": "2025-10-14T16:52:37.838468",
+      "last_updated": "2025-10-22T23:04:02.084433",
       "source": [
-        "current_positions"
-      ],
-      "position_details": {
-        "quantity": 1.0,
-        "market_value": 181.3,
-        "cost_basis": 192.62,
-        "unrealized_pl": -11.32,
-        "unrealized_pl_percent": -3.73,
-        "account": "74680244",
-        "position_type": "LONG",
-        "instrument_type": "EQUITY"
-      }
-    },
-    "PLTR": {
-      "symbol": "PLTR",
-      "current_price": 179.81,
-      "price_change": 2.6,
-      "price_change_percent": 1.46718582,
-      "volume": 49246521,
-      "market_cap": null,
-      "last_updated": "2025-10-14T16:52:37.838507",
-      "source": [
-        "current_positions"
-      ],
-      "position_details": {
-        "quantity": 1.0,
-        "market_value": 179.8,
-        "cost_basis": 186.13,
-        "unrealized_pl": -6.33,
-        "unrealized_pl_percent": 1.46,
-        "account": "74680244",
-        "position_type": "LONG",
-        "instrument_type": "EQUITY"
-      }
-    },
-    "LYFT": {
-      "symbol": "LYFT",
-      "current_price": 20.2945,
-      "price_change": 0.3045,
-      "price_change_percent": 1.52326163,
-      "volume": 13906516,
-      "market_cap": null,
-      "last_updated": "2025-10-14T16:52:37.838538",
-      "source": [
-        "api_watchlist"
+        "trading_strategies"
       ]
     },
     "AMZN": {
       "symbol": "AMZN",
-      "current_price": 217.18,
-      "price_change": -2.89,
-      "price_change_percent": -1.31321852,
-      "volume": 45653542,
+      "current_price": 218.13,
+      "price_change": -3.9,
+      "price_change_percent": -1.75651939,
+      "volume": 44308538,
       "market_cap": null,
-      "last_updated": "2025-10-14T16:52:37.838568",
+      "last_updated": "2025-10-22T23:04:02.084466",
       "source": [
-        "current_positions"
-      ],
-      "position_details": {
-        "quantity": 1.0,
-        "market_value": 217.13,
-        "cost_basis": 228.05,
-        "unrealized_pl": -10.92,
-        "unrealized_pl_percent": -1.34,
-        "account": "74680244",
-        "position_type": "LONG",
-        "instrument_type": "EQUITY"
-      }
+        "trading_strategies"
+      ]
     },
     "INTC": {
       "symbol": "INTC",
-      "current_price": 35.7211,
-      "price_change": -1.4989,
-      "price_change_percent": -4.02713595,
-      "volume": 117875427,
+      "current_price": 36.5788,
+      "price_change": -1.5412,
+      "price_change_percent": -4.04302204,
+      "volume": 87099905,
       "market_cap": null,
-      "last_updated": "2025-10-14T16:52:37.838594",
+      "last_updated": "2025-10-22T23:04:02.084494",
       "source": [
-        "current_positions"
-      ],
-      "position_details": {
-        "quantity": 7.0,
-        "market_value": 250.04,
-        "cost_basis": 273.890000000001,
-        "unrealized_pl": -23.850000000001,
-        "unrealized_pl_percent": -4.03,
-        "account": "74680244",
-        "position_type": "LONG",
-        "instrument_type": "EQUITY"
-      }
+        "trading_strategies"
+      ]
+    },
+    "TSLA": {
+      "symbol": "TSLA",
+      "current_price": 422.38,
+      "price_change": -20.22,
+      "price_change_percent": -4.56845911,
+      "volume": 84023458,
+      "market_cap": null,
+      "last_updated": "2025-10-22T23:04:02.084522",
+      "source": [
+        "trading_strategies"
+      ]
     },
     "AAPL": {
       "symbol": "AAPL",
-      "current_price": 247.6101,
-      "price_change": -0.0499,
-      "price_change_percent": -0.02014859,
-      "volume": 35472022,
+      "current_price": 258.78,
+      "price_change": -3.99,
+      "price_change_percent": -1.51843818,
+      "volume": 45015254,
       "market_cap": null,
-      "last_updated": "2025-10-14T16:52:37.838621",
+      "last_updated": "2025-10-22T23:04:02.084675",
       "source": [
-        "api_watchlist"
+        "trading_strategies"
       ]
     }
   },
   "metadata": {
     "data_sources": [
-      "api_watchlist.json",
-      "current_positions.json"
+      "current_positions.json",
+      "trading_config_live.json"
     ],
-    "api_watchlist_symbols": 3,
-    "position_symbols": 4,
+    "position_symbols": 1,
+    "strategy_symbols": 6,
     "total_integrated_symbols": 7,
     "update_source": "symbols_monitor_handler",
     "market_data_source": "schwab_quotes_api",
-    "creation_date": "2025-10-14T16:52:37.858073"
+    "creation_date": "2025-10-22T23:04:02.085885"
   }
 }

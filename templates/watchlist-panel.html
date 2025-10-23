@@ -1,0 +1,103 @@
+<!-- Asset Watchlist Panel -->
+<section class="watchlist-panel panel" id="watchlist">
+    <div class="panel-header" data-panel="watchlist">
+        <h2 class="panel-title">
+            <a id="watchlist-anchor" class="section-anchor"></a>
+            <i class="fas fa-eye"></i>
+            Asset Watchlist
+        </h2>
+        <div class="panel-actions">
+            <button class="btn btn-sm btn-outline" id="add-symbol">
+                <i class="fas fa-plus"></i>
+                Add Symbol
+            </button>
+            <button class="btn btn-sm btn-outline" id="refresh-watchlist">
+                <i class="fas fa-sync-alt"></i>
+                Refresh
+            </button>
+            <button class="collapse-toggle" data-target="watchlist-content">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="panel-content expanded" id="watchlist-content">
+        <div class="watchlist-content">
+        <!-- Add Symbol Form -->
+        <div class="add-symbol-form" id="add-symbol-form" style="display: none;">
+            <div class="form-group">
+                <input type="text" id="symbol-input" class="form-input" placeholder="Enter symbol (e.g., AAPL, TSLA)" maxlength="10">
+                <div class="form-actions">
+                    <button class="btn btn-sm btn-primary" id="confirm-add-symbol">
+                        <i class="fas fa-check"></i>
+                        Add
+                    </button>
+                    <button class="btn btn-sm btn-secondary" id="cancel-add-symbol">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Watchlist Status Bar -->
+        <div class="watchlist-status">
+            <div class="status-item-horizontal">
+                <div class="status-icon ready">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="status-details">
+                    <span class="status-label">System Status</span>
+                    <span class="status-value">Ready</span>
+                </div>
+            </div>
+            
+            <div class="status-item-horizontal">
+                <div class="status-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="status-details">
+                    <span class="status-label">Symbols Monitored</span>
+                    <span class="status-value" id="symbols-count">0</span>
+                </div>
+            </div>
+            
+            <div class="status-item-horizontal">
+                <div class="status-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="status-details">
+                    <span class="status-label">Last Update</span>
+                    <span class="status-value" id="last-update-time">--:--</span>
+                </div>
+            </div>
+            
+            <div class="status-item-horizontal">
+                <div class="status-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="status-details">
+                    <span class="status-label">Market Status</span>
+                    <span class="status-value" id="market-status">Closed</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Watchlist Items -->
+        <div class="watchlist-items">
+            <div class="empty-state" id="watchlist-empty">
+                <i class="fas fa-eye empty-icon"></i>
+                <h3 class="empty-title">No Symbols in Watchlist</h3>
+                <p class="empty-description">
+                    Click "Add Symbol" to start monitoring assets and their current prices.
+                </p>
+            </div>
+            
+            <!-- Watchlist will be populated here -->
+            <div class="watchlist-list" id="watchlist-list">
+                <!-- Watchlist items will be populated here -->
+            </div>
+        </div>
+        </div>
+    </div>
+</section>

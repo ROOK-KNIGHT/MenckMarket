@@ -1652,7 +1652,7 @@ class ExceedenceTrader:
             
         # Use previous bar's close for calculations
         prev_bar = df.iloc[-2]  # Previous bar
-        lookback = min(2000, len(df)-2)  # Use last 20 bars excluding current bar
+        lookback = min(2000, len(df)-2)  
         
         # Get current system time for accurate second tracking
         current_time = datetime.now(pytz.timezone('America/Los_Angeles'))

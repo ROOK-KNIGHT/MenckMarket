@@ -1,0 +1,513 @@
+/* Watchlist Panel Styles */
+.watchlist-content {
+    padding: 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.add-symbol-form {
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    background: white;
+    text-transform: uppercase;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.watchlist-status {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    background: #f7fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.watchlist-items {
+    flex: 1;
+    min-height: 300px;
+}
+
+.watchlist-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 675px;
+    overflow-y: auto;
+}
+
+.watchlist-item {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.watchlist-item:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.watchlist-symbol {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.symbol-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.symbol-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.symbol-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.symbol-type {
+    font-size: 0.8rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.watchlist-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.current-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.price-change {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.price-change.positive {
+    color: #38a169;
+}
+
+.price-change.negative {
+    color: #e53e3e;
+}
+
+.price-change.neutral {
+    color: #718096;
+}
+
+.price-change i {
+    font-size: 0.7rem;
+}
+
+.watchlist-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.remove-symbol {
+    background: transparent;
+    border: none;
+    color: #718096;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-symbol:hover {
+    background: #fed7d7;
+    color: #e53e3e;
+}
+
+.loading-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e2e8f0;
+    border-top: 2px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Status Items */
+.status-item-horizontal {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.status-item-horizontal .status-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+}
+
+.status-item-horizontal .status-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.status-item-horizontal .status-label {
+    font-size: 0.7rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.status-item-horizontal .status-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.status-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f7fafc;
+    color: #718096;
+    font-size: 1.2rem;
+}
+
+.status-icon.ready {
+    background: #c6f6d5;
+    color: #38a169;
+}
+
+.status-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.status-label {
+    font-size: 0.8rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.status-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #718096;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #4a5568;
+}
+
+.empty-description {
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* Responsive adjustments for Watchlist */
+
+@media (max-width: 768px) {
+    .watchlist-content {
+        padding: 1rem;
+    }
+    
+    .watchlist-status {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .watchlist-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .watchlist-price {
+        align-items: flex-start;
+        width: 100%;
+    }
+    
+    .watchlist-actions {
+        align-self: flex-end;
+    }
+    
+    .add-symbol-form {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .watchlist-status {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .watchlist-content {
+        padding: 0.75rem;
+    }
+    
+    .add-symbol-form {
+        padding: 0.75rem;
+    }
+    
+    .watchlist-item {
+        padding: 1rem;
+    }
+}
+
+/* Watchlist Animation */
+.watchlist-item {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Watchlist Loading States */
+.watchlist-item.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.watchlist-item.loading .current-price,
+.watchlist-item.loading .price-change {
+    color: #cbd5e0;
+}
+
+/* Watchlist Error States */
+.watchlist-item.error {
+    border-color: #fed7d7;
+    background: #fffbfb;
+}
+
+.watchlist-item.error .current-price {
+    color: #e53e3e;
+}
+
+.watchlist-item.error .symbol-name {
+    color: #e53e3e;
+}
+
+/* Watchlist Success States */
+.watchlist-item.updated {
+    border-color: #c6f6d5;
+    background: #f0fff4;
+}
+
+.watchlist-item.updated .current-price {
+    color: #38a169;
+}
+
+/* Price Change Animations */
+.price-change-animation {
+    animation: priceFlash 0.5s ease-out;
+}
+
+@keyframes priceFlash {
+    0% { background: rgba(102, 126, 234, 0.2); }
+    100% { background: transparent; }
+}
+
+/* Market Status Indicators */
+.market-status-open {
+    color: #38a169;
+    font-weight: 600;
+}
+
+.market-status-closed {
+    color: #e53e3e;
+    font-weight: 600;
+}
+
+.market-status-pre-market,
+.market-status-after-hours {
+    color: #d69e2e;
+    font-weight: 600;
+}
+
+/* Symbol Type Badges */
+.symbol-type-stock {
+    color: #667eea;
+}
+
+.symbol-type-etf {
+    color: #38a169;
+}
+
+.symbol-type-crypto {
+    color: #d69e2e;
+}
+
+.symbol-type-forex {
+    color: #e53e3e;
+}
+
+/* Watchlist Toolbar */
+.watchlist-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f7fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.watchlist-search {
+    flex: 1;
+    max-width: 300px;
+}
+
+.watchlist-filters {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+.filter-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+/* Watchlist Sorting */
+.sort-header {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.sort-header:hover {
+    color: #667eea;
+}
+
+.sort-icon {
+    font-size: 0.7rem;
+    opacity: 0.5;
+    transition: all 0.2s ease;
+}
+
+.sort-header.active .sort-icon {
+    opacity: 1;
+    color: #667eea;
+}
+
+.sort-header.desc .sort-icon {
+    transform: rotate(180deg);
+}

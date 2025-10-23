@@ -1,0 +1,379 @@
+/* Trading Controls */
+.trading-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.toggle-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #2d3748;
+    opacity: 0.9;
+    min-width: 80px;
+}
+
+.toggle-option {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #4a5568;
+    margin-left: 0.75rem;
+}
+
+/* Trading Status Styles */
+.toggle-option.running {
+    color: #38a169;
+    font-weight: 600;
+}
+
+.toggle-option.stopped {
+    color: #718096;
+    font-weight: 500;
+}
+
+.toggle-option.starting {
+    color: #d69e2e;
+    font-weight: 600;
+}
+
+.toggle-option.stopping {
+    color: #d69e2e;
+    font-weight: 600;
+}
+
+.toggle-option.paused {
+    color: #d69e2e;
+    font-weight: 600;
+}
+
+.toggle-option.emergency {
+    color: #e53e3e;
+    font-weight: 700;
+    animation: pulse 1s infinite;
+}
+
+.toggle-option.error {
+    color: #e53e3e;
+    font-weight: 600;
+}
+
+.toggle-option.unknown {
+    color: #718096;
+    font-weight: 500;
+}
+
+.toggle-option.live {
+    color: #e53e3e;
+    font-weight: 600;
+}
+
+.toggle-option.paper {
+    color: #38a169;
+    font-weight: 600;
+}
+
+/* Trading Controls Toggle Switches */
+.trading-controls .toggle-switch {
+    width: 50px;
+    height: 28px;
+}
+
+.trading-controls .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.trading-controls .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e0;
+    transition: .3s;
+    border-radius: 28px;
+}
+
+.trading-controls .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.trading-controls .toggle-switch input:checked + .toggle-slider {
+    background-color: #667eea;
+}
+
+.trading-controls .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(22px);
+}
+
+/* Environment Toggle Specific Styles */
+#environment-toggle .toggle-switch input:checked + .toggle-slider {
+    background-color: #e53e3e; /* Red for Live */
+}
+
+#environment-toggle .toggle-switch input:not(:checked) + .toggle-slider {
+    background-color: #38a169; /* Green for Paper */
+}
+
+/* Trading Toggle Specific Styles */
+#trading-toggle .toggle-switch input:checked + .toggle-slider {
+    background-color: #38a169; /* Green for Running */
+}
+
+#trading-toggle .toggle-switch input:not(:checked) + .toggle-slider {
+    background-color: #cbd5e0; /* Gray for Stopped */
+}
+
+/* Emergency Controls Styling */
+.emergency-controls-header .btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.emergency-controls-header .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.emergency-controls-header .btn:hover::before {
+    left: 100%;
+}
+
+/* Emergency Button Animations */
+.emergency-controls-header .btn-danger {
+    animation: emergencyPulse 2s infinite;
+}
+
+@keyframes emergencyPulse {
+    0% { box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3); }
+    50% { box-shadow: 0 6px 25px rgba(229, 62, 62, 0.6); }
+    100% { box-shadow: 0 4px 15px rgba(229, 62, 62, 0.3); }
+}
+
+.emergency-controls-header .btn-warning {
+    animation: warningPulse 3s infinite;
+}
+
+@keyframes warningPulse {
+    0% { box-shadow: 0 4px 15px rgba(214, 158, 46, 0.3); }
+    50% { box-shadow: 0 6px 25px rgba(214, 158, 46, 0.5); }
+    100% { box-shadow: 0 4px 15px rgba(214, 158, 46, 0.3); }
+}
+
+/* Trading Status Indicators */
+.trading-status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.trading-status-indicator.running {
+    background: #c6f6d5;
+    color: #38a169;
+}
+
+.trading-status-indicator.stopped {
+    background: #edf2f7;
+    color: #718096;
+}
+
+.trading-status-indicator.paused {
+    background: #faf089;
+    color: #d69e2e;
+}
+
+.trading-status-indicator.emergency {
+    background: #fed7d7;
+    color: #e53e3e;
+    animation: pulse 1s infinite;
+}
+
+.trading-status-indicator.error {
+    background: #fed7d7;
+    color: #e53e3e;
+}
+
+/* Trading Environment Indicators */
+.environment-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.environment-indicator.live {
+    background: #fed7d7;
+    color: #e53e3e;
+    border: 1px solid #feb2b2;
+}
+
+.environment-indicator.paper {
+    background: #c6f6d5;
+    color: #38a169;
+    border: 1px solid #9ae6b4;
+}
+
+/* Responsive Trading Controls */
+@media (max-width: 768px) {
+    .trading-controls {
+        gap: 0.75rem;
+    }
+    
+    .toggle-group {
+        gap: 0.5rem;
+    }
+    
+    .toggle-label {
+        font-size: 0.75rem;
+        min-width: 70px;
+    }
+    
+    .toggle-option {
+        font-size: 0.75rem;
+        margin-left: 0.5rem;
+    }
+    
+    .trading-controls .toggle-switch {
+        width: 45px;
+        height: 25px;
+    }
+    
+    .trading-controls .toggle-slider:before {
+        height: 19px;
+        width: 19px;
+        left: 3px;
+        bottom: 3px;
+    }
+    
+    .trading-controls .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(20px);
+    }
+}
+
+@media (max-width: 480px) {
+    .trading-controls {
+        gap: 0.5rem;
+    }
+    
+    .toggle-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .toggle-label {
+        font-size: 0.7rem;
+        min-width: auto;
+    }
+    
+    .toggle-option {
+        font-size: 0.7rem;
+        margin-left: 0;
+    }
+    
+    .emergency-controls-header {
+        padding: 0.75rem;
+        gap: 0.5rem;
+    }
+    
+    .emergency-buttons-header {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .emergency-buttons-header .btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.7rem;
+    }
+}
+
+/* Trading Controls Focus States */
+.trading-controls .toggle-switch:focus-within {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+    border-radius: 28px;
+}
+
+/* Trading Controls Disabled States */
+.trading-controls .toggle-switch.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.trading-controls .toggle-switch.disabled .toggle-slider {
+    cursor: not-allowed;
+}
+
+/* Trading Controls Loading States */
+.trading-controls .toggle-switch.loading .toggle-slider:before {
+    animation: spin 1s linear infinite;
+}
+
+/* Trading Controls Success/Error States */
+.trading-controls .toggle-switch.success .toggle-slider {
+    background-color: #38a169 !important;
+}
+
+.trading-controls .toggle-switch.error .toggle-slider {
+    background-color: #e53e3e !important;
+}
+
+/* Trading Controls Tooltips */
+.trading-controls .toggle-group {
+    position: relative;
+}
+
+.trading-controls .toggle-group[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2d3748;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.trading-controls .toggle-group:hover[data-tooltip]::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-5px);
+}

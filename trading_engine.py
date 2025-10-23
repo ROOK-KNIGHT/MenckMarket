@@ -123,6 +123,21 @@ class TradingEngine:
         self.logger.info(f"Max positions per strategy: {self.config.get('max_positions_per_strategy', 3)}")
         self.logger.info(f"Loaded {len(self.processed_signals)} previously processed signals")
 
+    # Load market status from live_monitor.json
+    def load_market_status(self) -> Dict[str, Any]:
+        """Load market status from live_monitor.json"""
+        try:
+            if os.path.exists('live_monitor.json'):
+                with open('live_monitor.json', 'r') as f:
+                    data = json.load(f)
+                    return data.get('market_status', {})
+            else:
+                self.logger.warning("live_monitor.json not found")
+                return {}
+        except Exception as e:
+            self.logger.error(f"Error loading market status: {e}")
+            return {}
+
     def load_trading_config(self) -> Dict[str, Any]:
         """Load trading engine configuration from risk_config_live.json"""
         try:
@@ -486,6 +501,12 @@ class TradingEngine:
             if not self._check_risk_limits(strategy, symbol, signal_data):
                 return False
             
+            # Check market status
+            market_status = self.load_market_status()
+            if not market_status.get('is_market_hours', False):
+                self.logger.debug(f"Market is closed, skipping trade: {strategy} {symbol}")
+                return False
+
             self.logger.info(f"✅ Signal approved for execution: {strategy} {symbol} {signal_type} (confidence: {confidence:.2f}, timestamp: {signal_timestamp})")
             
             return True

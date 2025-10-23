@@ -608,14 +608,6 @@ def load_watchlist_from_live_monitor() -> List[str]:
         # Extract symbols from integrated_watchlist
         watchlist_symbols = data.get('integrated_watchlist', {}).get('symbols', [])
         
-        if not watchlist_symbols:
-            # Fallback to symbols_monitored in metadata
-            watchlist_symbols = data.get('metadata', {}).get('symbols_monitored', [])
-        
-        if not watchlist_symbols:
-            print("Warning: No symbols found in live_monitor.json, using fallback")
-            return ['SPY', 'QQQ', '/ES', '/NQ']
-        
         print(f"Loaded {len(watchlist_symbols)} symbols from live_monitor.json")
         return watchlist_symbols
         

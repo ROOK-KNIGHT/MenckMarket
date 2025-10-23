@@ -1,0 +1,38 @@
+<!-- Progress Modal -->
+<div class="modal-overlay" id="progress-modal" style="display: none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Screening in Progress</h3>
+        </div>
+        <div class="modal-body">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="progress-current">0</span> / <span id="progress-total">0</span> stocks analyzed
+                </div>
+            </div>
+            <div class="progress-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Qualifying:</span>
+                    <span class="stat-value" id="qualifying-count">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Elapsed:</span>
+                    <span class="stat-value" id="elapsed-time">00:00</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">ETA:</span>
+                    <span class="stat-value" id="eta-time">--:--</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-screening">
+                <i class="fas fa-stop"></i>
+                Cancel Screening
+            </button>
+        </div>
+    </div>
+</div>

@@ -1,948 +1,347 @@
 #!/usr/bin/env python3
 """
-Simplified Real-time P&L and Technical Indicators Monitor
+Simplified Real-time Account and Position Monitor
 
-This script continuously monitors all data concurrently:
-1. P&L data from Schwab account positions
-2. Technical indicators for traded symbols
-3. Real-time price updates
-4. Account data
-5. Recent transactions
+This script continuously monitors essential account data with independent processes:
+1. Account data from Schwab API
+2. Current positions and P&L
+3. Recent transactions
+4. Database insertion
+
+Focused on core account monitoring without technical indicators or strategy logic.
 
 Usage: python3 realtime_monitor.py
 """
 
 import json
 import time
-import asyncio
 import threading
 import os
+import subprocess
+import psutil
 from datetime import datetime, timezone
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 import logging
 import signal
 import sys
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import pytz
 
-# Import our handlers
+# Import essential handlers only
 from schwab_transaction_handler import SchwabTransactionHandler
 from pnl_data_handler import PnLDataHandler
-from technical_indicators import UnifiedTechnicalIndicators
-from historical_data_handler import HistoricalDataHandler
-from options_data_handler import OptionsDataHandler
 from account_data_handler import AccountDataHandler
-from connection_manager import get_all_positions
-from iron_condor_strategy import IronCondorStrategy
-from pml_strategy import PMLStrategy
-from divergence_strategy import DivergenceStrategy
-from symbols_monitor_handler import SymbolsMonitorHandler
+from connection_manager import get_all_positions, make_authenticated_request, handle_api_response, is_authentication_paused, resume_operations, verify_authentication_before_start
 from db_inserter import DatabaseInserter
+from api_status_exporter import APIStatusExporter
 
 class RealTimeMonitor:
-    """Simplified real-time monitoring system with concurrent data collection."""
-    
+    """Simplified Real-time Monitor for essential account data only."""    
     def __init__(self, update_interval: float = 1.0):
-        """Initialize the real-time monitor."""
+        """Initialize the simplified real-time monitor."""
         self.update_interval = update_interval
         self.running = False
-        self.data_lock = threading.Lock()
         
-        # Rate limiting
-        self.api_call_delay = 0.2  # 200ms delay between API calls
-        self.last_api_call = {}  # Track last API call time per endpoint
-        self.max_concurrent_requests = 10 # Limit concurrent requests
+        # Set up EST timezone
+        self.est_tz = pytz.timezone('US/Eastern')
         
-        # Initialize handlers
-        self.transaction_handler = SchwabTransactionHandler()
-        self.pnl_handler = PnLDataHandler()
-        self.technical_handler = UnifiedTechnicalIndicators()
-        self.historical_handler = HistoricalDataHandler()
-        self.options_handler = OptionsDataHandler()
-        self.account_handler = AccountDataHandler()
-        self.iron_condor_strategy = IronCondorStrategy()
-        self.pml_strategy = PMLStrategy()
-        self.divergence_strategy = DivergenceStrategy()
-        self.symbols_monitor = SymbolsMonitorHandler()
+        # Thread-safe data storage with locks for essential data types only
+        self.data_locks = {
+            'positions': threading.RLock(),
+            'transactions': threading.RLock(),
+            'account': threading.RLock(),
+            'market_status': threading.RLock(),
+            'api_status': threading.RLock()
+        }
         
-        # Initialize centralized database inserter
-        self.db_inserter = DatabaseInserter()
-        self.db_inserter_thread = None
+        # Independent data storage for essential processes only
+        self.data_cache = {
+            'positions': {},
+            'transactions': {},
+            'account': {},
+            'market_status': {},
+            'api_status': {}
+        }
+        
+        # Process management
+        self.process_threads = {}
+        
+        # Script thread tracking for monitoring
+        self.script_threads = {}
+        self.script_threads_lock = threading.Lock()
+        
+        # Initialize handlers - lazy loading to avoid blocking
+        self._handlers = {}
+        self._handler_lock = threading.Lock()
+        
+        self.update_intervals = {
+            'positions': 5.0,           # Every 5 seconds
+            'transactions': 60.0,       # Every 60 seconds
+            'account': 30.0,            # Every 30 seconds
+            'market_status': 10.0,      # Every 10 seconds
+            'pnl_statistics': 120.0,    # Every 2 minutes (120 seconds)
+            'database': 5.0,            # Every 5 seconds
+            'exceedance_monitor': 2.0,  # Every 2 seconds - monitor exceedance strategy
+            'auto_timer_monitor': 30.0, # Every 30 seconds - monitor auto-timer flags and market hours
+            'api_status': 30.0          # Every 30 seconds - monitor API authentication status
+        }
+        
+        # Last update tracking for each process
+        self.last_updates = {key: 0 for key in self.update_intervals.keys()}
+        
+        # Database inserter thread management
         self.db_inserter_running = False
+        self.db_inserter_thread = None
         
-        # Options data update tracking
-        self.last_options_update = 0
-        self.options_update_interval = 10  # Update options data every 10 seconds
+        # Exceedance strategy monitoring
+        self.exceedance_process = None
+        self.exceedance_pid = None
+        self.exceedance_restart_attempts = 0
+        self.exceedance_max_restart_attempts = 3
+        self.exceedance_last_restart_time = 0
+        self.exceedance_restart_cooldown = 30  # seconds
+        self.exceedance_script = 'exceedence_strategy_signals.py'
+        self.trading_config_file = 'trading_config_live.json'
         
-        # Setup logging first
+        
+        # Setup logging
         logging.basicConfig(
             level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s'
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
         self.logger = logging.getLogger(__name__)
         
-        # Database insertion runs in separate thread every 30 seconds
-        self.db_thread = None
-        self.db_thread_running = False
-        
-        # Initialize background processing threads
-        self.technical_thread = None
-        self.technical_thread_running = False
-        self.technical_data_cache = {}
-        self.strategy_data_cache = {}
-        
-        # Data storage
-        self.current_data = {}
-        self.symbols_to_monitor = set()
-        self.watchlist_symbols = set()
-        
-        # Load initial watchlist symbols
-        self._load_initial_watchlist()
-
-
-
         # Setup signal handlers for graceful shutdown
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
         
-        self.logger.info("RealTimeMonitor initialized for continuous operation")
-        self.logger.info("Centralized database inserter will run on 30-second intervals")
+        self.logger.info("Simplified RealTimeMonitor initialized")
+        self.logger.info("Focused on account data, positions, transactions, database insertion, and exceedance strategy monitoring")
     
-    def _load_initial_watchlist(self):
-        """Load initial watchlist symbols from API watchlist only."""
-        try:
-            # No hardcoded symbols - only load from API watchlist and positions
-            self.logger.info("Initial watchlist will be populated from positions and API watchlist only")
-            #print initial watchlist state
-            self.logger.info(f"Initial watchlist symbols: {self.watchlist_symbols}")
-            self.logger.info(f"Initial symbols to monitor (positions): {self.symbols_to_monitor}")
-            self._sync_api_watchlist_to_live_monitor()
-            self.logger.info(f"Final watchlist symbols after sync: {self.watchlist_symbols}")
-            self.logger.info(f"Final symbols to monitor (positions): {self.symbols_to_monitor})")
-
-            
-        except Exception as e:
-            self.logger.error(f"Error loading initial watchlist: {e}")
     
-    def _rate_limit_api_call(self, endpoint: str):
-        """Apply rate limiting to API calls."""
-        current_time = time.time()
-        if endpoint in self.last_api_call:
-            time_since_last = current_time - self.last_api_call[endpoint]
-            if time_since_last < self.api_call_delay:
-                sleep_time = self.api_call_delay - time_since_last
-                time.sleep(sleep_time)
+    def _get_handler(self, handler_name: str):
+        """Get handler instance with lazy loading for essential handlers only."""
+        if handler_name not in self._handlers:
+            with self._handler_lock:
+                if handler_name not in self._handlers:
+                    try:
+                        if handler_name == 'transaction':
+                            self._handlers[handler_name] = SchwabTransactionHandler()
+                        elif handler_name == 'pnl':
+                            self._handlers[handler_name] = PnLDataHandler()
+                        elif handler_name == 'account':
+                            self._handlers[handler_name] = AccountDataHandler()
+                        elif handler_name == 'db_inserter':
+                            self._handlers[handler_name] = DatabaseInserter()
+                        else:
+                            raise ValueError(f"Unknown handler: {handler_name}")
+                    except Exception as e:
+                        self.logger.error(f"Error initializing {handler_name} handler: {e}")
+                        return None
         
-        self.last_api_call[endpoint] = time.time()
-
-    def _safe_api_call(self, func, *args, **kwargs):
-        """Make API call with error handling and retries."""
-        max_retries = 2
-        for attempt in range(max_retries):
-            try:
-                # Add small delay between retries to prevent rate limiting
-                if attempt > 0:
-                    time.sleep(0.3)  # Fixed 300ms delay
-                
-                result = func(*args, **kwargs)
-                return result
-            except Exception as e:
-                if "403" in str(e) and attempt < max_retries - 1:
-                    self.logger.warning(f"403 error on attempt {attempt + 1}, retrying...")
-                    time.sleep(1.5)  # Fixed 1.5 second delay for 403 errors
-                    continue
-                elif attempt == max_retries - 1:
-                    self.logger.error(f"API call failed after {max_retries} attempts: {e}")
-                    return None
-        return None
+        return self._handlers.get(handler_name)
     
-    def add_symbol_to_watchlist(self, symbol: str) -> bool:
-        """Add a symbol to the watchlist and start monitoring it immediately."""
-        try:
-            symbol = symbol.upper().strip()
-            
-            if not symbol:
-                self.logger.warning("Cannot add empty symbol")
-                return False
-            
-            if symbol in self.watchlist_symbols:
-                self.logger.info(f"Symbol {symbol} already in watchlist")
-                return False
-            
-            # Add to watchlist
-            self.watchlist_symbols.add(symbol)
-            self.symbols_to_monitor.add(symbol)
-            
-            # Add to symbols monitor handler
-            success = self.symbols_monitor.add_symbol(symbol)
-            
-            if success:
-                self.logger.info(f"Added {symbol} to real-time monitoring")
-                return True
-            else:
-                # Remove from our sets if symbols monitor failed
-                self.watchlist_symbols.discard(symbol)
-                self.symbols_to_monitor.discard(symbol)
-                return False
-                
-        except Exception as e:
-            self.logger.error(f"Error adding symbol {symbol} to watchlist: {e}")
-            return False
+    @property
+    def transaction_handler(self):
+        return self._get_handler('transaction')
     
-    def remove_symbol_from_watchlist(self, symbol: str) -> bool:
-        """Remove a symbol from the watchlist."""
-        try:
-            symbol = symbol.upper().strip()
-            
-            if symbol not in self.watchlist_symbols:
-                self.logger.warning(f"Symbol {symbol} not in watchlist")
-                return False
-            
-            # Remove from watchlist
-            self.watchlist_symbols.discard(symbol)
-            
-            # Remove from symbols monitor handler
-            success = self.symbols_monitor.remove_symbol(symbol)
-            
-            if success:
-                self.logger.info(f"Removed {symbol} from real-time monitoring")
-                return True
-            else:
-                return False
-                
-        except Exception as e:
-            self.logger.error(f"Error removing symbol {symbol} from watchlist: {e}")
-            return False
+    @property
+    def pnl_handler(self):
+        return self._get_handler('pnl')
     
-    def get_watchlist_symbols(self) -> List[str]:
-        """Get current watchlist symbols."""
-        return list(self.watchlist_symbols)
+    @property
+    def account_handler(self):
+        return self._get_handler('account')
     
-    def _sync_api_watchlist_to_live_monitor(self):
-        """Read api_watchlist.json and sync symbols to live_monitor.json"""
-        try:
-            # Read symbols from API watchlist
-            api_symbols = set()
-            try:
-                with open('api_watchlist.json', 'r') as f:
-                    api_data = json.load(f)
-                    
-                if 'watchlist' in api_data and 'symbols' in api_data['watchlist']:
-                    api_symbols = set(api_data['watchlist']['symbols'])
-                    self.logger.debug(f"📋 Found {len(api_symbols)} symbols in API watchlist: {api_symbols}")
-                    
-            except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
-                self.logger.debug(f"No API watchlist found: {e}")
-                api_symbols = set()
-            
-            # Get position symbols (these should always be included)
-            position_symbols = set(self.symbols_to_monitor)
-            
-            # Combine API symbols with position symbols - this is our definitive list
-            all_symbols = api_symbols.union(position_symbols)
-            
-            # Update our internal tracking to match
-            self.watchlist_symbols = all_symbols
-            
-            self.logger.debug(f"🔄 Final symbol list: {sorted(all_symbols)} (API: {len(api_symbols)}, Positions: {len(position_symbols)})")
-            
-        except Exception as e:
-            self.logger.error(f"Error syncing API watchlist to live monitor: {e}")
-
+    @property
+    def db_inserter(self):
+        return self._get_handler('db_inserter')
+    
     def _signal_handler(self, signum, frame):
         """Handle shutdown signals gracefully."""
         self.logger.info(f"Received signal {signum}, shutting down...")
         self.running = False
         sys.exit(0)
 
-    def _get_positions_data(self) -> Dict[str, Any]:
-        """Get current positions from Schwab account."""
-        try:
-            positions_data = get_all_positions()
-            if not positions_data:
-                return {}
-            
-            formatted_positions = {}
-            total_market_value = 0.0
-            total_unrealized_pl = 0.0
-            
-            for account_number, positions in positions_data.items():
-                for position in positions:
-                    symbol = position.get('symbol', '')
-                    if symbol:
-                        self.symbols_to_monitor.add(symbol)
-                        
-                        formatted_positions[symbol] = {
-                            'symbol': symbol,
-                            'quantity': position.get('quantity', 0),
-                            'market_value': position.get('market_value', 0),
-                            'cost_basis': position.get('cost_basis', 0),
-                            'unrealized_pl': position.get('unrealized_pl', 0),
-                            'unrealized_pl_percent': position.get('unrealized_pl_percent', 0),
-                            'account': account_number
-                        }
-                        
-                        total_market_value += position.get('market_value', 0)
-                        total_unrealized_pl += position.get('unrealized_pl', 0)
-            
-            return {
-                'positions': formatted_positions,
-                'summary': {
-                    'total_positions': len(formatted_positions),
-                    'total_market_value': total_market_value,
-                    'total_unrealized_pl': total_unrealized_pl,
-                    'symbols_count': len(self.symbols_to_monitor)
-                }
-            }
-            
-        except Exception as e:
-            self.logger.error(f"Error getting positions: {e}")
-            return {}
-
-    def _get_transactions_data(self) -> Dict[str, Any]:
-        """Get recent transaction data and P&L analysis."""
-        try:
-            df = self.transaction_handler.get_all_transactions(days=30, csv_output=False)
-            
-            if df.empty:
-                return {
-                    'transactions': [], 
-                    'pnl_stats': {},
-                    'trading_stats': {
-                        'overall': {'wins': 0, 'losses': 0, 'win_rate': 0, 'total_pl': 0, 'avg_win': 0, 'avg_loss': 0},
-                        'long': {'wins': 0, 'losses': 0, 'win_rate': 0, 'total_pl': 0, 'avg_win': 0, 'avg_loss': 0},
-                        'short': {'wins': 0, 'losses': 0, 'win_rate': 0, 'total_pl': 0, 'avg_win': 0, 'avg_loss': 0}
-                    }
-                }
-            
-            # Get P&L stats from existing handler
-            pnl_stats = self.pnl_handler.calculate_win_loss_stats(df)
-            
-            # Get comprehensive trading statistics
-            trading_stats = self.transaction_handler.calculate_win_loss_stats(df)
-            
-            recent_transactions = df.head(10).to_dict('records')
-            
-            # Convert timestamps to strings for JSON serialization
-            for txn in recent_transactions:
-                for key, value in txn.items():
-                    if hasattr(value, 'isoformat'):
-                        txn[key] = value.isoformat()
-            
-            return {
-                'transactions': recent_transactions,
-                'pnl_stats': pnl_stats,
-                'trading_stats': trading_stats,
-                'transaction_count': len(df)
-            }
-            
-        except Exception as e:
-            self.logger.error(f"Error getting transactions: {e}")
-            return {
-                'transactions': [], 
-                'pnl_stats': {},
-                'trading_stats': {
-                    'overall': {'wins': 0, 'losses': 0, 'win_rate': 0, 'total_pl': 0, 'avg_win': 0, 'avg_loss': 0},
-                    'long': {'wins': 0, 'losses': 0, 'win_rate': 0, 'total_pl': 0, 'avg_win': 0, 'avg_loss': 0},
-                    'short': {'wins': 0, 'losses': 0, 'win_rate': 0, 'total_pl': 0, 'avg_win': 0, 'avg_loss': 0}
-                }
-            }
-
-    def _run_technical_indicators_script(self, symbols: List[str]):
-        """Run the technical_indicators.py script to generate fresh technical_indicators.json in separate thread"""
-        def run_indicators_thread():
-            try:
-                self.logger.info("🧵 [Thread] Running technical_indicators.py to generate fresh indicators...")
-                import subprocess
-                result = subprocess.run([
-                    'python3', 'technical_indicators.py'
-                ], capture_output=True, text=True, timeout=120)  # Increased timeout for parallel processing
-                
-                if result.returncode == 0:
-                    self.logger.info("✅ [Thread] Technical indicators script completed successfully")
-                else:
-                    self.logger.error(f"❌ [Thread] Technical indicators script failed: {result.stderr}")
-                    
-            except subprocess.TimeoutExpired:
-                self.logger.error("❌ [Thread] Technical indicators script timed out after 2 minutes")
-            except Exception as e:
-                self.logger.error(f"❌ [Thread] Error running technical indicators script: {e}")
-        
-        # Run in separate thread for non-blocking execution
-        indicators_thread = threading.Thread(target=run_indicators_thread, daemon=True)
-        indicators_thread.start()
-        self.logger.info("🚀 Technical indicators script started in separate thread")
-
-    def _run_strategy_scripts(self, symbols: List[str]):
-        """Run all strategy scripts to generate fresh JSON files in parallel threads"""
-        def run_strategy_thread(script_name: str, strategy_name: str):
-            try:
-                self.logger.info(f"🧵 [Thread] Running {script_name} to generate fresh {strategy_name} signals...")
-                import subprocess
-                result = subprocess.run([
-                    'python3', script_name
-                ], capture_output=True, text=True, timeout=90)  # Increased timeout for parallel processing
-                
-                if result.returncode == 0:
-                    self.logger.info(f"✅ [Thread] {strategy_name} strategy script completed successfully")
-                else:
-                    self.logger.error(f"❌ [Thread] {strategy_name} strategy script failed: {result.stderr}")
-                    
-            except subprocess.TimeoutExpired:
-                self.logger.error(f"❌ [Thread] {strategy_name} strategy script timed out after 90 seconds")
-            except Exception as e:
-                self.logger.error(f"❌ [Thread] Error running {strategy_name} strategy script: {e}")
-        
-        try:
-            scripts = [
-                ('iron_condor_strategy.py', 'Iron Condor'),
-                ('pml_strategy.py', 'PML'),
-                ('divergence_strategy.py', 'Divergence'),
-                ('current_positions_handler.py', 'Current Positions')
-            ]
-            
-            # Run all strategy scripts in parallel threads
-            strategy_threads = []
-            for script_name, strategy_name in scripts:
-                thread = threading.Thread(
-                    target=run_strategy_thread, 
-                    args=(script_name, strategy_name), 
-                    daemon=True
-                )
-                strategy_threads.append(thread)
-                thread.start()
-                self.logger.info(f"🚀 {strategy_name} script started in separate thread")
-            
-            self.logger.info(f"🔥 All {len(scripts)} scripts running in parallel threads")
-                    
-        except Exception as e:
-            self.logger.error(f"❌ Error running strategy scripts in parallel: {e}")
-
-    def _get_technical_data(self, symbols: List[str]) -> Dict[str, Any]:
-        """Read technical indicators from fresh technical_indicators.json file."""
-        try:
-            self.logger.info(f"Reading fresh technical indicators for {len(symbols)} symbols from JSON")
-            
-            # Read technical indicators from the fresh JSON file
-            indicators_data = {}
-            json_data = self._load_technical_indicators_from_json(symbols)
-            
-            for symbol in symbols:
-                if symbol in json_data:
-                    # Get current quote data
-                    try:
-                        quote = self.options_handler.get_quote(symbol)
-                        current_price = 0
-                        if quote:
-                            if 'quote' in quote and 'lastPrice' in quote['quote']:
-                                current_price = quote['quote']['lastPrice']
-                            elif 'lastPrice' in quote:
-                                current_price = quote['lastPrice']
-                        
-                        indicators_data[symbol] = {
-                            'symbol': symbol,
-                            'current_price': current_price,
-                            'quote_data': {
-                                'bid': quote.get('bidPrice', 0) if quote else 0,
-                                'ask': quote.get('askPrice', 0) if quote else 0,
-                                'volume': quote.get('totalVolume', 0) if quote else 0,
-                                'change': quote.get('netChange', 0) if quote else 0,
-                                'change_percent': quote.get('netPercentChangeInDouble', 0) if quote else 0,
-                            },
-                            'technical_indicators': json_data[symbol],
-                            'timestamp': datetime.now().isoformat(),
-                            'source': 'fresh_json_file'
-                        }
-                    except Exception as e:
-                        self.logger.error(f"Error getting quote for {symbol}: {e}")
-                        indicators_data[symbol] = {
-                            'symbol': symbol,
-                            'technical_indicators': json_data[symbol],
-                            'error': f'Quote error: {str(e)}',
-                            'timestamp': datetime.now().isoformat(),
-                            'source': 'fresh_json_file'
-                        }
-                else:
-                    self.logger.warning(f"No technical indicators found for {symbol}")
-            
-            self.logger.info(f"Loaded fresh technical indicators for {len(indicators_data)} symbols")
-            return indicators_data
-            
-        except Exception as e:
-            self.logger.error(f"Error reading fresh technical indicators: {e}")
-            return {}
-
-    def _load_technical_indicators_from_json(self, symbols: List[str]) -> Dict[str, Any]:
-        """Load technical indicators from JSON file as fallback."""
-        try:
-            import json
-            import os
-            
-            technical_indicators_path = os.path.join(os.path.dirname(__file__), 'technical_indicators.json')
-            
-            if not os.path.exists(technical_indicators_path):
-                self.logger.warning("technical_indicators.json not found")
-                return {}
-            
-            with open(technical_indicators_path, 'r') as f:
-                technical_data = json.load(f)
-            
-            indicators = technical_data.get('indicators', {})
-            
-            # Filter to only requested symbols
-            filtered_indicators = {}
-            for symbol in symbols:
-                if symbol in indicators:
-                    filtered_indicators[symbol] = indicators[symbol]
-            
-            self.logger.info(f"Loaded {len(filtered_indicators)} technical indicators from JSON file")
-            return filtered_indicators
-            
-        except Exception as e:
-            self.logger.error(f"Error loading technical indicators from JSON: {e}")
-            return {}
-
-    def _get_account_data(self) -> Dict[str, Any]:
-        """Get comprehensive account data."""
-        try:
-            summaries = self.account_handler.get_all_account_summaries()
-            
-            if not summaries:
-                return {}
-            
-            primary_account = summaries[0] if summaries else {}
-            
-            return {
-                'account_summary': primary_account,
-                'total_accounts': len(summaries),
-                'timestamp': datetime.now().isoformat()
-            }
-            
-        except Exception as e:
-            self.logger.error(f"Error getting account data: {e}")
-            return {}
-
     def _get_market_status(self) -> Dict[str, Any]:
-        """Get current market status."""
-        now = datetime.now()
-        market_open = now.replace(hour=9, minute=30, second=0, microsecond=0)
-        market_close = now.replace(hour=16, minute=0, second=0, microsecond=0)
+        """Get current market status using EST timezone."""
+        now_est = datetime.now(self.est_tz)
+        market_open = now_est.replace(hour=9, minute=30, second=0, microsecond=0)
+        market_close = now_est.replace(hour=16, minute=0, second=0, microsecond=0)
         
-        is_market_hours = market_open <= now <= market_close
-        is_weekday = now.weekday() < 5
+        is_market_hours = market_open <= now_est <= market_close
+        is_weekday = now_est.weekday() < 5
         
         return {
-            'current_time': now.isoformat(),
+            'current_time': now_est.isoformat(),
             'market_open_time': market_open.isoformat(),
             'market_close_time': market_close.isoformat(),
             'is_market_hours': is_market_hours and is_weekday,
             'is_weekday': is_weekday,
             'session_status': 'OPEN' if (is_market_hours and is_weekday) else 'CLOSED',
-            'minutes_to_open': max(0, (market_open - now).total_seconds() / 60) if not is_market_hours else 0,
-            'minutes_to_close': max(0, (market_close - now).total_seconds() / 60) if is_market_hours else 0
+            'minutes_to_open': max(0, (market_open - now_est).total_seconds() / 60) if not is_market_hours else 0,
+            'minutes_to_close': max(0, (market_close - now_est).total_seconds() / 60) if is_market_hours else 0
         }
 
-    def _get_iron_condor_signals(self, symbols: List[str]) -> Dict[str, Any]:
-        """Read Iron Condor trading signals from fresh iron_condor_signals.json file."""
-        try:
-            self.logger.info(f"Reading fresh Iron Condor signals for {len(symbols)} symbols from JSON")
+    def _start_independent_process(self, process_name: str):
+        """Start an independent process that runs on its own schedule."""
+        def process_worker():
+            self.logger.info(f"🚀 Started independent {process_name} process")
             
-            # Read Iron Condor signals from the fresh JSON file
-            iron_condor_signals_path = os.path.join(os.path.dirname(__file__), 'iron_condor_signals.json')
-            
-            if not os.path.exists(iron_condor_signals_path):
-                self.logger.warning("iron_condor_signals.json not found")
-                return {}
-            
-            with open(iron_condor_signals_path, 'r') as f:
-                iron_condor_data = json.load(f)
-            
-            # Extract just the signals for live_monitor.json
-            signals = iron_condor_data.get('signals', {})
-            print("iron_condor_signals:", signals)
-            
-            self.logger.info(f"Loaded fresh Iron Condor signals for {len(signals)} symbols")
-            return signals
-            
-        except Exception as e:
-            self.logger.error(f"Error reading fresh Iron Condor signals: {e}")
-            return {}
-
-    def _get_pml_signals(self, symbols: List[str]) -> Dict[str, Any]:
-        """Read PML trading signals from fresh pml_signals.json file."""
-        try:
-            self.logger.info(f"Reading fresh PML signals for {len(symbols)} symbols from JSON")
-            
-            # Read PML signals from the fresh JSON file
-            pml_signals_path = os.path.join(os.path.dirname(__file__), 'pml_signals.json')
-            
-            if not os.path.exists(pml_signals_path):
-                self.logger.warning("pml_signals.json not found")
-                return {}
-            
-            with open(pml_signals_path, 'r') as f:
-                pml_data = json.load(f)
-            
-            # Extract just the signals for live_monitor.json
-            signals = pml_data.get('signals', {})
-            print("pml_signals:", signals)
-            
-            self.logger.info(f"Loaded fresh PML signals for {len(signals)} symbols")
-            return signals
-            
-        except Exception as e:
-            self.logger.error(f"Error reading fresh PML signals: {e}")
-            return {}
-
-    def _get_divergence_signals(self, symbols: List[str]) -> Dict[str, Any]:
-        """Read Divergence trading signals from fresh divergence_signals.json file."""
-        try:
-            self.logger.info(f"Reading fresh Divergence signals for {len(symbols)} symbols from JSON")
-            
-            # Read Divergence signals from the fresh JSON file
-            divergence_signals_path = os.path.join(os.path.dirname(__file__), 'divergence_signals.json')
-            
-            if not os.path.exists(divergence_signals_path):
-                self.logger.warning("divergence_signals.json not found")
-                return {}
-            
-            with open(divergence_signals_path, 'r') as f:
-                divergence_data = json.load(f)
-            
-            # Extract just the signals for live_monitor.json
-            signals = divergence_data.get('signals', {})
-            print("divergence_signals:", signals)   
-            
-            self.logger.info(f"Loaded fresh Divergence signals for {len(signals)} symbols")
-            return signals
-            
-        except Exception as e:
-            self.logger.error(f"Error reading fresh Divergence signals: {e}")
-            return {}
-
-    def _get_current_positions_data(self) -> Dict[str, Any]:
-        """Read current positions data from current_positions.json file and join with watchlist."""
-        try:
-            self.logger.info("Reading current positions data from current_positions.json")
-            
-            # Read current positions from the JSON file
-            current_positions_path = os.path.join(os.path.dirname(__file__), 'current_positions.json')
-            
-            if not os.path.exists(current_positions_path):
-                self.logger.warning("current_positions.json not found - returning empty positions")
-                return {
-                    'positions': {},
-                    'summary': {
-                        'total_positions': 0,
-                        'total_market_value': 0.0,
-                        'total_unrealized_pl': 0.0,
-                        'total_day_pl': 0.0,
-                        'total_cost_basis': 0.0,
-                        'accounts_count': 0,
-                        'symbols_count': 0,
-                        'winning_positions': 0,
-                        'losing_positions': 0,
-                        'break_even_positions': 0
-                    },
-                    'accounts': {},
-                    'symbols': [],
-                    'last_updated': datetime.now().isoformat(),
-                    'fetch_success': False,
-                    'data_source': 'current_positions_handler'
-                }
-            
-            with open(current_positions_path, 'r') as f:
-                positions_data = json.load(f)
-            
-            # Extract positions data for live_monitor.json
-            positions_info = {
-                'positions': positions_data.get('positions', {}),
-                'summary': positions_data.get('summary', {}),
-                'accounts': positions_data.get('accounts', {}),
-                'symbols': positions_data.get('symbols', []),
-                'last_updated': positions_data.get('last_updated'),
-                'fetch_success': positions_data.get('fetch_success', False),
-                'data_source': 'current_positions_handler'
-            }
-            
-            # Update symbols_to_monitor with position symbols for watchlist integration
-            if positions_data.get('symbols'):
-                for symbol in positions_data['symbols']:
-                    self.symbols_to_monitor.add(symbol)
-                    # Also add to watchlist for integrated monitoring
-                    self.watchlist_symbols.add(symbol)
+            while self.running:
+                try:
+                    current_time = time.time()
+                    interval = self.update_intervals[process_name]
                     
-                self.logger.info(f"Added {len(positions_data['symbols'])} position symbols to watchlist: {positions_data['symbols']}")
-            
-            self.logger.info(f"Loaded current positions data: {len(positions_info.get('positions', {}))} positions")
-            return positions_info
-            
-        except Exception as e:
-            self.logger.error(f"Error reading current positions data: {e}")
-            return {
-                'positions': {},
-                'summary': {
-                    'total_positions': 0,
-                    'total_market_value': 0.0,
-                    'total_unrealized_pl': 0.0,
-                    'total_day_pl': 0.0,
-                    'total_cost_basis': 0.0,
-                    'accounts_count': 0,
-                    'symbols_count': 0,
-                    'winning_positions': 0,
-                    'losing_positions': 0,
-                    'break_even_positions': 0
-                },
-                'accounts': {},
-                'symbols': [],
-                'last_updated': datetime.now().isoformat(),
-                'fetch_success': False,
-                'data_source': 'current_positions_handler',
-                'error': str(e)
-            }
-
-    def _get_integrated_watchlist_data(self) -> Dict[str, Any]:
-        """Get integrated watchlist data from symbols monitor handler."""
-        try:
-            # Use the symbols monitor handler to get integrated watchlist data
-            # This now handles both api_watchlist.json and current_positions.json
-            symbols = self.symbols_monitor.get_watchlist_symbols()
-            watchlist_data = self.symbols_monitor.get_watchlist_data()
-            
-            if not symbols:
-                return {}
-            
-            # Create integrated data structure
-            integrated_data = {
-                'symbols': symbols,
-                'watchlist_data': watchlist_data,
-                'metadata': {
-                    'total_symbols': len(symbols),
-                    'last_updated': datetime.now().isoformat(),
-                    'update_source': 'symbols_monitor_handler'
-                }
-            }
-            
-            self.logger.info(f"Retrieved integrated watchlist data for {len(symbols)} symbols from symbols monitor handler")
-            return integrated_data
-            
-        except Exception as e:
-            self.logger.error(f"Error getting integrated watchlist data: {e}")
-            return {}
-
-    def _update_options_data_if_needed(self, symbols: List[str]) -> Dict[str, Any]:
-        """Update options data if enough time has passed since last update."""
-        try:
-            current_time = time.time()
-            
-            # Check if it's time to update options data
-            if current_time - self.last_options_update >= self.options_update_interval:
-                self.logger.info(f"🔍 Updating options data for {len(symbols)} symbols (every {self.options_update_interval}s)")
-                
-                # Run options data update
-                options_data = self.options_handler.run_options_data_update(
-                    symbols=symbols,
-                    output_json=True
-                )
-                
-                # Update last update time
-                self.last_options_update = current_time
-                
-                if options_data:
-                    total_contracts = sum(
-                        symbol_data.get('total_contracts', 0) 
-                        for symbol_data in options_data.get('symbols', {}).values()
-                    )
-                    self.logger.info(f"✅ Options data updated: {total_contracts} contracts processed")
+                    # Check if it's time to update this process
+                    if current_time - self.last_updates[process_name] >= interval:
+                        self.logger.debug(f"⏰ {process_name} process updating...")
+                        
+                        # Check if authentication is paused - if so, wait for re-authentication
+                        if is_authentication_paused():
+                            self.logger.warning(f"🛑 Authentication paused - waiting for re-authentication to complete for {process_name}")
+                            # Wait a bit and check again - don't skip, just wait
+                            time.sleep(2)
+                            continue
+                        
+                        # Proceed with normal operations - initialize data variable
+                        data = {}
+                        
+                        # Run scripts that get data themselves (essential processes only)
+                        if process_name == 'positions':
+                            self._run_script('current_positions_handler.py')
+                        elif process_name == 'transactions':
+                            self._run_script('schwab_transaction_handler.py')
+                        elif process_name == 'account':
+                            self._run_script('account_data_handler.py')
+                        elif process_name == 'market_status':
+                            data = self._get_market_status()
+                            # Update cache with thread-safe access
+                            with self.data_locks[process_name]:
+                                self.data_cache[process_name] = data
+                        elif process_name == 'pnl_statistics':
+                            self._run_script('pnl_data_handler.py')
+                        elif process_name == 'database':
+                            self._run_database_insertion()
+                        elif process_name == 'exceedance_monitor':
+                            self._monitor_exceedance_strategy()
+                        elif process_name == 'auto_timer_monitor':
+                            self._monitor_auto_timer_strategies()
+                        elif process_name == 'api_status':
+                            self._monitor_api_status()
+                        
+                        self.last_updates[process_name] = current_time
+                        self.logger.debug(f"✅ {process_name} process updated")
                     
-                    return {
-                        'last_updated': datetime.now().isoformat(),
-                        'symbols_processed': len(options_data.get('symbols', {})),
-                        'total_contracts': total_contracts,
-                        'update_interval_seconds': self.options_update_interval,
-                        'status': 'updated'
-                    }
+                    # Sleep for a short time to prevent busy waiting
+                    time.sleep(0.1)
+                    
+                except Exception as e:
+                    self.logger.error(f"❌ Error in {process_name} process: {e}")
+                    time.sleep(1)  # Wait longer on error
+            
+            self.logger.info(f"🛑 {process_name} process stopped")
+        
+        # Start the process thread
+        thread = threading.Thread(target=process_worker, daemon=True)
+        thread.start()
+        self.process_threads[process_name] = thread
+        return thread
+        
+    def _run_script(self, script_name: str):
+        """Run a script to fetch and save data in a separate thread."""
+        def run_script_thread():
+            try:
+                import subprocess
+                self.logger.debug(f"🔄 Running {script_name} in separate thread...")
+                
+                result = subprocess.run([
+                    'python3', script_name
+                ], capture_output=True, text=True, timeout=60)  # Increased timeout for complex scripts
+                
+                if result.returncode == 0:
+                    self.logger.debug(f"✅ {script_name} completed successfully")
                 else:
-                    self.logger.warning("❌ Options data update failed")
-                    return {
-                        'last_updated': datetime.now().isoformat(),
-                        'status': 'failed',
-                        'error': 'No data returned from options handler'
-                    }
+                    self.logger.warning(f"⚠️ {script_name} failed with return code {result.returncode}")
+                    if result.stderr:
+                        self.logger.warning(f"   Error: {result.stderr.strip()}")
+                        
+            except subprocess.TimeoutExpired:
+                self.logger.error(f"❌ {script_name} timed out after 60 seconds")
+            except Exception as e:
+                self.logger.error(f"❌ Error running {script_name}: {e}")
+            finally:
+                # Remove from tracking when thread completes
+                with self.script_threads_lock:
+                    if script_name in self.script_threads:
+                        del self.script_threads[script_name]
+        
+        # Track script threads for monitoring
+        with self.script_threads_lock:
+            # Clean up any completed threads first
+            completed_scripts = [name for name, thread in self.script_threads.items() if not thread.is_alive()]
+            for name in completed_scripts:
+                del self.script_threads[name]
+            
+            # Start new script thread
+            script_thread = threading.Thread(target=run_script_thread, daemon=True)
+            script_thread.start()
+            self.script_threads[script_name] = script_thread
+            
+        self.logger.debug(f"🚀 Started {script_name} in separate thread (tracking {len(self.script_threads)} active script threads)")
+    
+    def _run_database_insertion(self):
+        """Run database insertion using the db_inserter."""
+        try:
+            self.logger.debug("🗄️ Running database insertion...")
+            
+            # Get database inserter and run insertion
+            db_inserter = self.db_inserter
+            if db_inserter:
+                results = db_inserter.process_all_json_files()
+                
+                if results:
+                    successful = sum(1 for success in results.values() if success)
+                    total = len(results)
+                    self.logger.info(f"🗄️ Database insertion completed: {successful}/{total} successful")
+                    
+                    # Log any failures
+                    for file_type, success in results.items():
+                        if not success:
+                            self.logger.warning(f"🗄️ Database insertion failed for: {file_type}")
+                else:
+                    self.logger.debug("🗄️ No data available for database insertion")
             else:
-                # Not time to update yet
-                time_until_next = self.options_update_interval - (current_time - self.last_options_update)
-                return {
-                    'status': 'skipped',
-                    'time_until_next_update': round(time_until_next, 1),
-                    'last_updated': datetime.fromtimestamp(self.last_options_update).isoformat() if self.last_options_update > 0 else 'never'
-                }
+                self.logger.error("🗄️ Database inserter not available")
                 
         except Exception as e:
-            self.logger.error(f"❌ Error updating options data: {e}")
-            return {
-                'status': 'error',
-                'error': str(e),
-                'last_updated': datetime.now().isoformat()
-            }
-
-    def collect_all_data_concurrently(self) -> Dict[str, Any]:
-        """Collect all data concurrently using ThreadPoolExecutor."""
-        try:
-            # Use ThreadPoolExecutor for concurrent data collection
-            with ThreadPoolExecutor(max_workers=5) as executor:
-                # Submit all data collection tasks
-                futures = {
-                    'positions': executor.submit(self._get_current_positions_data),
-                    'transactions': executor.submit(self._get_transactions_data),
-                    'account': executor.submit(self._get_account_data),
-                    'market_status': executor.submit(self._get_market_status),
-                    'watchlist': executor.submit(self._get_integrated_watchlist_data)
-                }
-                
-                # Collect results as they complete
-                results = {}
-                for name, future in futures.items():
-                    try:
-                        results[name] = future.result(timeout=10)  # 10 second timeout
-                    except Exception as e:
-                        self.logger.error(f"Error collecting {name} data: {e}")
-                        results[name] = {}
-                
-                # Get symbols from positions and integrated watchlist for technical analysis
-                all_symbols = self.symbols_to_monitor.union(self.watchlist_symbols)
-                symbols = list(all_symbols) if all_symbols else []
-                
-                # Log the symbol integration
-                self.logger.info(f"📊 Integrated symbols: Positions({len(self.symbols_to_monitor)}) + Watchlist({len(self.watchlist_symbols)}) = Total({len(symbols)})")
-                if symbols:
-                    self.logger.info(f"🎯 Monitoring symbols: {sorted(symbols)}")
-                    
-                    # First, run the scripts to generate fresh JSON files
-                    self._run_technical_indicators_script(symbols)
-                    self._run_strategy_scripts(symbols)
-                    
-                    # Then read the fresh JSON files
-                    results['technical'] = self._get_technical_data(symbols[:3])  # Limit to 3 symbols to avoid rate limits
-                    results['iron_condor_signals'] = self._get_iron_condor_signals(symbols)
-                    results['pml_signals'] = self._get_pml_signals(symbols)
-                    results['divergence_signals'] = self._get_divergence_signals(symbols)
-                    
-                    # Get options data (every 10 seconds to avoid rate limits)
-                    results['options_data'] = self._update_options_data_if_needed(symbols[:2])  # Limit to 2 symbols for options
-                else:
-                    self.logger.warning("⚠️ No symbols found - pausing strategy scripts and technical analysis")
-                    # Return empty results for strategies when no symbols are available
-                    results['technical'] = {}
-                    results['iron_condor_signals'] = {}
-                    results['pml_signals'] = {}
-                    results['divergence_signals'] = {}
-                    results['options_data'] = {
-                        'status': 'paused',
-                        'reason': 'no_symbols_available',
-                        'last_updated': datetime.now().isoformat()
-                    }
-            
-            # Compile comprehensive data
-            comprehensive_data = {
-                'metadata': {
-                    'timestamp': datetime.now().isoformat(),
-                    'update_interval_seconds': self.update_interval,
-                    'symbols_monitored': list(symbols),
-                    'data_sources': [
-                        'schwab_positions',
-                        'schwab_transactions', 
-                        'schwab_account_data',
-                        'technical_indicators',
-                        'iron_condor_signals',
-                        'pml_signals',
-                        'divergence_signals',
-                        'watchlist_data',
-                        'market_quotes',
-                        'options_data'
-                    ]
-                },
-                'market_status': results.get('market_status', {}),
-                'account_data': results.get('account', {}),
-                'positions': results.get('positions', {}),
-                'transactions': results.get('transactions', {}),
-                'technical_indicators': results.get('technical', {}),
-                'iron_condor_signals': results.get('iron_condor_signals', {}),
-                'pml_signals': results.get('pml_signals', {}),
-                'divergence_signals': results.get('divergence_signals', {}),
-                'integrated_watchlist': results.get('watchlist', {}),
-                'options_data': results.get('options_data', {}),
-                'system_status': {
-                    'monitor_running': self.running,
-                    'symbols_count': len(symbols),
-                    'positions_count': results.get('positions', {}).get('summary', {}).get('total_positions', 0)
-                }
-            }
-            
-            return comprehensive_data
-            
-        except Exception as e:
-            self.logger.error(f"Error collecting comprehensive data: {e}")
-            return {
-                'metadata': {
-                    'timestamp': datetime.now().isoformat(),
-                    'error': str(e)
-                },
-                'error': True
-            }
-
-    def update_data(self):
-        """Update all data concurrently in a thread-safe manner."""
-        try:
-            # Collect data WITHOUT holding the lock to prevent blocking
-            new_data = self.collect_all_data_concurrently()
-            
-            # Only hold the lock for the brief moment of updating current_data
-            with self.data_lock:
-                self.current_data = new_data
-                
-        except Exception as e:
-            self.logger.error(f"Error updating data: {e}")
-
-    def get_current_data(self) -> Dict[str, Any]:
-        """Get current data in a thread-safe manner."""
-        with self.data_lock:
-            return self.current_data.copy()
+            self.logger.error(f"🗄️ Error in database insertion: {e}")
     
     def _start_database_inserter_thread(self):
-        """Start the centralized database inserter in a separate thread."""
+        """Start the database inserter controlled by realtime monitor timing."""
         def db_inserter_worker():
-            """Database inserter worker thread that runs continuously."""
-            self.logger.info("🗄️ Database inserter thread started")
+            """Database inserter worker thread controlled by realtime monitor."""
+            self.logger.info("🗄️ Database inserter started - controlled by realtime monitor")
+            self.logger.info("🗄️ Running every 5 seconds when called by realtime monitor")
+            
+            # Initialize database inserter (no internal timing)
+            db_inserter = DatabaseInserter()
             
             while self.db_inserter_running:
                 try:
-                    # Use the throttling method to check if it's time to insert
-                    results = self.db_inserter.run_with_throttling()
-                    
-                    if results:  # Only log if insertions actually happened
-                        successful = sum(1 for success in results.values() if success)
-                        total = len(results)
-                        self.logger.info(f"🗄️ Database insertion completed: {successful}/{total} successful")
-                        
-                        # Log any failures
-                        for file_type, success in results.items():
-                            if not success:
-                                self.logger.warning(f"🗄️ Database insertion failed for: {file_type}")
-                    
-                    # Sleep for 5 seconds before checking again (db_inserter has its own 30s throttling)
-                    time.sleep(5)
+                    # Simply sleep and wait for calls - no internal timing
+                    time.sleep(1)
                     
                 except Exception as e:
                     self.logger.error(f"🗄️ Error in database inserter thread: {e}")
-                    time.sleep(5)  # Wait longer on error
+                    time.sleep(2)  # Wait on error
             
             self.logger.info("🗄️ Database inserter thread stopped")
         
-        # Start the database inserter thread
+        # Start the database inserter thread (passive, waits for calls)
         self.db_inserter_running = True
         self.db_inserter_thread = threading.Thread(target=db_inserter_worker, daemon=True)
         self.db_inserter_thread.start()
-        self.logger.info("🗄️ Started centralized database inserter thread (30-second intervals)")
+        self.logger.info("🗄️ Started database inserter thread (controlled by realtime monitor timing)")
 
     def _stop_database_inserter_thread(self):
         """Stop the database inserter thread."""
@@ -954,62 +353,581 @@ class RealTimeMonitor:
             self.logger.info("🗄️ Database inserter thread stopped")
 
     def start_continuous_monitoring(self):
-        """Start continuous monitoring with concurrent data collection."""
-        self.logger.info(f"Starting continuous monitor with {self.update_interval}s interval")
-        self.logger.info("All data will be collected concurrently")
+        """Start simplified continuous monitoring with essential processes only."""
+        self.logger.info("🚀 Starting simplified monitor with essential processes")
+        self.logger.info("📊 Focused on account data, positions, transactions, and database insertion")
         self.running = True
         
-        # Start the centralized database inserter thread
+        # Start only essential processes
+        processes_to_start = [
+            'positions',         # Every 5 seconds
+            'transactions',      # Every 60 seconds  
+            'account',           # Every 30 seconds
+            'market_status',     # Every 10 seconds
+            'pnl_statistics',    # Every 2 minutes (120 seconds)
+            'database',          # Every 5 seconds
+            'exceedance_monitor', # Every 2 seconds - monitor exceedance strategy
+            'auto_timer_monitor', # Every 30 seconds - monitor auto-timer flags and market hours
+            'api_status'         # Every 30 seconds - monitor API authentication status
+        ]
+        
+        self.logger.info(f"🔥 Starting {len(processes_to_start)} essential processes...")
+        for process_name in processes_to_start:
+            thread = self._start_independent_process(process_name)
+            self.logger.info(f"✅ {process_name} process started (interval: {self.update_intervals[process_name]}s)")
+        
+        self.logger.info("🎯 All essential processes started - focused on core account monitoring!")
+        
+        # Start the database inserter as a completely separate independent process
         self._start_database_inserter_thread()
         
-        # Initial data collection
-        self.update_data()
-        
         try:
+            # Main thread just monitors and handles shutdown
             while self.running:
-                start_time = time.time()
+                # Check process health
+                alive_processes = sum(1 for t in self.process_threads.values() if t.is_alive())
+                total_processes = len(self.process_threads)
                 
-                # Update all data concurrently
-                self.update_data()
+                if alive_processes < total_processes:
+                    self.logger.warning(f"⚠️ Process health: {alive_processes}/{total_processes} processes alive")
                 
-                # Get current data and output
-                data = self.get_current_data()
-                
-                # Write JSON to live monitor file
-                try:
-                    with open('live_monitor.json', 'w') as f:
-                        json.dump(data, f, indent=2, default=str)
-                        
-                except Exception as e:
-                    self.logger.error(f"Error writing JSON: {e}")
-                
-                # Database insertion runs independently in separate thread with 30-second throttling
-                
-                
-                # Maintain update interval
-                elapsed = time.time() - start_time
-                sleep_time = max(0, self.update_interval - elapsed)
-                
-                if sleep_time > 0:
-                    time.sleep(sleep_time)
+                # Sleep for a reasonable interval - main thread doesn't do heavy work
+                time.sleep(5)
                     
         except KeyboardInterrupt:
-            self.logger.info("Received keyboard interrupt")
+            self.logger.info("🛑 Received keyboard interrupt - shutting down all processes...")
         finally:
             self.running = False
-            # Stop the database inserter thread
-            self._stop_database_inserter_thread()
-            self.logger.info("Monitor stopped")
+            self._stop_all_processes()
+            self.logger.info("✅ All processes stopped - monitor shutdown complete")
+        
+    def _stop_all_processes(self):
+        """Stop all independent processes gracefully."""
+        self.logger.info("🛑 Stopping all independent processes...")
+        
+        # Stop database inserter
+        self._stop_database_inserter_thread()
+        
+        # Wait for all process threads to finish
+        for process_name, thread in self.process_threads.items():
+            if thread.is_alive():
+                self.logger.info(f"⏳ Waiting for {process_name} process to stop...")
+                thread.join(timeout=3)
+                if thread.is_alive():
+                    self.logger.warning(f"⚠️ {process_name} process did not stop gracefully")
+        
+        # Wait for active script threads to complete
+        with self.script_threads_lock:
+            active_scripts = list(self.script_threads.items())
+        
+        if active_scripts:
+            self.logger.info(f"⏳ Waiting for {len(active_scripts)} active script threads to complete...")
+            for script_name, thread in active_scripts:
+                if thread.is_alive():
+                    self.logger.info(f"   Waiting for {script_name}...")
+                    thread.join(timeout=5)  # Give scripts time to complete
+                    if thread.is_alive():
+                        self.logger.warning(f"⚠️ Script {script_name} did not complete gracefully")
+        
+        self.logger.info("✅ All processes and script threads stopped")
+
+    def _monitor_exceedance_strategy(self):
+        """Monitor exceedance strategy based on trading config and manage process accordingly."""
+        try:
+            # Check if trading config file exists
+            if not os.path.exists(self.trading_config_file):
+                self.logger.debug(f"📋 Trading config file not found: {self.trading_config_file}")
+                return
+            
+            # Read trading config
+            with open(self.trading_config_file, 'r') as f:
+                config = json.load(f)
+            
+            # Check PML strategy running state
+            pml_config = config.get('strategies', {}).get('pml', {})
+            running_state = pml_config.get('running_state', {})
+            is_running_config = running_state.get('is_running', False)
+            
+            # Get current process status
+            process_actually_running = self._is_exceedance_process_running()
+            
+            self.logger.debug(f"🎯 Exceedance monitor - Config: {is_running_config}, Process: {process_actually_running}")
+            
+            # Decision logic
+            if is_running_config and not process_actually_running:
+                # Should be running but isn't - start it
+                self.logger.info("🚀 Config says PML running=true but exceedance process not found - starting exceedance strategy")
+                self._start_exceedance_process()
+                
+            elif not is_running_config and process_actually_running:
+                # Should not be running but is - stop it
+                self.logger.info("🛑 Config says PML running=false but exceedance process found - stopping exceedance strategy")
+                self._stop_exceedance_process()
+                
+            elif is_running_config and process_actually_running:
+                # Should be running and is - check health
+                self.logger.debug("✅ Config and process state match - exceedance strategy running")
+                self._check_exceedance_process_health()
+                
+            else:
+                # Should not be running and isn't - all good
+                self.logger.debug("✅ Config and process state match - exceedance strategy stopped")
+            
+        except Exception as e:
+            self.logger.error(f"❌ Error monitoring exceedance strategy: {e}")
+
+    def _is_exceedance_process_running(self):
+        """Check if exceedance strategy process is currently running."""
+        try:
+            # First check our tracked PID
+            if self.exceedance_pid and psutil.pid_exists(self.exceedance_pid):
+                try:
+                    proc = psutil.Process(self.exceedance_pid)
+                    cmdline = proc.cmdline()
+                    if any(self.exceedance_script in arg for arg in cmdline):
+                        return True
+                except psutil.NoSuchProcess:
+                    pass
+            
+            # Fallback: search all processes
+            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+                try:
+                    cmdline = proc.info['cmdline']
+                    if cmdline and any(self.exceedance_script in arg for arg in cmdline):
+                        # Update our tracking if we found it
+                        if not self.exceedance_pid:
+                            self.exceedance_pid = proc.info['pid']
+                            self.logger.info(f"🔍 Found existing exceedance process PID: {self.exceedance_pid}")
+                        return True
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    continue
+            
+            # Clear tracking if not found
+            if self.exceedance_pid:
+                self.logger.debug("🔍 Exceedance process not found - clearing tracking")
+                self.exceedance_process = None
+                self.exceedance_pid = None
+            
+            return False
+            
+        except Exception as e:
+            self.logger.error(f"❌ Error checking if exceedance process is running: {e}")
+            return False
+
+    def _start_exceedance_process(self):
+        """Start the exceedance strategy process."""
+        try:
+            # Check if already running
+            if self._is_exceedance_process_running():
+                self.logger.warning("⚠️ Exceedance process already running - not starting another")
+                return
+            
+            self.logger.info(f"🚀 Starting exceedance strategy: {self.exceedance_script}")
+            
+            # Start the process with --continuous flag for persistent operation
+            self.exceedance_process = subprocess.Popen([
+                'python3', self.exceedance_script, '--continuous'
+            ], 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE,
+            cwd=os.getcwd()
+            )
+            
+            self.exceedance_pid = self.exceedance_process.pid
+            
+            self.logger.info(f"✅ Started exceedance strategy process with PID: {self.exceedance_pid}")
+            
+            # Give process time to initialize
+            time.sleep(2)
+            
+            # Check if it's still running
+            if self.exceedance_process.poll() is None:
+                self.logger.info("✅ Exceedance strategy process is running successfully")
+                # Reset restart attempts on successful start
+                self.exceedance_restart_attempts = 0
+            else:
+                # Process failed to start - get error details
+                return_code = self.exceedance_process.returncode
+                stderr_output = ""
+                stdout_output = ""
+                
+                try:
+                    stdout_output, stderr_output = self.exceedance_process.communicate(timeout=5)
+                    if isinstance(stdout_output, bytes):
+                        stdout_output = stdout_output.decode('utf-8')
+                    if isinstance(stderr_output, bytes):
+                        stderr_output = stderr_output.decode('utf-8')
+                except Exception as e:
+                    self.logger.warning(f"⚠️ Could not get process output: {e}")
+                
+                self.logger.error(f"❌ Exceedance strategy process failed to start (return code: {return_code})")
+                if stderr_output:
+                    self.logger.error(f"❌ Process stderr: {stderr_output.strip()}")
+                if stdout_output:
+                    self.logger.info(f"ℹ️ Process stdout: {stdout_output.strip()}")
+                
+                self.exceedance_process = None
+                self.exceedance_pid = None
+            
+        except Exception as e:
+            self.logger.error(f"❌ Error starting exceedance process: {e}")
+            self.exceedance_process = None
+            self.exceedance_pid = None
+
+    def _stop_exceedance_process(self):
+        """Stop the exceedance strategy process."""
+        try:
+            if not self.exceedance_pid:
+                self.logger.info("ℹ️ No exceedance process to stop")
+                return
+            
+            self.logger.info(f"🛑 Stopping exceedance strategy process PID: {self.exceedance_pid}")
+            
+            # Try to terminate gracefully first
+            if psutil.pid_exists(self.exceedance_pid):
+                try:
+                    proc = psutil.Process(self.exceedance_pid)
+                    proc.terminate()
+                    
+                    # Wait for graceful termination
+                    try:
+                        proc.wait(timeout=10)
+                        self.logger.info("✅ Exceedance process terminated gracefully")
+                    except psutil.TimeoutExpired:
+                        self.logger.warning("⚠️ Process didn't terminate gracefully, killing...")
+                        proc.kill()
+                        proc.wait(timeout=5)
+                        self.logger.info("✅ Exceedance process killed")
+                        
+                except psutil.NoSuchProcess:
+                    self.logger.info("ℹ️ Process already terminated")
+            
+            # Clear tracking
+            self.exceedance_process = None
+            self.exceedance_pid = None
+            
+        except Exception as e:
+            self.logger.error(f"❌ Error stopping exceedance process: {e}")
+            # Clear tracking anyway
+            self.exceedance_process = None
+            self.exceedance_pid = None
+
+    def _check_exceedance_process_health(self):
+        """Check if the exceedance process is still healthy and restart if crashed."""
+        try:
+            if not self.exceedance_pid:
+                return
+            
+            # Check if process still exists
+            if not psutil.pid_exists(self.exceedance_pid):
+                self.logger.warning(f"⚠️ Exceedance process PID {self.exceedance_pid} no longer exists")
+                self._handle_exceedance_process_crash()
+                return
+            
+            # Check if it's still our process
+            try:
+                proc = psutil.Process(self.exceedance_pid)
+                cmdline = proc.cmdline()
+                
+                if not any(self.exceedance_script in arg for arg in cmdline):
+                    self.logger.warning(f"⚠️ PID {self.exceedance_pid} is not our exceedance process anymore")
+                    self._handle_exceedance_process_crash()
+                    return
+                
+                # Process is healthy
+                self.logger.debug(f"✅ Exceedance process PID {self.exceedance_pid} is healthy")
+                
+            except psutil.NoSuchProcess:
+                self.logger.warning(f"⚠️ Exceedance process PID {self.exceedance_pid} disappeared")
+                self._handle_exceedance_process_crash()
+                
+        except Exception as e:
+            self.logger.error(f"❌ Error checking exceedance process health: {e}")
+
+    def _handle_exceedance_process_crash(self):
+        """Handle exceedance process crash and attempt restart if appropriate."""
+        self.logger.error(f"💥 Exceedance process crashed or disappeared (PID: {self.exceedance_pid})")
+        
+        # Clear process tracking
+        self.exceedance_process = None
+        self.exceedance_pid = None
+        
+        # Check if we should restart based on config
+        try:
+            if not os.path.exists(self.trading_config_file):
+                self.logger.warning("⚠️ Config file not found - cannot determine restart policy")
+                return
+            
+            with open(self.trading_config_file, 'r') as f:
+                config = json.load(f)
+            
+            # Check if config still says it should be running
+            pml_config = config.get('strategies', {}).get('pml', {})
+            running_state = pml_config.get('running_state', {})
+            is_running_config = running_state.get('is_running', False)
+            
+            if is_running_config:
+                # Check restart limits and cooldown
+                current_time = time.time()
+                
+                if self.exceedance_restart_attempts >= self.exceedance_max_restart_attempts:
+                    self.logger.error(f"❌ Max restart attempts ({self.exceedance_max_restart_attempts}) reached - not restarting")
+                    return
+                
+                if current_time - self.exceedance_last_restart_time < self.exceedance_restart_cooldown:
+                    self.logger.warning(f"⏳ Restart cooldown active - waiting {self.exceedance_restart_cooldown}s between restarts")
+                    return
+                
+                # Attempt restart
+                self.logger.info("🔄 Attempting to restart exceedance strategy after crash...")
+                self.exceedance_restart_attempts += 1
+                self.exceedance_last_restart_time = current_time
+                self._start_exceedance_process()
+                
+            else:
+                self.logger.info("ℹ️ Config says should not be running - not restarting after crash")
+                
+        except Exception as e:
+            self.logger.error(f"❌ Error handling exceedance process crash: {e}")
+
+    def _monitor_auto_timer_strategies(self):
+        """Monitor auto-timer flags and automatically start/stop strategies based on market hours."""
+        try:
+            # Check if trading config file exists
+            if not os.path.exists(self.trading_config_file):
+                self.logger.debug(f"📋 Trading config file not found: {self.trading_config_file}")
+                return
+            
+            # Read trading config
+            with open(self.trading_config_file, 'r') as f:
+                config = json.load(f)
+            
+            # Get current time and market status in EST
+            now_est = datetime.now(self.est_tz)
+            current_time_str = now_est.strftime("%H:%M")
+            is_weekday = now_est.weekday() < 5  # Monday = 0, Sunday = 6
+            
+            self.logger.debug(f"⏰ Auto-timer monitor (EST) - Current time: {current_time_str}, Weekday: {is_weekday}")
+            
+            # Track if any changes were made
+            config_changed = False
+            
+            # Check each strategy
+            strategies = config.get('strategies', {})
+            for strategy_name, strategy_config in strategies.items():
+                try:
+                    # Check if auto-timer is enabled for this strategy
+                    auto_timer_enabled = strategy_config.get('auto_timer', False)
+                    
+                    if not auto_timer_enabled:
+                        self.logger.debug(f"⏰ {strategy_name}: auto-timer disabled, skipping")
+                        continue
+                    
+                    # Get market config for this strategy
+                    market_config = strategy_config.get('market_config', {})
+                    market_open = market_config.get('market_open', '09:30')
+                    market_close = market_config.get('market_close', '16:00')
+                    market_hours_only = market_config.get('market_hours_only', True)
+                    
+                    # Get current running state
+                    running_state = strategy_config.get('running_state', {})
+                    is_currently_running = running_state.get('is_running', False)
+                    current_auto_approve = strategy_config.get('auto_approve', False)
+                    
+                    # Determine if we should be running based on time
+                    should_be_running = self._should_strategy_be_running(
+                        current_time_str, market_open, market_close, 
+                        is_weekday, market_hours_only
+                    )
+                    
+                    self.logger.debug(f"⏰ {strategy_name}: auto_timer={auto_timer_enabled}, "
+                                    f"market_hours={market_open}-{market_close}, "
+                                    f"should_run={should_be_running}, currently_running={is_currently_running}")
+                    
+                    # Decision logic: Update config if state should change
+                    if should_be_running and not is_currently_running:
+                        # Should start - set is_running=true and auto_approve=true
+                        self.logger.info(f"🚀 Auto-timer: Starting {strategy_name} strategy (market hours active)")
+                        
+                        # Update running state
+                        if 'running_state' not in strategy_config:
+                            strategy_config['running_state'] = {}
+                        strategy_config['running_state']['is_running'] = True
+                        strategy_config['running_state']['last_updated'] = datetime.now().isoformat()
+                        strategy_config['running_state']['updated_by'] = 'auto_timer_monitor'
+                        
+                        # Update auto_approve
+                        strategy_config['auto_approve'] = True
+                        
+                        config_changed = True
+                        
+                    elif not should_be_running and is_currently_running:
+                        # Should stop - set is_running=false and auto_approve=false
+                        self.logger.info(f"🛑 Auto-timer: Stopping {strategy_name} strategy (outside market hours)")
+                        
+                        # Update running state
+                        if 'running_state' not in strategy_config:
+                            strategy_config['running_state'] = {}
+                        strategy_config['running_state']['is_running'] = False
+                        strategy_config['running_state']['last_updated'] = datetime.now().isoformat()
+                        strategy_config['running_state']['updated_by'] = 'auto_timer_monitor'
+                        
+                        # Update auto_approve
+                        strategy_config['auto_approve'] = False
+                        
+                        config_changed = True
+                        
+                    else:
+                        # No change needed
+                        self.logger.debug(f"✅ {strategy_name}: auto-timer state correct, no changes needed")
+                
+                except Exception as e:
+                    self.logger.error(f"❌ Error processing auto-timer for {strategy_name}: {e}")
+                    continue
+            
+            # Save config if changes were made
+            if config_changed:
+                self._save_trading_config(config)
+                self.logger.info("💾 Auto-timer: Trading config updated and saved")
+            else:
+                self.logger.debug("✅ Auto-timer: No config changes needed")
+                
+        except Exception as e:
+            self.logger.error(f"❌ Error in auto-timer monitor: {e}")
+
+    def _should_strategy_be_running(self, current_time_str: str, market_open: str, 
+                                  market_close: str, is_weekday: bool, market_hours_only: bool) -> bool:
+        """Determine if a strategy should be running based on time and market hours settings."""
+        try:
+            # If not market hours only, always run (if weekday)
+            if not market_hours_only:
+                return is_weekday
+            
+            # If not a weekday, don't run
+            if not is_weekday:
+                return False
+            
+            # Parse times
+            current_hour, current_minute = map(int, current_time_str.split(':'))
+            
+            open_hour, open_minute = map(int, market_open.split(':'))
+            close_hour, close_minute = map(int, market_close.split(':'))
+            
+            # Convert to minutes for easier comparison
+            current_minutes = current_hour * 60 + current_minute
+            open_minutes = open_hour * 60 + open_minute
+            close_minutes = close_hour * 60 + close_minute
+            
+            # Check if current time is within market hours
+            is_within_hours = open_minutes <= current_minutes <= close_minutes
+            print(f"⏰ ShouldRUN: Checking market hours (EST): now={current_time_str}, open={market_open}, close={market_close}, within_hours={is_within_hours}")
+            
+            return is_within_hours
+            
+        except Exception as e:
+            self.logger.error(f"❌ Error determining if strategy should be running: {e}")
+            return False
+
+    def _monitor_api_status(self):
+        """Monitor API authentication status and save to file for WebSocket streaming."""
+        try:
+            self.logger.debug("🔐 Checking API authentication status...")
+            
+            # Create API status exporter instance
+            api_exporter = APIStatusExporter()
+            
+            # Export current status
+            status_data = api_exporter.export_status()
+            
+            # Save to file for WebSocket handler to read
+            api_exporter.save_to_file("api_status.json")
+            
+            # Update cache with thread-safe access
+            with self.data_locks['api_status']:
+                self.data_cache['api_status'] = status_data
+            
+            # Log summary
+            auth_status = status_data.get('frontend_fields', {}).get('auth-status', 'Unknown')
+            schwab_status = status_data.get('frontend_fields', {}).get('schwab-status', 'Unknown')
+            token_expiry = status_data.get('frontend_fields', {}).get('token-expiry', 'Unknown')
+            
+            self.logger.debug(f"🔐 API Status - Auth: {auth_status}, Schwab: {schwab_status}, Token: {token_expiry}")
+            
+        except Exception as e:
+            self.logger.error(f"❌ Error monitoring API status: {e}")
+            
+            # Create error status data
+            error_status = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "authentication": {"status": "error", "authenticated": False},
+                "connections": {"schwab": {"status": "error", "connected": False}},
+                "frontend_fields": {
+                    "auth-status": "Error",
+                    "auth-indicator": "error",
+                    "schwab-status": "Error", 
+                    "schwab-indicator": "error",
+                    "token-expiry": "Unknown",
+                    "last-auth-check": "--:--:--",
+                    "auth-account-info": "Not Available"
+                }
+            }
+            
+            # Update cache with error status
+            with self.data_locks['api_status']:
+                self.data_cache['api_status'] = error_status
+
+    def _save_trading_config(self, config: dict):
+        """Save the updated trading config to file."""
+        try:
+            # Create backup first
+            backup_file = f"{self.trading_config_file}.backup"
+            if os.path.exists(self.trading_config_file):
+                import shutil
+                shutil.copy2(self.trading_config_file, backup_file)
+            
+            # Write updated config
+            with open(self.trading_config_file, 'w') as f:
+                json.dump(config, f, indent=2)
+            
+            self.logger.debug(f"💾 Trading config saved to {self.trading_config_file}")
+            
+        except Exception as e:
+            self.logger.error(f"❌ Error saving trading config: {e}")
+            # Try to restore backup if save failed
+            backup_file = f"{self.trading_config_file}.backup"
+            if os.path.exists(backup_file):
+                try:
+                    import shutil
+                    shutil.copy2(backup_file, self.trading_config_file)
+                    self.logger.info("🔄 Restored trading config from backup after save failure")
+                except Exception as restore_error:
+                    self.logger.error(f"❌ Failed to restore backup: {restore_error}")
 
 
 def main():
-    """Main function - simplified for continuous operation only."""
+    """Main function with authentication gate - no processes start until authentication is verified."""
     print("Real-time P&L and Technical Indicators Monitor")
     print("Continuous mode with concurrent data collection")
     print("Press Ctrl+C to stop")
     print("="*50)
     
-    # Create and start monitor with shorter interval
+    # AUTHENTICATION GATE - Nothing starts until this passes
+    print("\n🛡️ CHECKING AUTHENTICATION BEFORE STARTING ANY PROCESSES...")
+    
+    if not verify_authentication_before_start():
+        print("\n❌ AUTHENTICATION FAILED - EXITING")
+        print("🛑 Cannot start realtime monitor without valid Schwab API authentication")
+        print("\n📋 Please:")
+        print("   1. Check your .env file for correct Schwab API credentials")
+        print("   2. Verify your app is approved in Schwab Developer Portal")
+        print("   3. Ensure redirect URI matches exactly")
+        print("   4. Try running the authentication flow manually")
+        return
+    
+    print("\n🎉 AUTHENTICATION SUCCESSFUL - STARTING ALL PROCESSES")
+    print("="*60)
+    
+    # Create and start monitor with shorter interval - only after authentication passes
     monitor = RealTimeMonitor(update_interval=0.5)
     monitor.start_continuous_monitoring()
 

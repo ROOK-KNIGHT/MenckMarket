@@ -1,0 +1,124 @@
+<!-- Current Positions Panel -->
+<section class="positions-panel panel" id="positions">
+    <div class="panel-header" data-panel="positions">
+        <h2 class="panel-title">
+            <a id="positions-anchor" class="section-anchor"></a>
+            <i class="fas fa-chart-pie"></i>
+            Current Positions
+        </h2>
+        <div class="panel-actions">
+            <button class="btn btn-sm btn-outline" id="refresh-positions">
+                <i class="fas fa-sync-alt"></i>
+                Refresh
+            </button>
+            <button class="collapse-toggle" data-target="positions-content">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="panel-content expanded" id="positions-content">
+        <div class="positions-content">
+        <!-- Summary Cards - Full Width Across Top -->
+        <div class="positions-summary">
+            <div class="summary-item">
+                <div class="summary-icon positive">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="summary-details">
+                    <span class="summary-label">P/L Open</span>
+                    <span class="summary-value positive" id="pl-open">+$0</span>
+                </div>
+            </div>
+            
+            <div class="summary-item">
+                <div class="summary-icon negative">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="summary-details">
+                    <span class="summary-label">P/L Day</span>
+                    <span class="summary-value negative" id="pl-day">-$0</span>
+                </div>
+            </div>
+            
+            <div class="summary-item">
+                <div class="summary-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="summary-details">
+                    <span class="summary-label">Total Positions</span>
+                    <span class="summary-value" id="total-positions">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content Layout -->
+        <div class="positions-layout">
+            <!-- Left Side: Current Positions List -->
+            <div class="positions-left">
+                <div class="positions-list">
+                    <!-- Position items will be populated dynamically -->
+                </div>
+            </div>
+            
+            <!-- Right Side: Trading Performance Statistics -->
+            <div class="positions-right">
+                <div class="trading-stats">
+                    <h3 class="stats-title">
+                        <i class="fas fa-chart-pie"></i>
+                        Trading Performance
+                    </h3>
+                    
+                    <!-- Win/Loss Pie Chart -->
+                    <div class="stats-chart">
+                        <canvas id="winLossChart" width="200" height="200"></canvas>
+                    </div>
+                    
+                    <!-- Trading Metrics -->
+                    <div class="stats-metrics">
+                        <div class="metric-row">
+                            <div class="metric-item">
+                                <span class="metric-label">Win Rate</span>
+                                <span class="metric-value" id="win-rate">0%</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Total Trades</span>
+                                <span class="metric-value" id="total-trades">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-row">
+                            <div class="metric-item">
+                                <span class="metric-label">Avg Win</span>
+                                <span class="metric-value positive" id="avg-win">$0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Avg Loss</span>
+                                <span class="metric-value negative" id="avg-loss">$0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-row">
+                            <div class="metric-item">
+                                <span class="metric-label">Total P/L</span>
+                                <span class="metric-value" id="total-pl">$0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">W/L Ratio</span>
+                                <span class="metric-value" id="wl-ratio">0.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="positions-empty" style="display: block;">
+            <i class="fas fa-chart-line empty-icon"></i>
+            <h4 class="empty-title">No Positions Open</h4>
+            <p class="empty-description">Are your strategies running? 🤔</p>
+            <p class="empty-subtitle">When you have active positions, they'll appear here with real-time P&L updates.</p>
+        </div>
+        </div>
+    </div>
+</section>

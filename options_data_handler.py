@@ -4,7 +4,7 @@ import time
 import json
 import psycopg2
 import psycopg2.extras
-from connection_manager import ensure_valid_tokens
+from connection_manager import ensure_valid_tokens, make_authenticated_request, handle_api_response
 from datetime import datetime, timedelta
 from config_loader import get_config
 
@@ -36,7 +36,7 @@ class OptionsDataHandler:
                          fromDate=None, toDate=None, volatility=None, underlyingPrice=None, 
                          interestRate=None, daysToExpiration=None, expMonth=None, optionType=None):
         """
-        Retrieve options chain data from the Schwab API with automatic retry logic.
+        Retrieve options chain data from the Schwab API with improved 403 error handling.
 
         Args:
             symbol (str): The underlying symbol for the options chain (e.g., 'AAPL', 'MSFT')
@@ -64,106 +64,69 @@ class OptionsDataHandler:
             dict: Options chain data with calls, puts, and underlying information
             None: If no data is available or request fails
         """
-        retry_delay = self.retry_delay
-        max_retries = self.max_retries  # Store in local variable to avoid any scoping issues
+        try:
+            # Build URL with parameters
+            url = f"{self.base_url}/marketdata/v1/chains?symbol={symbol}"
+            
+            # Add optional parameters
+            params = {}
+            if contractType is not None:
+                params['contractType'] = contractType
+            if strikeCount is not None:
+                params['strikeCount'] = strikeCount
+            if includeQuotes is not None:
+                params['includeQuotes'] = str(includeQuotes).lower()
+            if strategy is not None:
+                params['strategy'] = strategy
+            if interval is not None:
+                params['interval'] = interval
+            if strike is not None:
+                params['strike'] = strike
+            if range_param is not None:
+                params['range'] = range_param
+            if fromDate is not None:
+                params['fromDate'] = fromDate
+            if toDate is not None:
+                params['toDate'] = toDate
+            if volatility is not None:
+                params['volatility'] = volatility
+            if underlyingPrice is not None:
+                params['underlyingPrice'] = underlyingPrice
+            if interestRate is not None:
+                params['interestRate'] = interestRate
+            if daysToExpiration is not None:
+                params['daysToExpiration'] = daysToExpiration
+            if expMonth is not None:
+                params['expMonth'] = expMonth
+            if optionType is not None:
+                params['optionType'] = optionType
 
-        for attempt in range(max_retries):
-            try:
-                # Get valid tokens
-                tokens = ensure_valid_tokens()
-                access_token = tokens["access_token"]
+            # Use improved authenticated request with automatic 403 handling
+            success, data = make_authenticated_request(
+                url, 
+                f"get options chain for {symbol}", 
+                max_retries=self.max_retries,
+                params=params
+            )
 
-                # Prepare headers
-                headers = {
-                    "Authorization": f"Bearer {access_token}",
-                    "Accept": "application/json"
-                }
-
-                # Build URL with parameters
-                url = f"{self.base_url}/marketdata/v1/chains?symbol={symbol}"
-                
-                # Add optional parameters
-                params = {}
-                if contractType is not None:
-                    params['contractType'] = contractType
-                if strikeCount is not None:
-                    params['strikeCount'] = strikeCount
-                if includeQuotes is not None:
-                    params['includeQuotes'] = str(includeQuotes).lower()
-                if strategy is not None:
-                    params['strategy'] = strategy
-                if interval is not None:
-                    params['interval'] = interval
-                if strike is not None:
-                    params['strike'] = strike
-                if range_param is not None:
-                    params['range'] = range_param
-                if fromDate is not None:
-                    params['fromDate'] = fromDate
-                if toDate is not None:
-                    params['toDate'] = toDate
-                if volatility is not None:
-                    params['volatility'] = volatility
-                if underlyingPrice is not None:
-                    params['underlyingPrice'] = underlyingPrice
-                if interestRate is not None:
-                    params['interestRate'] = interestRate
-                if daysToExpiration is not None:
-                    params['daysToExpiration'] = daysToExpiration
-                if expMonth is not None:
-                    params['expMonth'] = expMonth
-                if optionType is not None:
-                    params['optionType'] = optionType
-
-                # Make API request
-                response = requests.get(url, headers=headers, params=params)
-                response.raise_for_status()
-
-                data = response.json()
-
+            if success and data:
                 # Return data if available
-                if data and ('callExpDateMap' in data or 'putExpDateMap' in data):
+                if 'callExpDateMap' in data or 'putExpDateMap' in data:
                     return data
                 else:
                     print(f"No options data available for {symbol}")
                     return None
-
-            except requests.exceptions.HTTPError as http_err:
-                if response.status_code == 401:
-                    print("Token expired, refreshing tokens...")
-                    ensure_valid_tokens(refresh=True)
-                    # Continue to retry with new token
-                elif response.status_code == 429:
-                    print("Rate limit exceeded, waiting before retry...")
-                    time.sleep(self.rate_limit_delay)
-                    # Continue to retry after rate limit delay
-                else:
-                    print(f"HTTP error occurred: {http_err}")
-                    if attempt < self.max_retries - 1:
-                        time.sleep(retry_delay)
-                        retry_delay *= 2  # Exponential backoff
-                    else:
-                        print("Maximum retry attempts reached")
-                        return None
-
-            except requests.exceptions.RequestException as e:
-                print(f"Request failed on attempt {attempt + 1}: {e}")
-                if attempt < self.max_retries - 1:
-                    time.sleep(retry_delay)
-                    retry_delay *= 2  # Exponential backoff
-                else:
-                    print("Maximum retry attempts reached")
-                    return None
-
-            except Exception as e:
-                print(f"Unexpected error fetching options data: {e}")
+            else:
+                print(f"❌ Failed to get options chain for {symbol}")
                 return None
 
-        return None
+        except Exception as e:
+            print(f"❌ Unexpected error fetching options data for {symbol}: {e}")
+            return None
 
     def get_quote(self, symbol):
         """
-        Get current quote data for a symbol.
+        Get current quote data for a symbol with improved 403 error handling.
 
         Args:
             symbol (str): The symbol to get quote for (e.g., 'AAPL', 'MSFT')
@@ -172,68 +135,31 @@ class OptionsDataHandler:
             dict: Quote data with current price and other market information
             None: If no data is available or request fails
         """
-        retry_delay = self.retry_delay
+        try:
+            # Build URL
+            url = f"{self.base_url}/marketdata/v1/{symbol}/quotes"
 
-        for attempt in range(self.max_retries):
-            try:
-                # Get valid tokens
-                tokens = ensure_valid_tokens()
-                access_token = tokens["access_token"]
+            # Use improved authenticated request with automatic 403 handling
+            success, data = make_authenticated_request(
+                url, 
+                f"get quote for {symbol}", 
+                max_retries=self.max_retries
+            )
 
-                # Prepare headers
-                headers = {
-                    "Authorization": f"Bearer {access_token}",
-                    "Accept": "application/json"
-                }
-
-                # Build URL
-                url = f"{self.base_url}/marketdata/v1/{symbol}/quotes"
-
-                # Make API request
-                response = requests.get(url, headers=headers)
-                response.raise_for_status()
-
-                data = response.json()
-
+            if success and data:
                 # Return quote data if available
-                if data and symbol in data:
+                if symbol in data:
                     return data[symbol]
                 else:
                     print(f"No quote data available for {symbol}")
                     return None
-
-            except requests.exceptions.HTTPError as http_err:
-                if response.status_code == 401:
-                    print("Token expired, refreshing tokens...")
-                    ensure_valid_tokens(refresh=True)
-                    # Continue to retry with new token
-                elif response.status_code == 429:
-                    print("Rate limit exceeded, waiting before retry...")
-                    time.sleep(self.rate_limit_delay)
-                    # Continue to retry after rate limit delay
-                else:
-                    print(f"HTTP error occurred: {http_err}")
-                    if attempt < self.max_retries - 1:
-                        time.sleep(retry_delay)
-                        retry_delay *= 2  # Exponential backoff
-                    else:
-                        print("Maximum retry attempts reached")
-                        return None
-
-            except requests.exceptions.RequestException as e:
-                print(f"Request failed on attempt {attempt + 1}: {e}")
-                if attempt < self.max_retries - 1:
-                    time.sleep(retry_delay)
-                    retry_delay *= 2  # Exponential backoff
-                else:
-                    print("Maximum retry attempts reached")
-                    return None
-
-            except Exception as e:
-                print(f"Unexpected error fetching quote data: {e}")
+            else:
+                print(f"❌ Failed to get quote for {symbol}")
                 return None
 
-        return None
+        except Exception as e:
+            print(f"❌ Unexpected error fetching quote data for {symbol}: {e}")
+            return None
 
     def get_option_expirations(self, symbol):
         """

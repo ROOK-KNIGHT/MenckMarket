@@ -1499,6 +1499,418 @@ class OrderHandler:
         return self.place_stock_oco_order_with_targets("SELL_SHORT", symbol, shares, entry_price, 
                                                      profit_target, stop_loss, timestamp)
 
+    # ==================== STOCK OTA ORDER METHODS ====================
+    
+    def place_stock_ota_order_with_profit_target(self, action_type: str, symbol: str, shares: int, 
+                                                entry_price: float, profit_target: float,
+                                                timestamp: datetime = None) -> Dict:
+        """
+        Place a "One Triggers Another" order for STOCKS with automatic profit target.
+        
+        This method creates a conditional order structure that:
+        1. Places an entry order (BUY or SELL_SHORT) at the specified limit price
+        2. Once the entry order fills, automatically submits a profit target LIMIT order
+        
+        This eliminates the need to wait for position confirmation and manually place take profit orders.
+        Perfect for the exceedance strategy where we want immediate profit targets without stop losses.
+        
+        Args:
+            action_type: Entry action ("BUY" for long positions, "SELL_SHORT" for short positions)
+            symbol: Stock symbol (e.g., "AAPL", "TSLA")
+            shares: Number of shares to trade
+            entry_price: Entry limit price - the price at which we want to enter the position
+            profit_target: Profit target limit price - where we want to take profits
+            timestamp: Order timestamp (defaults to current time)
+            
+        Returns:
+            Dict containing order placement result with status, order_id, and trade details
+        """
+        if timestamp is None:
+            timestamp = datetime.now()
+            
+        # Validate action type - only BUY and SELL_SHORT supported for OTA with profit targets
+        valid_actions = ["BUY", "SELL_SHORT"]
+        if action_type not in valid_actions:
+            return {
+                'status': 'rejected',
+                'reason': f'Invalid action type for stock OTA order: {action_type}. Must be BUY or SELL_SHORT',
+                'timestamp': timestamp
+            }
+        
+        # Determine exit action based on entry action
+        if action_type == "BUY":
+            exit_action = "SELL"
+        else:  # SELL_SHORT
+            exit_action = "BUY_TO_COVER"
+        
+        self.logger.info(f"Attempting to place STOCK OTA order: {action_type} {shares} shares of {symbol} @ ${entry_price:.2f}")
+        self.logger.info(f"  Profit target: {exit_action} @ ${profit_target:.2f}")
+        
+        try:
+            if shares <= 0:
+                return {
+                    'status': 'rejected',
+                    'reason': 'Invalid share quantity',
+                    'timestamp': timestamp
+                }
+            
+            # Validate price relationships
+            if action_type == "BUY":
+                # For BUY orders: profit_target > entry_price
+                if not (profit_target > entry_price):
+                    return {
+                        'status': 'rejected',
+                        'reason': f'Invalid price relationship for BUY: profit_target ({profit_target}) must be > entry_price ({entry_price})',
+                        'timestamp': timestamp
+                    }
+            else:  # SELL_SHORT
+                # For SELL_SHORT orders: entry_price > profit_target
+                if not (entry_price > profit_target):
+                    return {
+                        'status': 'rejected',
+                        'reason': f'Invalid price relationship for SELL_SHORT: entry_price ({entry_price}) must be > profit_target ({profit_target})',
+                        'timestamp': timestamp
+                    }
+            
+            # Create the OTA order payload using Schwab API TRIGGER format
+            order_payload = {
+                "orderType": "LIMIT",
+                "session": "NORMAL",
+                "price": str(entry_price),
+                "duration": "DAY",
+                "orderStrategyType": "TRIGGER",
+                "orderLegCollection": [
+                    {
+                        "instruction": action_type,
+                        "quantity": shares,
+                        "instrument": {
+                            "symbol": symbol,
+                            "assetType": "EQUITY"
+                        }
+                    }
+                ],
+                "childOrderStrategies": [
+                    {
+                        "orderType": "LIMIT",
+                        "session": "NORMAL",
+                        "price": str(profit_target),
+                        "duration": "DAY",
+                        "orderStrategyType": "SINGLE",
+                        "orderLegCollection": [
+                            {
+                                "instruction": exit_action,
+                                "quantity": shares,
+                                "instrument": {
+                                    "symbol": symbol,
+                                    "assetType": "EQUITY"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+            
+            # Make API request to Schwab
+            url = f"https://api.schwabapi.com/trader/v1/accounts/{self.account_number}/orders"
+            headers = {
+                "Authorization": f"Bearer {self.tokens['access_token']}",
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+            
+            response = requests.post(url, json=order_payload, headers=headers)
+            
+            if response.status_code in [200, 201]:
+                order_id = response.headers.get('Location', '').split('/')[-1]
+                
+                # Calculate potential profit
+                if action_type == "BUY":
+                    potential_profit = (profit_target - entry_price) * shares
+                else:  # SELL_SHORT
+                    potential_profit = (entry_price - profit_target) * shares
+                
+                # Record successful order
+                order_record = {
+                    'timestamp': timestamp,
+                    'symbol': symbol,
+                    'action_type': action_type,
+                    'order_type': 'stock_ota_with_profit_target',
+                    'shares': shares,
+                    'entry_price': entry_price,
+                    'profit_target': profit_target,
+                    'potential_profit': potential_profit,
+                    'order_id': order_id,
+                    'status': 'submitted'
+                }
+                
+                self.order_history.append(order_record)
+                
+                self.logger.info(f"STOCK OTA order with profit target submitted successfully:")
+                self.logger.info(f"  Entry: {action_type} {shares} shares of {symbol} @ ${entry_price:.2f}")
+                self.logger.info(f"  Profit Target: {exit_action} @ ${profit_target:.2f} (${potential_profit:.2f} profit)")
+                self.logger.info(f"  Order ID: {order_id}")
+                
+                return {
+                    'status': 'submitted',
+                    'symbol': symbol,
+                    'action_type': action_type,
+                    'order_type': 'stock_ota_with_profit_target',
+                    'shares': shares,
+                    'entry_price': entry_price,
+                    'profit_target': profit_target,
+                    'exit_action': exit_action,
+                    'potential_profit': potential_profit,
+                    'order_id': order_id,
+                    'timestamp': timestamp
+                }
+            else:
+                error_msg = f"Failed to place STOCK OTA order with profit target: {response.status_code} - {response.text}"
+                self.logger.error(error_msg)
+                return {
+                    'status': 'rejected',
+                    'reason': error_msg,
+                    'timestamp': timestamp
+                }
+            
+        except Exception as e:
+            self.logger.error(f"Error placing STOCK OTA order with profit target: {str(e)}")
+            return {
+                'status': 'error',
+                'reason': str(e),
+                'timestamp': timestamp
+            }
+
+    # Convenience methods for STOCK OTA orders with profit targets
+    def buy_stock_with_profit_target(self, symbol: str, shares: int, entry_price: float, 
+                                   profit_target: float, timestamp: datetime = None) -> Dict:
+        """
+        Convenience method for BUY STOCK orders with automatic profit target (no stop loss).
+        
+        Perfect for exceedance strategy where we want to buy at market and automatically
+        place a take profit order without waiting for position confirmation.
+        
+        Args:
+            symbol: Stock symbol
+            shares: Number of shares
+            entry_price: Entry limit price
+            profit_target: Profit target price (must be > entry_price)
+            timestamp: Order timestamp
+            
+        Returns:
+            Order placement result
+        """
+        return self.place_stock_ota_order_with_profit_target("BUY", symbol, shares, entry_price, 
+                                                           profit_target, timestamp)
+
+    def sell_short_stock_with_profit_target(self, symbol: str, shares: int, entry_price: float, 
+                                          profit_target: float, timestamp: datetime = None) -> Dict:
+        """
+        Convenience method for SELL_SHORT STOCK orders with automatic profit target (no stop loss).
+        
+        Args:
+            symbol: Stock symbol
+            shares: Number of shares
+            entry_price: Entry limit price
+            profit_target: Profit target price (must be < entry_price)
+            timestamp: Order timestamp
+            
+        Returns:
+            Order placement result
+        """
+        return self.place_stock_ota_order_with_profit_target("SELL_SHORT", symbol, shares, entry_price, 
+                                                           profit_target, timestamp)
+
+    def place_stock_ota_market_with_profit_target(self, action_type: str, symbol: str, shares: int, 
+                                                 profit_target: float, timestamp: datetime = None) -> Dict:
+        """
+        Place a "One Triggers Another" order with MARKET entry and LIMIT profit target.
+        
+        This method creates a conditional order structure that:
+        1. Places an entry MARKET order (BUY or SELL_SHORT) for immediate execution
+        2. Once the market order fills, automatically submits a profit target LIMIT order
+        
+        Perfect for exceedance strategy where we want immediate market entry but precise profit targeting.
+        
+        Args:
+            action_type: Entry action ("BUY" for long positions, "SELL_SHORT" for short positions)
+            symbol: Stock symbol (e.g., "AAPL", "TSLA")
+            shares: Number of shares to trade
+            profit_target: Profit target limit price - where we want to take profits
+            timestamp: Order timestamp (defaults to current time)
+            
+        Returns:
+            Dict containing order placement result with status, order_id, and trade details
+        """
+        if timestamp is None:
+            timestamp = datetime.now()
+            
+        # Validate action type - only BUY and SELL_SHORT supported for OTA market orders
+        valid_actions = ["BUY", "SELL_SHORT"]
+        if action_type not in valid_actions:
+            return {
+                'status': 'rejected',
+                'reason': f'Invalid action type for stock OTA market order: {action_type}. Must be BUY or SELL_SHORT',
+                'timestamp': timestamp
+            }
+        
+        # Determine exit action based on entry action
+        if action_type == "BUY":
+            exit_action = "SELL"
+        else:  # SELL_SHORT
+            exit_action = "BUY_TO_COVER"
+        
+        self.logger.info(f"Attempting to place STOCK OTA MARKET order: {action_type} {shares} shares of {symbol} at MARKET")
+        self.logger.info(f"  Profit target: {exit_action} @ ${profit_target:.2f}")
+        
+        try:
+            if shares <= 0:
+                return {
+                    'status': 'rejected',
+                    'reason': 'Invalid share quantity',
+                    'timestamp': timestamp
+                }
+            
+            if profit_target <= 0:
+                return {
+                    'status': 'rejected',
+                    'reason': 'Invalid profit target price',
+                    'timestamp': timestamp
+                }
+            
+            # Create the OTA order payload with MARKET entry and LIMIT profit target
+            order_payload = {
+                "orderType": "MARKET",  # Market order for immediate entry
+                "session": "NORMAL",
+                "duration": "DAY",
+                "orderStrategyType": "TRIGGER",
+                "orderLegCollection": [
+                    {
+                        "instruction": action_type,
+                        "quantity": shares,
+                        "instrument": {
+                            "symbol": symbol,
+                            "assetType": "EQUITY"
+                        }
+                    }
+                ],
+                "childOrderStrategies": [
+                    {
+                        "orderType": "LIMIT",  # Limit order for precise profit target
+                        "session": "NORMAL",
+                        "price": str(profit_target),
+                        "duration": "DAY",
+                        "orderStrategyType": "SINGLE",
+                        "orderLegCollection": [
+                            {
+                                "instruction": exit_action,
+                                "quantity": shares,
+                                "instrument": {
+                                    "symbol": symbol,
+                                    "assetType": "EQUITY"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+            
+            # Make API request to Schwab
+            url = f"https://api.schwabapi.com/trader/v1/accounts/{self.account_number}/orders"
+            headers = {
+                "Authorization": f"Bearer {self.tokens['access_token']}",
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+            
+            response = requests.post(url, json=order_payload, headers=headers)
+            
+            if response.status_code in [200, 201]:
+                order_id = response.headers.get('Location', '').split('/')[-1]
+                
+                # Record successful order
+                order_record = {
+                    'timestamp': timestamp,
+                    'symbol': symbol,
+                    'action_type': action_type,
+                    'order_type': 'stock_ota_market_with_profit_target',
+                    'shares': shares,
+                    'entry_type': 'MARKET',
+                    'profit_target': profit_target,
+                    'order_id': order_id,
+                    'status': 'submitted'
+                }
+                
+                self.order_history.append(order_record)
+                
+                self.logger.info(f"STOCK OTA MARKET order with profit target submitted successfully:")
+                self.logger.info(f"  Entry: {action_type} {shares} shares of {symbol} at MARKET")
+                self.logger.info(f"  Profit Target: {exit_action} @ ${profit_target:.2f}")
+                self.logger.info(f"  Order ID: {order_id}")
+                
+                return {
+                    'status': 'submitted',
+                    'symbol': symbol,
+                    'action_type': action_type,
+                    'order_type': 'stock_ota_market_with_profit_target',
+                    'shares': shares,
+                    'entry_type': 'MARKET',
+                    'profit_target': profit_target,
+                    'exit_action': exit_action,
+                    'order_id': order_id,
+                    'timestamp': timestamp
+                }
+            else:
+                error_msg = f"Failed to place STOCK OTA MARKET order with profit target: {response.status_code} - {response.text}"
+                self.logger.error(error_msg)
+                return {
+                    'status': 'rejected',
+                    'reason': error_msg,
+                    'timestamp': timestamp
+                }
+            
+        except Exception as e:
+            self.logger.error(f"Error placing STOCK OTA MARKET order with profit target: {str(e)}")
+            return {
+                'status': 'error',
+                'reason': str(e),
+                'timestamp': timestamp
+            }
+
+    # Convenience methods for STOCK OTA MARKET orders with profit targets
+    def buy_stock_market_with_profit_target(self, symbol: str, shares: int, profit_target: float, 
+                                           timestamp: datetime = None) -> Dict:
+        """
+        Convenience method for BUY STOCK MARKET orders with automatic profit target.
+        
+        Perfect for exceedance strategy where we want immediate market entry and precise profit targeting.
+        
+        Args:
+            symbol: Stock symbol
+            shares: Number of shares
+            profit_target: Profit target price
+            timestamp: Order timestamp
+            
+        Returns:
+            Order placement result
+        """
+        return self.place_stock_ota_market_with_profit_target("BUY", symbol, shares, profit_target, timestamp)
+
+    def sell_short_stock_market_with_profit_target(self, symbol: str, shares: int, profit_target: float, 
+                                                  timestamp: datetime = None) -> Dict:
+        """
+        Convenience method for SELL_SHORT STOCK MARKET orders with automatic profit target.
+        
+        Args:
+            symbol: Stock symbol
+            shares: Number of shares
+            profit_target: Profit target price
+            timestamp: Order timestamp
+            
+        Returns:
+            Order placement result
+        """
+        return self.place_stock_ota_market_with_profit_target("SELL_SHORT", symbol, shares, profit_target, timestamp)
+
 
 def main():
     """Command-line interface for OrderHandler."""

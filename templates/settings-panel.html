@@ -1,0 +1,278 @@
+<!-- Settings Panel -->
+<section class="settings-panel panel" id="settings">
+    <div class="panel-header" data-panel="settings">
+        <h2 class="panel-title">
+            <a id="settings-anchor" class="section-anchor"></a>
+            <i class="fas fa-cog"></i>
+            Settings
+        </h2>
+        <div class="panel-actions">
+            <button class="btn btn-sm btn-outline" id="save-all-settings">
+                <i class="fas fa-save"></i>
+                Save All
+            </button>
+            <button class="btn btn-sm btn-secondary" id="reset-all-settings">
+                <i class="fas fa-undo"></i>
+                Reset All
+            </button>
+            <button class="collapse-toggle" data-target="settings-content">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="panel-content expanded" id="settings-content">
+        <div class="settings-content">
+        <!-- Alerts & Notifications Section -->
+        <div class="settings-section">
+            <div class="settings-section-header">
+                <h3 class="settings-section-title">
+                    <i class="fas fa-bell"></i>
+                    Alerts & Notifications
+                </h3>
+                <p class="settings-section-description">Configure alerts and notification preferences for trading events</p>
+            </div>
+            
+            <div class="settings-grid">
+                <!-- Alert Types -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">Alert Types</h4>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Maximum Loss Alert</label>
+                            <span class="setting-description">Alert when position loss exceeds threshold</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="enable-max-loss-alert" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="max-loss-settings">
+                        <div class="setting-info">
+                            <label class="setting-label">Loss Threshold</label>
+                            <span class="setting-description">Trigger alert when loss exceeds this amount</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="input-group">
+                                <input type="number" id="max-loss-threshold" class="config-input" value="1000" min="100" max="10000" step="100">
+                                <span class="input-suffix">USD</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Volatility Spike Alert</label>
+                            <span class="setting-description">Alert when market volatility spikes</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="enable-volatility-alert" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="volatility-settings">
+                        <div class="setting-info">
+                            <label class="setting-label">VIX Threshold</label>
+                            <span class="setting-description">Alert when VIX exceeds this level</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="input-group">
+                                <input type="number" id="vix-alert-threshold" class="config-input" value="30" min="15" max="80" step="5">
+                                <span class="input-suffix">VIX</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Position Size Alert</label>
+                            <span class="setting-description">Alert when position size exceeds limit</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="enable-position-size-alert" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Strategy Signal Alert</label>
+                            <span class="setting-description">Alert when new trading signals are generated</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="enable-signal-alert" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notification Channels -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">Notification Channels</h4>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Email Notifications</label>
+                            <span class="setting-description">Send alerts via email</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="enable-email-notifications" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="email-settings">
+                        <div class="setting-info">
+                            <label class="setting-label">Email Address</label>
+                            <span class="setting-description">Email address for notifications</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="email" id="notification-email" class="config-input" placeholder="your.email@example.com">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Telegram Notifications</label>
+                            <span class="setting-description">Send alerts via Telegram bot</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="enable-telegram-notifications">
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="telegram-settings" style="display: none;">
+                        <div class="setting-info">
+                            <label class="setting-label">Telegram Bot Token</label>
+                            <span class="setting-description">Bot token from @BotFather</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="text" id="telegram-bot-token" class="config-input" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="telegram-chat-settings" style="display: none;">
+                        <div class="setting-info">
+                            <label class="setting-label">Telegram Chat ID</label>
+                            <span class="setting-description">Your Telegram chat ID</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="text" id="telegram-chat-id" class="config-input" placeholder="123456789">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Slack Notifications</label>
+                            <span class="setting-description">Send alerts via Slack webhook</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="enable-slack-notifications">
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="slack-settings" style="display: none;">
+                        <div class="setting-info">
+                            <label class="setting-label">Slack Webhook URL</label>
+                            <span class="setting-description">Incoming webhook URL from Slack</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="url" id="slack-webhook-url" class="config-input" placeholder="https://hooks.slack.com/services/...">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="slack-channel-settings" style="display: none;">
+                        <div class="setting-info">
+                            <label class="setting-label">Slack Channel</label>
+                            <span class="setting-description">Channel to send notifications to</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="text" id="slack-channel" class="config-input" placeholder="#trading-alerts">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notification Preferences -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">Notification Preferences</h4>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Alert Frequency</label>
+                            <span class="setting-description">How often to send repeated alerts</span>
+                        </div>
+                        <div class="setting-control">
+                            <select id="alert-frequency" class="config-select">
+                                <option value="immediate">Immediate</option>
+                                <option value="5min" selected>Every 5 minutes</option>
+                                <option value="15min">Every 15 minutes</option>
+                                <option value="30min">Every 30 minutes</option>
+                                <option value="1hour">Every hour</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Quiet Hours</label>
+                            <span class="setting-description">Suppress notifications during these hours</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="enable-quiet-hours">
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="quiet-hours-settings" style="display: none;">
+                        <div class="setting-info">
+                            <label class="setting-label">Quiet Hours Range</label>
+                            <span class="setting-description">Time range to suppress notifications</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="time-range-inputs">
+                                <input type="time" id="quiet-hours-start" class="config-input" value="22:00">
+                                <span class="time-separator">to</span>
+                                <input type="time" id="quiet-hours-end" class="config-input" value="08:00">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Test Notifications</label>
+                            <span class="setting-description">Send test notifications to verify setup</span>
+                        </div>
+                        <div class="setting-control">
+                            <button class="btn btn-sm btn-outline" id="test-notifications">
+                                <i class="fas fa-paper-plane"></i>
+                                Send Test
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</section>

@@ -370,7 +370,7 @@ class DatabaseWebSocketStreamer:
                 with open(config_file, 'r') as f:
                     existing_config = json.load(f)
             else:
-                existing_config = {"risk_management": {}}
+                existing_config = {"risk_management": {}, "strategies": {}}
             
             # Update risk management configuration
             risk_config = existing_config.get('risk_management', {})
@@ -381,18 +381,6 @@ class DatabaseWebSocketStreamer:
                     risk_config['account_limits'] = {}
                 risk_config['account_limits'].update(config_data['account_limits'])
             
-            # Update position sizing
-            if 'position_sizing' in config_data:
-                if 'position_sizing' not in risk_config:
-                    risk_config['position_sizing'] = {}
-                risk_config['position_sizing'].update(config_data['position_sizing'])
-            
-            # Update stop loss settings
-            if 'stop_loss_settings' in config_data:
-                if 'stop_loss_settings' not in risk_config:
-                    risk_config['stop_loss_settings'] = {}
-                risk_config['stop_loss_settings'].update(config_data['stop_loss_settings'])
-            
             # Update parameter states
             if 'parameter_states' in config_data:
                 if 'parameter_states' not in risk_config:
@@ -401,10 +389,26 @@ class DatabaseWebSocketStreamer:
             
             # Update metadata
             risk_config['metadata'] = {
-                'last_updated': datetime.now().isoformat(),
                 'updated_by': config_data.get('updated_by', 'web_interface'),
-                'version': '1.0.0'
+                'version': '1.1.0'
             }
+            
+            # Update strategy-specific configurations
+            if 'strategies' in config_data:
+                if 'strategies' not in existing_config:
+                    existing_config['strategies'] = {}
+                
+                for strategy_name, strategy_config in config_data['strategies'].items():
+                    if strategy_name not in existing_config['strategies']:
+                        existing_config['strategies'][strategy_name] = {}
+                    
+                    # Update auto_approve setting
+                    if 'auto_approve' in strategy_config:
+                        existing_config['strategies'][strategy_name]['auto_approve'] = strategy_config['auto_approve']
+                    
+                    # Update risk management settings
+                    if 'risk_management' in strategy_config:
+                        existing_config['strategies'][strategy_name]['risk_management'] = strategy_config['risk_management']
             
             # Save updated configuration
             existing_config['risk_management'] = risk_config
@@ -448,33 +452,46 @@ class DatabaseWebSocketStreamer:
                 config = {
                     "risk_management": {
                         "account_limits": {
-                            "max_account_risk": 25.0,
-                            "daily_loss_limit": 5.0,
-                            "equity_buffer": 10000.0
-                        },
-                        "position_sizing": {
-                            "max_position_size": 5.0,
-                            "max_positions": 15
-                        },
-                        "stop_loss_settings": {
-                            "method": "atr",
-                            "value": 2.0,
-                            "take_profit_ratio": 2.0
+                            "daily_loss_limit": 2,
+                            "max_account_risk": 25,
+                            "equity_buffer": 10000,
+                            "max_positions": 10
                         },
                         "parameter_states": {
-                            "enable_max_account_risk": True,
-                            "enable_daily_loss_limit": True,
-                            "enable_equity_buffer": True,
-                            "enable_max_position_size": True,
-                            "enable_max_positions": True,
-                            "enable_stop_loss": True,
-                            "enable_stop_loss_value": True,
-                            "enable_risk_reward_ratio": True
+                            "enable_max_account_risk": False,
+                            "enable_daily_loss_limit": False,
+                            "enable_equity_buffer": False,
+                            "enable_max_positions": False
                         },
                         "metadata": {
-                            "last_updated": datetime.now().isoformat(),
                             "updated_by": "system_default",
-                            "version": "1.0.0"
+                            "version": "1.1.0"
+                        }
+                    },
+                    "strategies": {
+                        "pml": {
+                            "auto_approve": True,
+                            "risk_management": {
+                                "strategy_allocation": 15,
+                                "position_size": 20,
+                                "max_contracts": 8
+                            }
+                        },
+                        "iron_condor": {
+                            "auto_approve": True,
+                            "risk_management": {
+                                "strategy_allocation": 10,
+                                "position_size": 25,
+                                "max_contracts": 10
+                            }
+                        },
+                        "divergence": {
+                            "auto_approve": True,
+                            "risk_management": {
+                                "strategy_allocation": 20,
+                                "position_size": 15,
+                                "max_shares": 1000
+                            }
                         }
                     }
                 }

@@ -9,7 +9,9 @@ class RiskManager {
     init() {
         console.log('Initializing risk manager...');
         this.bindEvents();
+        this.initializePanelToggle();
         this.loadRiskConfiguration();
+        this.loadPanelState();
         this.updateRiskDisplay();
     }
     
@@ -30,16 +32,12 @@ class RiskManager {
     }
     
     bindRiskParameterEvents() {
-        // Risk parameter toggles
+        // Risk parameter toggles - only core settings
         const riskToggles = [
             'enable_max_account_risk',
             'enable_daily_loss_limit',
             'enable_equity_buffer',
-            'enable_max_position_size',
-            'enable_max_positions',
-            'enable_stop_loss',
-            'enable_stop_loss_value',
-            'enable_risk_reward_ratio'
+            'enable_max_positions'
         ];
         
         riskToggles.forEach(toggleId => {
@@ -51,15 +49,12 @@ class RiskManager {
             }
         });
         
-        // Risk parameter inputs
+        // Risk parameter inputs - only core settings
         const riskInputs = [
             'max_account_risk',
             'daily_loss_limit',
             'equity_buffer',
-            'max_position_size',
-            'max_positions',
-            'stop_loss_value',
-            'take_profit_ratio'
+            'max_positions'
         ];
         
         riskInputs.forEach(inputId => {
@@ -69,12 +64,6 @@ class RiskManager {
                 input.addEventListener('input', (e) => this.validateRiskInput(e.target));
             }
         });
-        
-        // Stop loss method selector
-        const stopLossMethod = document.getElementById('stop_loss_method');
-        if (stopLossMethod) {
-            stopLossMethod.addEventListener('change', (e) => this.handleStopLossMethodChange(e.target.value));
-        }
     }
     
     setupToggleEventListeners(toggle, toggleId, handlerFunction) {
@@ -125,15 +114,12 @@ class RiskManager {
     }
     
     updateParameterControlVisibility(toggleId, isEnabled) {
-        // Map toggle IDs to their corresponding input controls
+        // Map toggle IDs to their corresponding input controls - updated for core settings only
         const controlMappings = {
             'enable_max_account_risk': 'max_account_risk',
             'enable_daily_loss_limit': 'daily_loss_limit',
             'enable_equity_buffer': 'equity_buffer',
-            'enable_max_position_size': 'max_position_size',
-            'enable_max_positions': 'max_positions',
-            'enable_stop_loss_value': 'stop_loss_value',
-            'enable_risk_reward_ratio': 'take_profit_ratio'
+            'enable_max_positions': 'max_positions'
         };
         
         const inputId = controlMappings[toggleId];
@@ -141,12 +127,21 @@ class RiskManager {
             const inputElement = document.getElementById(inputId);
             const inputGroup = inputElement?.closest('.input-group');
             
+            console.log(`🔧 Updating visibility for ${toggleId} -> ${inputId}, enabled: ${isEnabled}`);
+            console.log(`🔍 Input element found: ${!!inputElement}`);
+            console.log(`🔍 Input group found: ${!!inputGroup}`);
+            
             if (inputGroup) {
                 inputGroup.style.opacity = isEnabled ? '1' : '0.5';
                 if (inputElement) {
                     inputElement.disabled = !isEnabled;
                 }
+                console.log(`✅ Updated ${inputId} visibility: opacity=${inputGroup.style.opacity}, disabled=${inputElement?.disabled}`);
+            } else {
+                console.warn(`⚠️ Could not find input group for ${inputId}`);
             }
+        } else {
+            console.warn(`⚠️ No mapping found for toggle ${toggleId}`);
         }
     }
     
@@ -401,7 +396,7 @@ class RiskManager {
             return;
         }
         
-        // Default risk configuration
+        // Default risk configuration - only core settings
         const defaultConfig = {
             enable_max_account_risk: true,
             max_account_risk: 25,
@@ -409,16 +404,8 @@ class RiskManager {
             daily_loss_limit: 5,
             enable_equity_buffer: true,
             equity_buffer: 10000,
-            enable_max_position_size: true,
-            max_position_size: 5,
             enable_max_positions: true,
-            max_positions: 15,
-            enable_stop_loss: true,
-            stop_loss_method: 'atr',
-            enable_stop_loss_value: true,
-            stop_loss_value: 2.0,
-            enable_risk_reward_ratio: true,
-            take_profit_ratio: 2.0
+            max_positions: 15
         };
         
         // Apply default configuration to UI
@@ -481,11 +468,7 @@ class RiskManager {
                 enable_max_account_risk: this.riskConfig.enable_max_account_risk || false,
                 enable_daily_loss_limit: this.riskConfig.enable_daily_loss_limit || false,
                 enable_equity_buffer: this.riskConfig.enable_equity_buffer || false,
-                enable_max_position_size: this.riskConfig.enable_max_position_size || false,
-                enable_max_positions: this.riskConfig.enable_max_positions || false,
-                enable_stop_loss: this.riskConfig.enable_stop_loss || false,
-                enable_stop_loss_value: this.riskConfig.enable_stop_loss_value || false,
-                enable_risk_reward_ratio: this.riskConfig.enable_risk_reward_ratio || false
+                enable_max_positions: this.riskConfig.enable_max_positions || false
             },
             timestamp: new Date().toISOString()
         };
@@ -662,6 +645,122 @@ class RiskManager {
         this.updateRiskDisplay();
     }
     
+    // Initialize panel toggle functionality
+    initializePanelToggle() {
+        console.log('Initializing Risk Management panel toggle...');
+        
+        // Find the collapse toggle button
+        const collapseToggle = document.querySelector('.risk-management-panel .collapse-toggle');
+        
+        if (collapseToggle) {
+            // Add debouncing to prevent rapid clicks
+            let lastToggleTime = 0;
+            
+            collapseToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Debounce rapid clicks (300ms)
+                const now = Date.now();
+                if (now - lastToggleTime < 300) {
+                    console.log('⚠️ Ignoring rapid toggle for Risk Management panel (debounced)');
+                    return;
+                }
+                lastToggleTime = now;
+                
+                this.togglePanel();
+            });
+            
+            console.log('✅ Risk Management panel toggle initialized');
+        } else {
+            console.warn('⚠️ Risk Management panel toggle button not found');
+        }
+    }
+    
+    // Toggle panel collapse/expand
+    togglePanel() {
+        console.log('Toggling Risk Management panel...');
+        
+        const panelContent = document.getElementById('risk-content');
+        const toggleButton = document.querySelector('.risk-management-panel .collapse-toggle');
+        const chevronIcon = toggleButton?.querySelector('i');
+        
+        if (!panelContent || !toggleButton) {
+            console.error('❌ Risk Management panel elements not found');
+            return;
+        }
+        
+        // Check current state
+        const isExpanded = panelContent.classList.contains('expanded');
+        
+        console.log(`🔍 Current state - Expanded: ${isExpanded}`);
+        
+        if (isExpanded) {
+            // Collapse the panel
+            panelContent.classList.remove('expanded');
+            panelContent.classList.add('collapsed');
+            
+            // Rotate chevron to point right
+            if (chevronIcon) {
+                chevronIcon.style.transform = 'rotate(-90deg)';
+            }
+            
+            console.log('✅ Risk Management panel collapsed');
+        } else {
+            // Expand the panel
+            panelContent.classList.remove('collapsed');
+            panelContent.classList.add('expanded');
+            
+            // Rotate chevron to point down
+            if (chevronIcon) {
+                chevronIcon.style.transform = 'rotate(0deg)';
+            }
+            
+            console.log('✅ Risk Management panel expanded');
+        }
+        
+        // Save panel state to localStorage
+        this.savePanelState(!isExpanded);
+    }
+    
+    // Save panel state
+    savePanelState(isExpanded) {
+        try {
+            localStorage.setItem('volflow-risk-panel-expanded', isExpanded.toString());
+        } catch (error) {
+            console.error('Error saving Risk Management panel state:', error);
+        }
+    }
+    
+    // Load panel state
+    loadPanelState() {
+        try {
+            const saved = localStorage.getItem('volflow-risk-panel-expanded');
+            if (saved !== null) {
+                const isExpanded = saved === 'true';
+                
+                const panelContent = document.getElementById('risk-content');
+                const toggleButton = document.querySelector('.risk-management-panel .collapse-toggle');
+                const chevronIcon = toggleButton?.querySelector('i');
+                
+                if (panelContent) {
+                    if (isExpanded) {
+                        panelContent.classList.remove('collapsed');
+                        panelContent.classList.add('expanded');
+                        if (chevronIcon) chevronIcon.style.transform = 'rotate(0deg)';
+                    } else {
+                        panelContent.classList.remove('expanded');
+                        panelContent.classList.add('collapsed');
+                        if (chevronIcon) chevronIcon.style.transform = 'rotate(-90deg)';
+                    }
+                }
+                
+                console.log(`📋 Risk Management panel state loaded: ${isExpanded ? 'expanded' : 'collapsed'}`);
+            }
+        } catch (error) {
+            console.error('Error loading Risk Management panel state:', error);
+        }
+    }
+
     showToast(message, type = 'info') {
         // Use the global toast function if available
         if (window.showToast) {
@@ -670,4 +769,20 @@ class RiskManager {
             console.log(`Toast: ${message} (${type})`);
         }
     }
+}
+
+// Make RiskManager class available globally for app.js initialization
+window.RiskManager = RiskManager;
+
+// Auto-initialize if not being managed by main app
+if (!window.volflowApp) {
+    document.addEventListener('DOMContentLoaded', () => {
+        // Wait a bit for templates to load
+        setTimeout(() => {
+            if (!window.riskManager) {
+                console.log('🎯 Auto-initializing RiskManager...');
+                window.riskManager = new RiskManager();
+            }
+        }, 1000);
+    });
 }

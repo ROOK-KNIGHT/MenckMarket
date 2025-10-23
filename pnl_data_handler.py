@@ -545,8 +545,8 @@ class PnLDataHandler:
         
         # Determine output file
         if not filename:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"pnl_analysis_{timestamp}.json"
+
+            filename = f"pnl_analysis.json"
         
         # Ensure the transaction_data directory exists
         transaction_dir = "transaction_data"

@@ -1,4 +1,4 @@
-/* Reset and Base Styles */
+Reset and Base Styles
 * {
     margin: 0;
     padding: 0;
@@ -1596,8 +1596,9 @@ body {
 .strategy-info {
     flex: 1;
     display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .strategy-name {
@@ -1658,7 +1659,7 @@ body {
     border-radius: 8px;
     margin-top: 1rem;
     display: flex;
-    gap: 1.5rem;
+    gap: 0.75rem;
     justify-content: space-between;
     align-items: center;
     border: 1px solid #e2e8f0;
@@ -1671,10 +1672,12 @@ body {
 }
 
 .control-label {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 500;
     color: #4a5568;
     white-space: nowrap;
+    line-height: 1.2;
+    text-align: center;
 }
 
 .strategy-signals {
@@ -3920,4 +3923,722 @@ body {
 .security-panel .settings-group-title i {
     color: #667eea;
     font-size: 1rem;
+}
+
+/* Strategy Risk Management Controls */
+.strategy-risk-controls {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.strategy-risk-controls.collapsed {
+    padding: 0.1rem 1rem;
+    margin-top: 0.25rem;
+}
+
+.strategy-risk-controls.collapsed .risk-save-btn {
+    display: none;
+}
+
+.risk-controls-header {
+    margin-bottom: 1rem;
+    padding: 0 0.5rem 0.75rem 0.5rem;
+    border-bottom: 1px solid #bae6fd;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+}
+
+.risk-controls-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #0c4a6e;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    flex: 1;
+    white-space: nowrap;
+}
+
+.risk-controls-title i {
+    color: #0284c7;
+    font-size: 0.75rem;
+}
+
+.risk-toggle-btn {
+    background: none;
+    border: none;
+    color: #0284c7;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.risk-toggle-btn:hover {
+    background: rgba(2, 132, 199, 0.1);
+    color: #0c4a6e;
+}
+
+.risk-toggle-btn i {
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.risk-toggle-btn.collapsed i {
+    transform: rotate(-90deg);
+}
+
+.risk-save-btn {
+    background: none;
+    border: none;
+    color: #0284c7;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.risk-save-btn:hover {
+    background: rgba(2, 132, 199, 0.1);
+    color: #0c4a6e;
+}
+
+.risk-save-btn i {
+    font-size: 0.8rem;
+}
+
+.risk-save-btn:active {
+    transform: scale(0.95);
+}
+
+.risk-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.risk-control-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.risk-control-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #075985;
+    margin: 0;
+}
+
+.risk-input {
+    width: 100%;
+    padding: 0.4rem 0.8rem;
+    border: 2px solid #bae6fd;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.9);
+    color: #0c4a6e;
+    font-weight: 500;
+    text-align: center;
+    min-width: 80px;
+}
+
+.risk-input:focus {
+    outline: none;
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+    background: white;
+}
+
+.risk-input:hover {
+    border-color: #0ea5e9;
+    background: white;
+}
+
+/* Risk Controls Input Group Styling */
+.risk-control-item .input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.risk-control-item .input-suffix {
+    position: absolute;
+    right: 0.5rem;
+    color: #0284c7;
+    font-size: 0.7rem;
+    font-weight: 500;
+    pointer-events: none;
+    background: rgba(240, 249, 255, 0.8);
+    padding: 0.1rem 0.25rem;
+    border-radius: 2px;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+/* Hide suffix when input is focused or has content */
+.risk-input:focus + .input-suffix,
+.risk-input:not(:placeholder-shown) + .input-suffix {
+    opacity: 0;
+}
+
+/* Show suffix when input loses focus and is empty */
+.risk-input:not(:focus):placeholder-shown + .input-suffix {
+    opacity: 1;
+}
+
+/* Strategy Card Responsive Adjustments for Risk Controls */
+@media (max-width: 1400px) {
+    .risk-controls-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 1200px) {
+    .strategy-card {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .strategy-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .risk-controls-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .strategy-risk-controls {
+        padding: 0.75rem;
+        margin-top: 0.75rem;
+    }
+    
+    .risk-controls-header {
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+    }
+    
+    .risk-controls-title {
+        font-size: 0.85rem;
+    }
+    
+    .risk-controls-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .risk-control-label {
+        font-size: 0.75rem;
+    }
+    
+    .risk-input {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+    }
+    
+    .risk-control-item .input-suffix {
+        right: 0.6rem;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .strategy-risk-controls {
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .risk-controls-header {
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.4rem;
+    }
+    
+    .risk-controls-title {
+        font-size: 0.8rem;
+        gap: 0.4rem;
+    }
+    
+    .risk-controls-grid {
+        gap: 0.5rem;
+    }
+    
+    .risk-control-item {
+        gap: 0.4rem;
+    }
+    
+    .risk-control-label {
+        font-size: 0.7rem;
+    }
+    
+    .risk-input {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.7rem;
+    }
+    
+    .risk-control-item .input-suffix {
+        right: 0.5rem;
+        font-size: 0.65rem;
+    }
+}
+
+/* Risk Controls Animation */
+.strategy-risk-controls {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Risk Controls Hover Effects */
+.risk-control-item:hover .risk-control-label {
+    color: #0c4a6e;
+}
+
+.risk-control-item:hover .risk-input {
+    border-color: #0ea5e9;
+    background: white;
+}
+
+/* Risk Controls Focus States */
+.risk-input:focus + .input-suffix {
+    color: #0c4a6e;
+}
+
+/* Risk Controls Validation States */
+.risk-input.error {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.risk-input.success {
+    border-color: #16a34a;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+/* Risk Controls Disabled State */
+.risk-input:disabled {
+    background: #f1f5f9;
+    color: #64748b;
+    cursor: not-allowed;
+    border-color: #cbd5e1;
+}
+
+.risk-input:disabled + .input-suffix {
+    color: #64748b;
+}
+
+/* Strategy Card Enhanced Styling with Risk Controls */
+.strategy-card:has(.strategy-risk-controls) {
+    min-height: 420px;
+}
+
+.strategy-card:has(.strategy-risk-controls) .strategy-header {
+    padding-bottom: 1rem;
+}
+
+.strategy-card:has(.strategy-risk-controls) .strategy-signals {
+    margin-top: 0.75rem;
+}
+
+/* Risk Controls Tooltip Enhancement */
+.risk-control-label {
+    position: relative;
+    cursor: help;
+}
+
+.risk-control-label::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0c4a6e;
+    color: white;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.risk-control-label:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-5px);
+}
+
+/* Risk Controls Success Indicators */
+.risk-control-item.success .risk-control-label {
+    color: #16a34a;
+}
+
+.risk-control-item.success .risk-input {
+    border-color: #16a34a;
+    background: #f0fdf4;
+}
+
+.risk-control-item.warning .risk-control-label {
+    color: #d97706;
+}
+
+.risk-control-item.warning .risk-input {
+    border-color: #d97706;
+    background: #fffbeb;
+}
+
+.risk-control-item.error .risk-control-label {
+    color: #dc2626;
+}
+
+.risk-control-item.error .risk-input {
+    border-color: #dc2626;
+    background: #fef2f2;
+}
+
+/* Strategy Controls Container */
+.strategy-controls-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0rem;
+    margin-top: 1rem;
+    max-width: 100%;
+    overflow: auto;
+}
+
+/* Strategy Watchlist Styles */
+.strategy-watchlist {
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border: 0px solid #bae6fd;
+    border-radius: 0px;
+    transition: all 0.3s ease;
+}
+
+.strategy-watchlist.collapsed {
+    padding: 0.1rem 1rem;
+    margin-top: 0.25rem;
+}
+
+.strategy-watchlist.collapsed .watchlist-add-btn {
+    display: none;
+}
+
+.watchlist-header {
+    margin-bottom: 1rem;
+    padding: 0.4rem 0.2rem 0.6rem 0.2rem;
+    border-bottom: 1px solid #bae6fd;
+    position: left;
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    gap: 0.2rem;
+}
+
+.watchlist-title {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #0c4a6e;
+    margin: 0;
+    display: left;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+    order: 2;
+}
+
+.watchlist-title i {
+    color: #0284c7;
+    font-size: 0.65rem;
+    flex-shrink: 0;
+}
+
+.watchlist-toggle-btn {
+    background: none;
+    border: none;
+    color: #0284c7;
+    cursor: pointer;
+    padding: 0rem;
+    border-radius: 0px;
+    transition: all 0.2s ease;
+    display: left;
+    align-items: left;
+    justify-content: left;
+    flex-shrink: 0;
+    width: 20px;
+    height: 5px;
+}
+
+.watchlist-toggle-btn:hover {
+    background: rgba(2, 132, 199, 0.1);
+    color: #0c4a6e;
+}
+
+.watchlist-toggle-btn i {
+    font-size: 0.7rem;
+    transition: transform 0.2s ease;
+}
+
+.watchlist-toggle-btn.collapsed i {
+    transform: rotate(-90deg);
+}
+
+.watchlist-add-btn {
+    background: none;
+    border: none;
+    color: #0284c7;
+    cursor: pointer;
+    padding: 0.2rem;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+}
+
+.watchlist-add-btn:hover {
+    background: rgba(2, 132, 199, 0.1);
+    color: #0c4a6e;
+}
+
+.watchlist-add-btn i {
+    font-size: 0.7rem;
+}
+
+.watchlist-add-btn:active {
+    transform: scale(0.95);
+}
+
+.watchlist-content {
+    padding: 0 1rem 1rem;
+}
+
+.watchlist-symbols {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 150px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #0284c7 #e0f2fe;
+    padding-right: 0.25rem;
+}
+
+.watchlist-symbols::-webkit-scrollbar {
+    width: 8px;
+}
+
+.watchlist-symbols::-webkit-scrollbar-track {
+    background: #e0f2fe;
+    border-radius: 4px;
+    margin: 2px 0;
+}
+
+.watchlist-symbols::-webkit-scrollbar-thumb {
+    background: #0284c7;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    border: 1px solid #bae6fd;
+}
+
+.watchlist-symbols::-webkit-scrollbar-thumb:hover {
+    background: #0369a1;
+    border-color: #7dd3fc;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+.watchlist-symbols::-webkit-scrollbar-thumb:active {
+    background: #075985;
+}
+
+/* Enhanced scrollbar for better visibility */
+.watchlist-symbols::-webkit-scrollbar-corner {
+    background: #e0f2fe;
+}
+
+.watchlist-symbol-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e0f2fe;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.watchlist-symbol-item:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: #bae6fd;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.1);
+}
+
+.symbol-text {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #0c4a6e;
+    letter-spacing: 0.5px;
+}
+
+.remove-symbol-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.remove-symbol-btn:hover {
+    background: #fed7d7;
+    color: #dc2626;
+}
+
+.remove-symbol-btn i {
+    font-size: 0.7rem;
+}
+
+/* Strategy Controls Container Responsive Design */
+@media (max-width: 1400px) {
+    .strategy-controls-container {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .strategy-controls-container {
+        gap: 0.5rem;
+    }
+    
+    .watchlist-header {
+        padding: 0.75rem;
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .watchlist-title {
+        font-size: 0.85rem;
+    }
+    
+    .watchlist-content {
+        padding: 0 0.75rem 0.75rem;
+    }
+    
+    .watchlist-symbols {
+        max-height: 120px;
+        gap: 0.4rem;
+    }
+    
+    .watchlist-symbol-item {
+        padding: 0.4rem 0.6rem;
+    }
+    
+    .symbol-text {
+        font-size: 0.8rem;
+    }
+    
+    .remove-symbol-btn {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .watchlist-header {
+        padding: 0.5rem;
+        padding-bottom: 0.4rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .watchlist-title {
+        font-size: 0.8rem;
+        gap: 0.4rem;
+    }
+    
+    .watchlist-content {
+        padding: 0 0.5rem 0.5rem;
+    }
+    
+    .watchlist-symbols {
+        max-height: 100px;
+        gap: 0.3rem;
+    }
+    
+    .watchlist-symbol-item {
+        padding: 0.35rem 0.5rem;
+    }
+    
+    .symbol-text {
+        font-size: 0.75rem;
+    }
+}
+
+/* Strategy Watchlist Animation */
+.strategy-watchlist {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* Strategy Watchlist Hover Effects */
+.watchlist-symbol-item:hover .symbol-text {
+    color: #0c4a6e;
+}
+
+/* Strategy Watchlist Focus States */
+.watchlist-add-btn:focus,
+.watchlist-toggle-btn:focus,
+.remove-symbol-btn:focus {
+    outline: 2px solid #0284c7;
+    outline-offset: 2px;
 }

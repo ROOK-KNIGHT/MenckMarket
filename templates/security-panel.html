@@ -1,0 +1,326 @@
+<!-- Account & Security Panel -->
+<section class="security-panel panel" id="security">
+    <div class="panel-header" data-panel="security">
+        <h2 class="panel-title">
+            <a id="security-anchor" class="section-anchor"></a>
+            <i class="fas fa-user-shield"></i>
+            Account & Security
+        </h2>
+        <div class="panel-actions">
+            <button class="btn btn-sm btn-outline" id="save-security-settings">
+                <i class="fas fa-save"></i>
+                Save Settings
+            </button>
+            <button class="btn btn-sm btn-danger" id="logout-security-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+            <button class="collapse-toggle" data-target="security-content">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="panel-content expanded" id="security-content">
+        <div class="settings-content">
+        <!-- API Authentication Status Section -->
+        <div class="settings-section">
+            <div class="settings-section-header">
+                <h3 class="settings-section-title">
+                    <i class="fas fa-plug"></i>
+                    API Connection Status
+                </h3>
+                <p class="settings-section-description">Monitor and manage your Schwab API authentication status</p>
+            </div>
+            
+            <div class="settings-grid">
+                <!-- API Status Overview -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">Connection Status</h4>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Authentication Status</label>
+                            <span class="setting-description">Current API authentication state</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="auth-status-display">
+                                <div class="auth-indicator" id="auth-indicator"></div>
+                                <span class="auth-status" id="auth-status">Checking...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Schwab API</label>
+                            <span class="setting-description">Trading API connection status</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="connection-status-display">
+                                <div class="status-indicator" id="schwab-indicator"></div>
+                                <span class="status-text" id="schwab-status">Checking...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Token Expiry</label>
+                            <span class="setting-description">Time remaining until token expires</span>
+                        </div>
+                        <div class="setting-control">
+                            <span class="token-expiry" id="token-expiry">Unknown</span>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Last Status Check</label>
+                            <span class="setting-description">When authentication was last verified</span>
+                        </div>
+                        <div class="setting-control">
+                            <span class="last-check-time" id="last-auth-check">--:--:--</span>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Account Information</label>
+                            <span class="setting-description">Connected Schwab account details</span>
+                        </div>
+                        <div class="setting-control">
+                            <span class="auth-account-info" id="auth-account-info">Not Available</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- API Management Actions -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">Authentication Actions</h4>
+                    
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Re-authenticate</label>
+                            <span class="setting-description">Start new authentication process</span>
+                        </div>
+                        <div class="setting-control">
+                            <button class="btn btn-sm btn-warning" id="reauth-btn">
+                                <i class="fas fa-key"></i>
+                                Re-authenticate
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Complete Authentication</label>
+                            <span class="setting-description">Paste the callback URL from Schwab authentication</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="callback-url-form">
+                                <input type="text" id="callback-url-input" class="config-input" placeholder="Paste callback URL here (https://127.0.0.1/?code=...)" style="width: 100%; margin-bottom: 8px;">
+                                <button class="btn btn-sm btn-success" id="exchange-tokens-btn">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    Exchange for Tokens
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Authentication Section -->
+        <div class="settings-section">
+            <div class="settings-section-header">
+                <h3 class="settings-section-title">
+                    <i class="fas fa-key"></i>
+                    Authentication
+                </h3>
+                <p class="settings-section-description">Manage your login credentials and authentication methods</p>
+            </div>
+            
+            <div class="settings-grid">
+                <!-- Password Management -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">Password Management</h4>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Change Password</label>
+                            <span class="setting-description">Update your account password</span>
+                        </div>
+                        <div class="setting-control">
+                            <button class="btn btn-sm btn-outline" id="change-password-btn">
+                                <i class="fas fa-key"></i>
+                                Change Password
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="password-change-form" style="display: none;">
+                        <div class="setting-info">
+                            <label class="setting-label">Current Password</label>
+                            <span class="setting-description">Enter your current password</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="password" id="current-password" class="config-input" placeholder="Current password">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="new-password-form" style="display: none;">
+                        <div class="setting-info">
+                            <label class="setting-label">New Password</label>
+                            <span class="setting-description">Enter your new password (min 8 characters)</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="password" id="new-password" class="config-input" placeholder="New password" minlength="8">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="confirm-password-form" style="display: none;">
+                        <div class="setting-info">
+                            <label class="setting-label">Confirm New Password</label>
+                            <span class="setting-description">Confirm your new password</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="password" id="confirm-password" class="config-input" placeholder="Confirm new password">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="password-actions" style="display: none;">
+                        <div class="setting-info">
+                            <label class="setting-label">Password Actions</label>
+                            <span class="setting-description">Save or cancel password change</span>
+                        </div>
+                        <div class="setting-control">
+                            <button class="btn btn-sm btn-primary" id="save-password-btn">
+                                <i class="fas fa-save"></i>
+                                Save Password
+                            </button>
+                            <button class="btn btn-sm btn-secondary" id="cancel-password-btn">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Two-Factor Authentication -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">Two-Factor Authentication</h4>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Enable 2FA</label>
+                            <span class="setting-description">Add an extra layer of security to your account</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="enable-2fa">
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="2fa-setup" style="display: none;">
+                        <div class="setting-info">
+                            <label class="setting-label">2FA Setup</label>
+                            <span class="setting-description">Scan QR code with your authenticator app</span>
+                        </div>
+                        <div class="setting-control">
+                            <button class="btn btn-sm btn-outline" id="setup-2fa-btn">
+                                <i class="fas fa-qrcode"></i>
+                                Setup 2FA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Session Management Section -->
+        <div class="settings-section">
+            <div class="settings-section-header">
+                <h3 class="settings-section-title">
+                    <i class="fas fa-clock"></i>
+                    Session Management
+                </h3>
+                <p class="settings-section-description">Control your login sessions and automatic logout settings</p>
+            </div>
+            
+            <div class="settings-grid">
+                <!-- Auto Logout Settings -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">Auto Logout</h4>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Enable Auto Logout</label>
+                            <span class="setting-description">Automatically logout after inactivity</span>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="enable-auto-logout" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item" id="auto-logout-settings">
+                        <div class="setting-info">
+                            <label class="setting-label">Inactivity Timeout</label>
+                            <span class="setting-description">Minutes of inactivity before logout</span>
+                        </div>
+                        <div class="setting-control">
+                            <select id="auto-logout-timeout" class="config-select">
+                                <option value="15">15 minutes</option>
+                                <option value="30" selected>30 minutes</option>
+                                <option value="60">1 hour</option>
+                                <option value="120">2 hours</option>
+                                <option value="240">4 hours</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Session Actions -->
+                <div class="settings-group">
+                    <h4 class="settings-group-title">Session Actions</h4>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Current Session</label>
+                            <span class="setting-description">Manage your current login session</span>
+                        </div>
+                        <div class="setting-control">
+                            <button class="btn btn-sm btn-danger" id="logout-current-session">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout Now
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <label class="setting-label">Login History</label>
+                            <span class="setting-description">View recent login activity and security events</span>
+                        </div>
+                        <div class="setting-control">
+                            <button class="btn btn-sm btn-outline" id="view-login-history">
+                                <i class="fas fa-history"></i>
+                                View History
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</section>

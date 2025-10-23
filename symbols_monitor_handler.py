@@ -49,24 +49,24 @@ class SymbolsMonitorHandler:
         logger.info("🔧 Simplified Symbols Monitor Handler initialized with centralized quotes API")
     
     def load_symbols_from_sources(self) -> List[str]:
-        """Load and combine symbols from api_watchlist.json and current_positions.json"""
+        """Load and combine symbols from current_positions.json and trading_config_live.json strategies"""
         try:
             logger.info("📋 === LOADING SYMBOLS FROM SOURCES ===")
-            
-            # Load from api_watchlist.json
-            api_symbols = self._load_api_watchlist_symbols()
-            logger.info(f"📋 API WATCHLIST SYMBOLS ({len(api_symbols)}): {api_symbols}")
             
             # Load from current_positions.json
             position_symbols = self._load_position_symbols()
             logger.info(f"💼 POSITION SYMBOLS ({len(position_symbols)}): {position_symbols}")
             
+            # Load from trading_config_live.json strategies
+            strategy_symbols = self._load_strategy_symbols()
+            logger.info(f"🎯 STRATEGY SYMBOLS ({len(strategy_symbols)}): {strategy_symbols}")
+            
             # Combine both sources
-            all_symbols = list(set(api_symbols + position_symbols))
+            all_symbols = list(set(position_symbols + strategy_symbols))
             logger.info(f"🎯 COMBINED SYMBOLS ({len(all_symbols)}): {sorted(all_symbols)}")
-            logger.info(f"🔍 API-only symbols: {[s for s in api_symbols if s not in position_symbols]}")
-            logger.info(f"🔍 Position-only symbols: {[s for s in position_symbols if s not in api_symbols]}")
-            logger.info(f"🔍 Overlapping symbols: {[s for s in api_symbols if s in position_symbols]}")
+            logger.info(f"🔍 Position-only symbols: {[s for s in position_symbols if s not in strategy_symbols]}")
+            logger.info(f"🔍 Strategy-only symbols: {[s for s in strategy_symbols if s not in position_symbols]}")
+            logger.info(f"🔍 Overlapping symbols: {[s for s in all_symbols if s in position_symbols and s in strategy_symbols]}")
             
             self.symbols_to_monitor = all_symbols
             print(f"Total unique symbols to monitor: {len(all_symbols)}")
@@ -104,6 +104,58 @@ class SymbolsMonitorHandler:
             return []
         except Exception as e:
             logger.error(f"❌ Error loading current_positions.json: {e}")
+            return []
+
+    def _load_strategy_symbols(self) -> List[str]:
+        """Load symbols from trading_config_live.json strategy watchlists"""
+        try:
+            with open('trading_config_live.json', 'r') as f:
+                data = json.load(f)
+                strategies = data.get('strategies', {})
+                
+                all_strategy_symbols = []
+                strategy_details = {}
+                
+                for strategy_name, strategy_config in strategies.items():
+                    strategy_symbols = []
+                    
+                    # Check for different watchlist naming patterns
+                    watchlist_keys = [
+                        f"{strategy_name}strategy_watchlist",  # pmlstrategy_watchlist
+                        f"{strategy_name}_strategy_watchlist",  # divergence_strategy_watchlist, iron_condor_strategy_watchlist
+                        f"{strategy_name}_watchlist",
+                        "watchlist"
+                    ]
+                    
+                    for key in watchlist_keys:
+                        if key in strategy_config:
+                            strategy_symbols = strategy_config[key]
+                            break
+                    
+                    if strategy_symbols:
+                        all_strategy_symbols.extend(strategy_symbols)
+                        strategy_details[strategy_name] = {
+                            'symbols': strategy_symbols,
+                            'count': len(strategy_symbols),
+                            'running': strategy_config.get('running_state', {}).get('is_running', False)
+                        }
+                        logger.info(f"🎯 {strategy_name.upper()} strategy: {len(strategy_symbols)} symbols - {strategy_symbols} (Running: {strategy_details[strategy_name]['running']})")
+                    else:
+                        logger.info(f"🎯 {strategy_name.upper()} strategy: No symbols found")
+                
+                # Remove duplicates while preserving order
+                unique_symbols = list(dict.fromkeys(all_strategy_symbols))
+                
+                logger.info(f"🎯 Total strategy symbols loaded: {len(unique_symbols)} unique symbols from {len(strategy_details)} strategies")
+                logger.info(f"🎯 Strategy symbol details: {strategy_details}")
+                
+                return unique_symbols
+                
+        except FileNotFoundError:
+            logger.info("🎯 trading_config_live.json not found")
+            return []
+        except Exception as e:
+            logger.error(f"❌ Error loading strategy symbols from trading_config_live.json: {e}")
             return []
     
     def fetch_quotes_data(self, symbols: List[str]) -> Optional[Dict[str, Any]]:
@@ -218,9 +270,9 @@ class SymbolsMonitorHandler:
         try:
             logger.info("🔧 === CREATING INTEGRATED WATCHLIST JSON ===")
             
-            # Reload the latest data from both sources
-            api_symbols = self._load_api_watchlist_symbols()
+            # Reload the latest data from the two specified sources
             position_symbols = self._load_position_symbols()
+            strategy_symbols = self._load_strategy_symbols()
             
             # Get position details from current_positions.json
             position_details = {}
@@ -232,8 +284,8 @@ class SymbolsMonitorHandler:
             except Exception as e:
                 logger.warning(f"⚠️ Could not load position details: {e}")
             
-            # Combine all symbols
-            all_symbols = list(set(api_symbols + position_symbols))
+            # Combine symbols from the two sources
+            all_symbols = list(set(position_symbols + strategy_symbols))
             
             # Create integrated data structure
             integrated_data = {
@@ -242,9 +294,9 @@ class SymbolsMonitorHandler:
                 'total_symbols': len(all_symbols),
                 'watchlist_data': {},
                 'metadata': {
-                    'data_sources': ['api_watchlist.json', 'current_positions.json'],
-                    'api_watchlist_symbols': len(api_symbols),
+                    'data_sources': ['current_positions.json', 'trading_config_live.json'],
                     'position_symbols': len(position_symbols),
+                    'strategy_symbols': len(strategy_symbols),
                     'total_integrated_symbols': len(all_symbols),
                     'update_source': 'symbols_monitor_handler',
                     'market_data_source': 'schwab_quotes_api',
@@ -271,9 +323,6 @@ class SymbolsMonitorHandler:
                 
                 # Mark source and log it
                 sources_found = []
-                if symbol in api_symbols:
-                    symbol_data['source'].append('api_watchlist')
-                    sources_found.append('API_WATCHLIST')
                 if symbol in position_symbols:
                     symbol_data['source'].append('current_positions')
                     sources_found.append('CURRENT_POSITIONS')
@@ -297,6 +346,9 @@ class SymbolsMonitorHandler:
                                       f"P&L: ${pos_data.get('unrealized_pl', 0):.2f} "
                                       f"({pos_data.get('unrealized_pl_percent', 0):.2f}%)")
                             break
+                if symbol in strategy_symbols:
+                    symbol_data['source'].append('trading_strategies')
+                    sources_found.append('TRADING_STRATEGIES')
                 
                 # Use market data if available
                 market_data_found = False
@@ -329,7 +381,7 @@ class SymbolsMonitorHandler:
                 json.dump(integrated_data, f, indent=2)
             
             logger.info(f"✅ Created integrated_watchlist.json with {len(all_symbols)} symbols")
-            logger.info(f"📊 Sources: API({len(api_symbols)}) + Positions({len(position_symbols)}) = Total({len(all_symbols)})")
+            logger.info(f"📊 Sources: Positions({len(position_symbols)}) + Strategies({len(strategy_symbols)}) = Total({len(all_symbols)})")
             
             return True
             
@@ -446,10 +498,10 @@ class SymbolsMonitorHandler:
         Similar to account_data_handler.py pattern - updates JSON file on every call.
         """
         try:
-            # Load symbols from both sources
-            api_symbols = self._load_api_watchlist_symbols()
+            # Load symbols from only the two specified sources
             position_symbols = self._load_position_symbols()
-            all_symbols = list(set(api_symbols + position_symbols))
+            strategy_symbols = self._load_strategy_symbols()
+            all_symbols = list(set(position_symbols + strategy_symbols))
             
             # Automatically update integrated_watchlist.json every time this method is called
             try:

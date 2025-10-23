@@ -1,21 +1,21 @@
 {
   "strategy_name": "Divergence_Strategy",
-  "last_updated": "2025-10-14T16:52:38.810392",
-  "total_symbols_analyzed": 7,
-  "signals_generated": 1,
+  "last_updated": "2025-10-21T15:31:44.094559",
+  "total_symbols_analyzed": 4,
+  "signals_generated": 0,
   "analysis_summary": {
-    "strong_buy": 1,
+    "strong_buy": 0,
     "buy": 0,
     "hold": 0,
-    "no_signal": 4
+    "no_signal": 1
   },
   "signals": {
     "V": {
       "signal_type": "NO_SIGNAL",
       "confidence": 0.0,
       "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-14T16:52:38.804692",
-      "market_condition": "TRENDING_UP",
+      "timestamp": "2025-10-21T15:31:44.092117",
+      "market_condition": "RANGE_BOUND",
       "volatility_environment": "Medium Volatility",
       "position_size": 0.0,
       "stop_loss": 0.0,
@@ -23,75 +23,39 @@
       "auto_approve": true
     },
     "INTC": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-14T16:52:38.805238",
-      "market_condition": "TRENDING_UP",
-      "volatility_environment": "High Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": true
-    },
-    "PLTR": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-14T16:52:38.805997",
-      "market_condition": "TRENDING_UP",
-      "volatility_environment": "High Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": true
-    },
-    "NVDA": {
-      "signal_type": "NO_SIGNAL",
-      "confidence": 0.0,
-      "entry_reason": "No divergence signals detected",
-      "timestamp": "2025-10-14T16:52:38.804079",
-      "market_condition": "RANGE_BOUND",
-      "volatility_environment": "High Volatility",
-      "position_size": 0.0,
-      "stop_loss": 0.0,
-      "profit_target": 0.0,
-      "auto_approve": true
-    },
-    "AMZN": {
-      "signal_type": "STRONG_BUY",
-      "confidence": 0.9,
-      "entry_reason": "Strong bullish divergence detected in technical indicators",
-      "timestamp": "2025-10-14T16:52:38.805780",
-      "market_condition": "BULLISH_DIVERGENCE",
-      "volatility_environment": "Medium Volatility",
-      "position_size": 2.0,
-      "stop_loss": 208.53908835133984,
-      "profit_target": 233.0536232973203,
-      "auto_approve": true
-    },
-    "LYFT": {
       "signal_type": "STRONG_SELL",
       "confidence": 0.9,
       "entry_reason": "Strong bearish divergence detected in technical indicators",
-      "timestamp": "2025-10-14T16:52:38.805530",
+      "timestamp": "2025-10-21T15:31:44.092485",
       "market_condition": "BEARISH_DIVERGENCE",
       "volatility_environment": "High Volatility",
       "position_size": 1.0,
-      "stop_loss": 21.69618415788706,
-      "profit_target": 16.997631684225876,
+      "stop_loss": 40.62287539561579,
+      "profit_target": 32.754249208768414,
       "auto_approve": true
     },
     "AAPL": {
       "signal_type": "STRONG_SELL",
       "confidence": 0.9,
       "entry_reason": "Strong bearish divergence detected in technical indicators",
-      "timestamp": "2025-10-14T16:52:38.807405",
+      "timestamp": "2025-10-21T15:31:44.093057",
       "market_condition": "BEARISH_DIVERGENCE",
       "volatility_environment": "Medium Volatility",
       "position_size": 2.0,
-      "stop_loss": 255.0363929442737,
-      "profit_target": 233.2972141114526,
+      "stop_loss": 270.6177999874148,
+      "profit_target": 247.07440002517035,
+      "auto_approve": true
+    },
+    "LYFT": {
+      "signal_type": "STRONG_SELL",
+      "confidence": 0.9,
+      "entry_reason": "Strong bearish divergence detected in technical indicators",
+      "timestamp": "2025-10-21T15:31:44.092810",
+      "market_condition": "BEARISH_DIVERGENCE",
+      "volatility_environment": "High Volatility",
+      "position_size": 1.0,
+      "stop_loss": 22.08082605171828,
+      "profit_target": 17.758347896563446,
       "auto_approve": true
     }
   },
@@ -107,7 +71,7 @@
     "update_frequency": "on_demand",
     "data_source": "schwab_historical_data",
     "optimal_conditions": "oversold_bullish_divergence_or_overbought_bearish_divergence",
-    "auto_approve_last_updated": "2025-10-14T16:52:38.811256",
+    "auto_approve_last_updated": "2025-10-21T15:31:44.095063",
     "auto_approve_status": true
   }
 }

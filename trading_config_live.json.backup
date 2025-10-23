@@ -1,0 +1,113 @@
+{
+  "trading_mode": {
+    "trading_enabled": true,
+    "sandbox_trading": false
+  },
+  "emergency_controls": {
+    "emergency_stop_trading": false,
+    "pause_new_positions": false,
+    "close_all_positions": false
+  },
+  "risk_management": {
+    "account_limits": {
+      "daily_loss_limit": 2.5,
+      "max_account_risk": 26,
+      "equity_buffer": 2000,
+      "max_positions": 10
+    },
+    "parameter_states": {
+      "enable_max_account_risk": true,
+      "enable_daily_loss_limit": true,
+      "enable_equity_buffer": true,
+      "enable_max_positions": true,
+      "enable_max_position_size": false,
+      "enable_stop_loss": false,
+      "enable_stop_loss_value": false,
+      "enable_risk_reward_ratio": false
+    },
+    "metadata": {
+      "updated_by": "web_interface",
+      "version": "1.1.0",
+      "last_updated": "2025-10-22T22:51:27.996442"
+    }
+  },
+  "strategies": {
+    "pml": {
+      "market_config": {
+        "market_open": "09:40",
+        "market_close": "15:55",
+        "last_updated": "2025-10-23T00:16:01.158393",
+        "updated_by": "strategy_manager",
+        "market_hours_only": true
+      },
+      "running_state": {
+        "is_running": false,
+        "last_updated": "2025-10-22T22:47:53.439592",
+        "updated_by": "websocket_control_handler"
+      },
+      "auto_approve": true,
+      "risk_management": {
+        "strategy_allocation": 2,
+        "position_size": 10,
+        "max_contracts": 10,
+        "last_updated": "2025-10-22T22:48:08.173904",
+        "updated_by": "strategy_manager"
+      },
+      "pmlstrategy_watchlist": [
+        "AMZN",
+        "TSLA",
+        "AAPL"
+      ],
+      "auto_timer": true
+    },
+    "iron_condor": {
+      "market_config": {
+        "market_open": "09:30",
+        "market_close": "16:00"
+      },
+      "running_state": {
+        "is_running": false,
+        "last_updated": "2025-10-22T21:00:16.115880",
+        "updated_by": "auto_timer_monitor"
+      },
+      "auto_approve": false,
+      "risk_management": {
+        "strategy_allocation": 10,
+        "position_size": 25,
+        "max_contracts": 10,
+        "last_updated": "2025-10-17T22:33:55.390108",
+        "updated_by": "strategy_manager"
+      },
+      "iron_condor_strategy_watchlist": [],
+      "auto_timer": true
+    },
+    "divergence": {
+      "market_config": {
+        "auto_timer": true,
+        "market_open": "09:30",
+        "market_close": "16:00"
+      },
+      "running_state": {
+        "is_running": true,
+        "last_updated": "2025-10-22T20:58:42.597722",
+        "updated_by": "websocket_control_handler"
+      },
+      "auto_approve": false,
+      "risk_management": {
+        "strategy_allocation": 25,
+        "position_size": 1.5,
+        "max_shares": 15,
+        "last_updated": "2025-10-20T07:25:53.976339",
+        "updated_by": "strategy_manager"
+      },
+      "divergence_strategy_watchlist": [
+        "PLTR",
+        "AAPL",
+        "NVDA",
+        "INTC",
+        "AMZN"
+      ],
+      "auto_timer": false
+    }
+  }
+}

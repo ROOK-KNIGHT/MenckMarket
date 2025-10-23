@@ -1,0 +1,71 @@
+{
+  "strategy_name": "Exceedance_Indicators_5MIN",
+  "last_updated": "2025-10-23T12:44:54.990236",
+  "total_symbols_analyzed": 3,
+  "analysis_summary": {
+    "symbols_with_data": 3,
+    "symbols_with_errors": 0,
+    "high_exceedances": 0,
+    "low_exceedances": 1
+  },
+  "indicators": {
+    "AMZN": {
+      "symbol": "AMZN",
+      "timeframe": "5min",
+      "timestamp": "2025-10-23T12:44:54.674722",
+      "current_price": 221.105,
+      "current_volume": 238333,
+      "high_exceedance": 0.0,
+      "low_exceedance": 0.0,
+      "position_in_range": 49.24530877913214,
+      "upper_band": 221.4581271763238,
+      "lower_band": 220.7623743940103,
+      "band_range": 0.6957527823135194,
+      "band_stability": true,
+      "market_condition": "WITHIN_BANDS"
+    },
+    "TSLA": {
+      "symbol": "TSLA",
+      "timeframe": "5min",
+      "timestamp": "2025-10-23T12:44:54.679615",
+      "current_price": 447.885,
+      "current_volume": 768732,
+      "high_exceedance": 0.0,
+      "low_exceedance": 0.5772694935999994,
+      "position_in_range": 49.42274706333517,
+      "upper_band": 449.1925780454751,
+      "lower_band": 446.6072694936,
+      "band_range": 2.58530855187513,
+      "band_stability": true,
+      "market_condition": "LOW_EXCEEDANCE"
+    },
+    "AAPL": {
+      "symbol": "AAPL",
+      "timeframe": "5min",
+      "timestamp": "2025-10-23T12:44:54.840203",
+      "current_price": 259.826,
+      "current_volume": 181164,
+      "high_exceedance": 0.0,
+      "low_exceedance": 0.0,
+      "position_in_range": 51.73715152208721,
+      "upper_band": 260.2012532564949,
+      "lower_band": 259.42373334557084,
+      "band_range": 0.7775199109240702,
+      "band_stability": true,
+      "market_condition": "WITHIN_BANDS"
+    }
+  },
+  "metadata": {
+    "analysis_type": "exceedance_indicators",
+    "timeframe": "5min",
+    "indicator_focus": [
+      "volatility_bands",
+      "exceedance_detection",
+      "band_stability"
+    ],
+    "update_frequency": "minute_intervals",
+    "data_source": "schwab_historical_data",
+    "output_directory": "exceedance_data",
+    "watchlist_source": "pml_strategy"
+  }
+}

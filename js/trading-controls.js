@@ -20,6 +20,9 @@ class TradingControlsManager {
         // Bind event listeners
         this.bindEventListeners();
         
+        // Load trading configuration
+        this.loadTradingConfig();
+        
         // Start status monitoring
         this.startStatusMonitoring();
         
@@ -179,71 +182,207 @@ class TradingControlsManager {
     }
 
     async handleEmergencyStop() {
-        console.log('🚨 EMERGENCY STOP triggered!');
+        console.log('🚨 EMERGENCY STOP toggle triggered!');
         
-        if (!confirm('⚠️ EMERGENCY STOP\n\nThis will immediately stop all trading and cancel pending orders.\n\nAre you sure you want to proceed?')) {
-            return;
+        // Initialize emergency stop state if not exists
+        if (this.emergencyStopActive === undefined) {
+            this.emergencyStopActive = false;
         }
-
-        try {
-            this.showNotification('Emergency stop initiated...', 'warning');
+        
+        // Toggle emergency stop state
+        this.emergencyStopActive = !this.emergencyStopActive;
+        
+        if (this.emergencyStopActive) {
+            // Activating emergency stop
+            if (!confirm('⚠️ EMERGENCY STOP\n\nThis will:\n- Turn off all auto-execute toggles\n- Stop all running strategies\n- Halt all trading activities\n\nAre you sure you want to proceed?')) {
+                // User cancelled, revert the toggle
+                this.emergencyStopActive = false;
+                return;
+            }
             
-            // Check if WebSocket manager is available
+            await this.activateEmergencyStop();
+        } else {
+            // Deactivating emergency stop
+            if (!confirm('🔄 DEACTIVATE EMERGENCY STOP\n\nThis will allow trading activities to resume.\n\nAre you sure you want to proceed?')) {
+                // User cancelled, revert the toggle
+                this.emergencyStopActive = true;
+                return;
+            }
+            
+            await this.deactivateEmergencyStop();
+        }
+    }
+    
+    async activateEmergencyStop() {
+        console.log('🚨 Activating emergency stop...');
+        
+        try {
+            this.showNotification('Emergency stop activated - stopping all strategies...', 'warning');
+            
+            // 1. Turn off all auto-execute toggles
+            this.disableAllAutoExecuteToggles();
+            
+            // 2. Stop all running strategies
+            this.stopAllRunningStrategies();
+            
+            // 3. Update emergency stop button appearance
+            this.updateEmergencyStopButton(true);
+            
+            // 4. Send emergency stop request via WebSocket
             if (window.webSocketManager && window.webSocketManager.isConnected()) {
-                // Send emergency stop request via WebSocket
                 window.webSocketManager.send({
                     type: 'emergency_stop',
                     timestamp: new Date().toISOString(),
-                    reason: 'User initiated emergency stop'
+                    reason: 'User initiated emergency stop toggle'
                 });
                 
-                // Set up one-time listener for emergency stop response
                 this.setupEmergencyStopListener();
-                
-            } else {
-                throw new Error('WebSocket connection not available for emergency stop');
             }
+            
+            this.showNotification('🚨 EMERGENCY STOP ACTIVE - All trading halted', 'error');
+            console.log('🚨 Emergency stop activated successfully');
+            
         } catch (error) {
-            console.error('❌ Emergency stop failed:', error);
-            this.showNotification('Emergency stop failed: ' + error.message, 'error');
+            console.error('❌ Emergency stop activation failed:', error);
+            this.showNotification('Emergency stop activation failed: ' + error.message, 'error');
+            this.emergencyStopActive = false;
+            this.updateEmergencyStopButton(false);
+        }
+    }
+    
+    async deactivateEmergencyStop() {
+        console.log('🔄 Deactivating emergency stop...');
+        
+        try {
+            this.showNotification('Deactivating emergency stop...', 'info');
+            
+            // 1. Update emergency stop button appearance
+            this.updateEmergencyStopButton(false);
+            
+            // 2. Send resume trading request via WebSocket (if needed)
+            if (window.webSocketManager && window.webSocketManager.isConnected()) {
+                window.webSocketManager.send({
+                    type: 'resume_trading',
+                    timestamp: new Date().toISOString(),
+                    reason: 'User deactivated emergency stop'
+                });
+            }
+            
+            this.showNotification('✅ Emergency stop deactivated - Trading can resume', 'success');
+            console.log('✅ Emergency stop deactivated successfully');
+            
+        } catch (error) {
+            console.error('❌ Emergency stop deactivation failed:', error);
+            this.showNotification('Emergency stop deactivation failed: ' + error.message, 'error');
+            this.emergencyStopActive = true;
+            this.updateEmergencyStopButton(true);
+        }
+    }
+    
+    disableAllAutoExecuteToggles() {
+        console.log('🔄 Disabling all auto-execute toggles...');
+        
+        // Find all auto-execute toggles and turn them off
+        const autoExecuteToggles = [
+            'iron_condor_auto_execute',
+            'pml_auto_execute', 
+            'divergence_auto_execute'
+        ];
+        
+        autoExecuteToggles.forEach(toggleId => {
+            const toggle = document.getElementById(toggleId);
+            if (toggle && toggle.checked) {
+                console.log(`🔄 Turning off auto-execute for ${toggleId}`);
+                toggle.checked = false;
+                
+                // Trigger the change event to ensure proper handling
+                const changeEvent = new Event('change', { bubbles: true });
+                toggle.dispatchEvent(changeEvent);
+            }
+        });
+        
+        console.log('✅ All auto-execute toggles disabled');
+    }
+    
+    stopAllRunningStrategies() {
+        console.log('🛑 Toggling all running strategy buttons to stopped state...');
+        
+        // Find all strategy run buttons and toggle them to stopped if they're running
+        const strategyButtons = [
+            'run-iron-condor-btn',
+            'run-pml-btn',
+            'run-divergence-btn'
+        ];
+        
+        strategyButtons.forEach(buttonId => {
+            const button = document.getElementById(buttonId);
+            if (button && button.classList.contains('running')) {
+                console.log(`🛑 Toggling strategy button to stopped: ${buttonId}`);
+                
+                // Just update button state - realtime monitor handles actual stopping
+                button.classList.remove('running');
+                button.classList.add('stopped');
+            }
+        });
+        
+        console.log('✅ All running strategy buttons toggled to stopped state');
+    }
+    
+    updateEmergencyStopButton(isActive) {
+        const emergencyStopBtn = document.getElementById('emergency-stop');
+        if (emergencyStopBtn) {
+            if (isActive) {
+                emergencyStopBtn.classList.add('emergency-active');
+                emergencyStopBtn.innerHTML = '<i class="fas fa-stop-circle"></i> EMERGENCY STOP ACTIVE';
+                emergencyStopBtn.style.backgroundColor = '#dc3545';
+                emergencyStopBtn.style.color = 'white';
+            } else {
+                emergencyStopBtn.classList.remove('emergency-active');
+                emergencyStopBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Emergency Stop';
+                emergencyStopBtn.style.backgroundColor = '';
+                emergencyStopBtn.style.color = '';
+            }
         }
     }
 
     async handleCloseAllPositions() {
-        console.log('🔄 Close all positions triggered');
+        console.log('🔄 DEBUG: Close all positions button clicked');
+        console.log('🔍 DEBUG: Current timestamp:', new Date().toISOString());
         
-        if (!confirm('⚠️ CLOSE ALL POSITIONS\n\nThis will attempt to close all open positions at market prices.\n\nAre you sure you want to proceed?')) {
+        if (!confirm('⚠️ CLOSE ALL POSITIONS\n\nThis will:\n- Cancel ALL open orders\n- Close ALL positions via market orders\n\nThis action cannot be undone!\n\nAre you sure you want to proceed?')) {
+            console.log('❌ DEBUG: User cancelled close all positions confirmation');
             return;
         }
 
+        console.log('✅ DEBUG: User confirmed close all positions');
+
         try {
-            this.showNotification('Closing all positions...', 'warning');
+            this.showNotification('Closing all positions and cancelling orders...', 'warning');
             
-            const response = await fetch('http://localhost:5001/api/trading/close-all-positions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+            // Use the main WebSocket connection for close all positions
+            console.log('🔍 DEBUG: Using main WebSocket connection for close all positions...');
+            
+            if (window.webSocketManager && window.webSocketManager.isConnected()) {
+                const message = {
+                    type: 'close_all_positions',
                     timestamp: new Date().toISOString(),
                     reason: 'User requested close all positions'
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const result = await response.json();
-            
-            if (result.success) {
-                this.showNotification(`✅ Initiated closing ${result.positions_count || 0} positions`, 'success');
-                console.log('✅ Close all positions initiated');
+                };
+                
+                console.log('📤 DEBUG: Sending close all positions message via main WebSocket:', message);
+                window.webSocketManager.send(message);
+                
+                // Set up one-time listener for close all positions response
+                this.setupCloseAllPositionsListener();
+                
+                console.log('✅ DEBUG: Message sent, listener setup complete');
             } else {
-                throw new Error(result.error || 'Failed to close positions');
+                throw new Error('Main WebSocket connection not available');
             }
+            
         } catch (error) {
-            console.error('❌ Close all positions failed:', error);
+            console.error('❌ DEBUG: Close all positions failed with error:', error);
+            console.error('❌ DEBUG: Error stack:', error.stack);
             this.showNotification('Failed to close positions: ' + error.message, 'error');
         }
     }
@@ -291,11 +430,151 @@ class TradingControlsManager {
             envStatus.className = isLive ? 'toggle-option live' : 'toggle-option paper';
         }
 
+        // Save trading mode to trading_config_live.json
+        this.saveTradingConfig({
+            trading_mode: {
+                trading_enabled: true,
+                sandbox_trading: !isLive
+            }
+        });
+
         // Show warning when switching to live
         if (isLive) {
             this.showNotification('⚠️ Switched to LIVE trading environment', 'warning');
         } else {
             this.showNotification('📝 Switched to PAPER trading environment', 'info');
+        }
+    }
+
+    // Trading Configuration Management
+    async saveTradingConfig(configData) {
+        console.log('💾 Saving trading configuration via WebSocket...', configData);
+        
+        try {
+            if (window.webSocketManager && window.webSocketManager.isConnected()) {
+                // Send save trading config request via WebSocket
+                window.webSocketManager.send({
+                    type: 'save_trading_config',
+                    config: configData,
+                    updated_by: 'trading_controls',
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Set up one-time listener for save response
+                this.setupTradingConfigSaveListener();
+                
+            } else {
+                throw new Error('WebSocket connection not available');
+            }
+        } catch (error) {
+            console.error('❌ Failed to save trading config:', error);
+            this.showNotification('Failed to save trading configuration: ' + error.message, 'error');
+        }
+    }
+
+    async loadTradingConfig() {
+        console.log('📋 Loading trading configuration via WebSocket...');
+        
+        try {
+            if (window.webSocketManager && window.webSocketManager.isConnected()) {
+                // Send get trading config request via WebSocket
+                window.webSocketManager.send({
+                    type: 'get_trading_config',
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Set up one-time listener for get response
+                this.setupTradingConfigGetListener();
+                
+            } else {
+                console.warn('⚠️ WebSocket connection not available for loading trading config');
+            }
+        } catch (error) {
+            console.error('❌ Failed to load trading config:', error);
+        }
+    }
+
+    updateEmergencyControls(emergencyControls) {
+        console.log('🚨 Updating emergency controls:', emergencyControls);
+        
+        // Save emergency controls to trading_config_live.json
+        this.saveTradingConfig({
+            emergency_controls: emergencyControls
+        });
+    }
+
+    setupTradingConfigSaveListener() {
+        const handleSaveResponse = (data) => {
+            if (data.type === 'trading_config_saved') {
+                console.log('📊 Trading config save response via WebSocket:', data);
+                
+                if (data.success) {
+                    console.log('✅ Trading configuration saved successfully');
+                    this.showNotification('Trading configuration saved', 'success');
+                } else {
+                    console.error('❌ Failed to save trading config:', data.error);
+                    this.showNotification('Failed to save trading configuration', 'error');
+                }
+                
+                // Remove listener after handling
+                if (window.webSocketManager) {
+                    window.webSocketManager.removeMessageListener(handleSaveResponse);
+                }
+            }
+        };
+        
+        if (window.webSocketManager) {
+            window.webSocketManager.addMessageListener(handleSaveResponse);
+        }
+    }
+
+    setupTradingConfigGetListener() {
+        const handleGetResponse = (data) => {
+            if (data.type === 'trading_config_data') {
+                console.log('📊 Trading config get response via WebSocket:', data);
+                
+                if (data.success && data.config) {
+                    console.log('✅ Trading configuration loaded successfully');
+                    this.applyTradingConfig(data.config);
+                } else {
+                    console.error('❌ Failed to load trading config:', data.error);
+                }
+                
+                // Remove listener after handling
+                if (window.webSocketManager) {
+                    window.webSocketManager.removeMessageListener(handleGetResponse);
+                }
+            }
+        };
+        
+        if (window.webSocketManager) {
+            window.webSocketManager.addMessageListener(handleGetResponse);
+        }
+    }
+
+    applyTradingConfig(config) {
+        console.log('🔧 Applying trading configuration:', config);
+        
+        try {
+            // Apply trading mode settings
+            if (config.trading_mode) {
+                const envToggle = document.getElementById('env-toggle');
+                if (envToggle && config.trading_mode.sandbox_trading !== undefined) {
+                    envToggle.checked = !config.trading_mode.sandbox_trading; // Live = !sandbox
+                    this.handleEnvironmentToggle(!config.trading_mode.sandbox_trading);
+                }
+            }
+            
+            // Apply emergency controls (if needed for UI state)
+            if (config.emergency_controls) {
+                console.log('🚨 Emergency controls loaded:', config.emergency_controls);
+                // Update any emergency control UI elements if they exist
+            }
+            
+            console.log('✅ Trading configuration applied to UI');
+            
+        } catch (error) {
+            console.error('❌ Error applying trading config:', error);
         }
     }
 
@@ -589,6 +868,48 @@ class TradingControlsManager {
         
         if (window.webSocketManager) {
             window.webSocketManager.addMessageListener(handleStatusResponse);
+        }
+    }
+
+    setupCloseAllPositionsListener() {
+        // Set up listener for close all positions response
+        const handleCloseAllResponse = (data) => {
+            if (data.type === 'close_all_positions_response') {
+                console.log('📊 Close all positions response via WebSocket:', data);
+                
+                if (data.success) {
+                    const ordersMsg = data.orders_cancelled > 0 ? `${data.orders_cancelled} orders cancelled, ` : '';
+                    const positionsMsg = data.positions_closed > 0 ? `${data.positions_closed} positions closed` : '';
+                    
+                    if (data.orders_cancelled === 0 && data.positions_closed === 0) {
+                        this.showNotification('✅ No positions or orders to close', 'info');
+                    } else {
+                        this.showNotification(`✅ ${ordersMsg}${positionsMsg}`, 'success');
+                    }
+                    
+                    // Show details if available
+                    if (data.closed_positions && data.closed_positions.length > 0) {
+                        console.log('📋 Closed positions:', data.closed_positions);
+                    }
+                    if (data.cancelled_orders && data.cancelled_orders.length > 0) {
+                        console.log('📋 Cancelled orders:', data.cancelled_orders);
+                    }
+                    
+                    console.log('✅ Close all positions completed successfully via WebSocket');
+                } else {
+                    this.showNotification(`❌ Failed to close positions: ${data.error}`, 'error');
+                    console.error('Close all positions failed via WebSocket:', data.error);
+                }
+                
+                // Remove listener after handling
+                if (window.webSocketManager) {
+                    window.webSocketManager.removeMessageListener(handleCloseAllResponse);
+                }
+            }
+        };
+        
+        if (window.webSocketManager) {
+            window.webSocketManager.addMessageListener(handleCloseAllResponse);
         }
     }
 
