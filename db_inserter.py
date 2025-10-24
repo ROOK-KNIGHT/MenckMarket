@@ -42,14 +42,14 @@ class DatabaseInserter:
         self.db_config = {
             'host': 'localhost',
             'database': 'volflow_options',
-            'user': 'eduardomenck',
+            'user': 'isaac',
             'password': None  # Will use peer authentication
         }
         
         # JSON file paths
         self.json_files = {
             'iron_condor_signals': 'iron_condor_signals.json',
-            'pml_signals': 'pml_signals.json',
+            'pml_signals': 'exceedence_signals.json',  # Now using exceedence_signals.json for PML
             'divergence_signals': 'divergence_signals.json',
             'current_positions': 'current_positions.json',
             'technical_indicators': 'technical_indicators.json',
@@ -162,7 +162,7 @@ class DatabaseInserter:
             return False
 
     def insert_pml_signals(self, data: Dict[str, Any]) -> bool:
-        """Insert PML signals into database."""
+        """Insert PML signals into database using exceedence structure."""
         try:
             conn = psycopg2.connect(**self.db_config)
             cur = conn.cursor(cursor_factory=RealDictCursor)
@@ -174,29 +174,42 @@ class DatabaseInserter:
             
             for symbol, signal_data in signals.items():
                 try:
-                    # Simplified insert matching actual JSON structure
+                    # Insert matching exceedence structure
                     insert_sql = """
                     INSERT INTO pml_signals (
-                        timestamp, symbol, signal_type, confidence, entry_reason,
-                        position_size, stop_loss, profit_target, market_condition, volatility_environment,
-                        auto_approve
+                        timestamp, symbol, signal_type, entry_reason, position_size,
+                        auto_approve, current_price, position_in_range, high_exceedance,
+                        low_exceedance, market_condition, has_trade_signal, is_scale_in,
+                        existing_position, signal_id, strategy_name
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
                     )
                     """
                     
+                    # Convert timestamp string to datetime object
+                    timestamp_str = signal_data.get('timestamp', datetime.now().isoformat())
+                    if isinstance(timestamp_str, str):
+                        timestamp = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+                    else:
+                        timestamp = timestamp_str
+                    
                     values = (
-                        signal_data.get('timestamp', datetime.now().isoformat()),
+                        timestamp,
                         symbol,
                         signal_data.get('signal_type', 'NO_SIGNAL'),
-                        signal_data.get('confidence', 0.0),
                         signal_data.get('entry_reason', ''),
-                        signal_data.get('position_size', 0.0),
-                        signal_data.get('stop_loss', 0.0),
-                        signal_data.get('profit_target', 0.0),
+                        signal_data.get('position_size', 1),
+                        signal_data.get('auto_approve', True),
+                        signal_data.get('current_price', 0.0),
+                        signal_data.get('position_in_range', 0.0),
+                        signal_data.get('high_exceedance', 0.0),
+                        signal_data.get('low_exceedance', 0.0),
                         signal_data.get('market_condition', 'UNCERTAIN'),
-                        signal_data.get('volatility_environment', 'Unknown'),
-                        signal_data.get('auto_approve', True)
+                        signal_data.get('has_trade_signal', False),
+                        signal_data.get('is_scale_in', False),
+                        json.dumps(signal_data.get('existing_position', {})),
+                        signal_data.get('signal_id', f"{symbol}_{int(datetime.now().timestamp())}"),
+                        data.get('strategy_name', 'PML_Strategy')
                     )
                     
                     cur.execute(insert_sql, values)

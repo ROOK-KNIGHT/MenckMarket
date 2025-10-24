@@ -290,6 +290,58 @@
     text-align: right;
 }
 
+/* Signal Status Styles for Exceedence Signals */
+.signal-status {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.signal-status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+}
+
+.signal-status-item.active {
+    background: #c6f6d5;
+    color: #38a169;
+    border: 1px solid #9ae6b4;
+}
+
+.signal-status-item.inactive {
+    background: #f7fafc;
+    color: #a0aec0;
+    border: 1px solid #e2e8f0;
+}
+
+.signal-status-item i {
+    font-size: 0.8rem;
+}
+
+.signal-status-item.active i {
+    color: #2f855a;
+}
+
+.signal-status-item.inactive i {
+    color: #cbd5e0;
+}
+
+.signal-status-item span {
+    font-size: 0.7rem;
+    white-space: nowrap;
+}
+
 /* Manual Approval Styles for Individual Signal Cards */
 .signal-manual-approval {
     margin-top: 1rem;

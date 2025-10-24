@@ -1003,39 +1003,88 @@ class StrategyManager {
     }
     
     createSignalHTML(signal) {
-        const confidencePercent = Math.round(signal.confidence * 100);
+        // Check if this is an exceedence signal (PML) or traditional signal
+        const isExceedenceSignal = signal.hasOwnProperty('current_price') && signal.hasOwnProperty('position_in_range');
         
-        // Simple display - no manual approval buttons or complex logic
-        return `
-            <div class="signal-header">
-                <div class="signal-symbol">${signal.symbol}</div>
-                <div class="signal-type">${signal.signal_type}</div>
-            </div>
-            <div class="signal-details">
-                <div class="signal-detail">
-                    <div class="signal-detail-label">Entry Reason</div>
-                    <div class="signal-detail-value">${this.truncateText(signal.entry_reason, 30)}</div>
+        if (isExceedenceSignal) {
+            // Handle exceedence signal structure (PML)
+            return `
+                <div class="signal-header">
+                    <div class="signal-symbol">${signal.symbol}</div>
+                    <div class="signal-type">${signal.signal_type}</div>
                 </div>
-                <div class="signal-detail">
-                    <div class="signal-detail-label">Position Size</div>
-                    <div class="signal-detail-value">${signal.position_size || 'N/A'}</div>
+                <div class="signal-details">
+                    <div class="signal-detail">
+                        <div class="signal-detail-label">Entry Reason</div>
+                        <div class="signal-detail-value">${this.truncateText(signal.entry_reason, 30)}</div>
+                    </div>
+                    <div class="signal-detail">
+                        <div class="signal-detail-label">Current Price</div>
+                        <div class="signal-detail-value">$${parseFloat(signal.current_price || 0).toFixed(2)}</div>
+                    </div>
+                    <div class="signal-detail">
+                        <div class="signal-detail-label">Position in Range</div>
+                        <div class="signal-detail-value">${parseFloat(signal.position_in_range || 0).toFixed(1)}%</div>
+                    </div>
+                    <div class="signal-detail">
+                        <div class="signal-detail-label">Low Exceedance</div>
+                        <div class="signal-detail-value">${parseFloat(signal.low_exceedance || 0).toFixed(3)}</div>
+                    </div>
+                    <div class="signal-detail">
+                        <div class="signal-detail-label">Market Condition</div>
+                        <div class="signal-detail-value">${signal.market_condition || 'N/A'}</div>
+                    </div>
+                    <div class="signal-detail">
+                        <div class="signal-detail-label">Position Size</div>
+                        <div class="signal-detail-value">${signal.position_size || 'N/A'}</div>
+                    </div>
                 </div>
-                <div class="signal-detail">
-                    <div class="signal-detail-label">Stop Loss</div>
-                    <div class="signal-detail-value">${signal.stop_loss && signal.stop_loss > 0 ? '$' + parseFloat(signal.stop_loss).toFixed(2) : 'N/A'}</div>
+                <div class="signal-status">
+                    <div class="signal-status-item ${signal.has_trade_signal ? 'active' : 'inactive'}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Trade Signal</span>
+                    </div>
+                    <div class="signal-status-item ${signal.auto_approve ? 'active' : 'inactive'}">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Auto Approve</span>
+                    </div>
                 </div>
-                <div class="signal-detail">
-                    <div class="signal-detail-label">Target</div>
-                    <div class="signal-detail-value">${signal.profit_target && signal.profit_target > 0 ? '$' + parseFloat(signal.profit_target).toFixed(2) : 'N/A'}</div>
+            `;
+        } else {
+            // Handle traditional signal structure (Iron Condor, Divergence)
+            const confidencePercent = Math.round((signal.confidence || 0) * 100);
+            
+            return `
+                <div class="signal-header">
+                    <div class="signal-symbol">${signal.symbol}</div>
+                    <div class="signal-type">${signal.signal_type}</div>
                 </div>
-            </div>
-            <div class="signal-confidence">
-                <div class="confidence-bar">
-                    <div class="confidence-fill" style="width: ${confidencePercent}%"></div>
+                <div class="signal-details">
+                    <div class="signal-detail">
+                        <div class="signal-detail-label">Entry Reason</div>
+                        <div class="signal-detail-value">${this.truncateText(signal.entry_reason, 30)}</div>
+                    </div>
+                    <div class="signal-detail">
+                        <div class="signal-detail-label">Position Size</div>
+                        <div class="signal-detail-value">${signal.position_size || 'N/A'}</div>
+                    </div>
+                    <div class="signal-detail">
+                        <div class="signal-detail-label">Stop Loss</div>
+                        <div class="signal-detail-value">${signal.stop_loss && signal.stop_loss > 0 ? '$' + parseFloat(signal.stop_loss).toFixed(2) : 'N/A'}</div>
+                    </div>
+                    <div class="signal-detail">
+                        <div class="signal-detail-label">Target</div>
+                        <div class="signal-detail-value">${signal.profit_target && signal.profit_target > 0 ? '$' + parseFloat(signal.profit_target).toFixed(2) : 'N/A'}</div>
+                    </div>
                 </div>
-                <div class="confidence-text">${confidencePercent}%</div>
-            </div>
-        `;
+                <div class="signal-confidence">
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: ${confidencePercent}%"></div>
+                    </div>
+                    <div class="confidence-text">${confidencePercent}%</div>
+                </div>
+            `;
+        }
     }
     
     truncateText(text, maxLength) {

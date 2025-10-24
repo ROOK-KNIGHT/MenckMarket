@@ -36,7 +36,7 @@ class DatabaseQueryHandler:
         self.db_config = {
             'host': 'localhost',
             'database': 'volflow_options',
-            'user': 'eduardomenck',
+            'user': 'isaac',
             'password': None  # Will use peer authentication
         }
         
@@ -249,7 +249,7 @@ class DatabaseQueryHandler:
             return []
 
     def get_pml_signals(self) -> List[Dict[str, Any]]:
-        """Get PML signals from database."""
+        """Get PML signals from database using exceedence structure."""
         try:
             conn = self.get_connection()
             if not conn:
@@ -266,20 +266,30 @@ class DatabaseQueryHandler:
             
             signals = []
             for signal in signals_data:
+                # Parse existing_position JSON if it exists
+                existing_position = {}
+                if signal['existing_position']:
+                    try:
+                        existing_position = json.loads(signal['existing_position'])
+                    except (json.JSONDecodeError, TypeError):
+                        existing_position = {}
+                
                 signals.append({
                     'symbol': signal['symbol'],
                     'signal_type': signal['signal_type'],
-                    'confidence': signal['confidence'],
                     'entry_reason': signal['entry_reason'],
                     'position_size': signal['position_size'],
-                    'stop_loss': signal['stop_loss'],
-                    'profit_target': signal['profit_target'],
-                    'strike': signal['strike'],
-                    'option_type': signal['option_type'],
-                    'pml_price': signal['pml_price'],
-                    'potential_profit': signal['potential_profit'],
-                    'max_loss': signal['max_loss'],
                     'auto_approve': signal['auto_approve'],
+                    'current_price': float(signal['current_price']) if signal['current_price'] else 0.0,
+                    'position_in_range': float(signal['position_in_range']) if signal['position_in_range'] else 0.0,
+                    'high_exceedance': float(signal['high_exceedance']) if signal['high_exceedance'] else 0.0,
+                    'low_exceedance': float(signal['low_exceedance']) if signal['low_exceedance'] else 0.0,
+                    'market_condition': signal['market_condition'],
+                    'has_trade_signal': signal['has_trade_signal'],
+                    'is_scale_in': signal['is_scale_in'],
+                    'existing_position': existing_position,
+                    'signal_id': signal['signal_id'],
+                    'strategy_name': signal['strategy_name'],
                     'timestamp': signal['timestamp'].isoformat() if signal['timestamp'] else None
                 })
             
