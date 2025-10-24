@@ -465,8 +465,7 @@ class AccountDataHandler:
             Dict[str, Any]: Exported account data
         """
         if not filename:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"account_data_{timestamp}.json"
+            filename = f"account_data.json"
         
         # Get all account data
         accounts = self.get_all_accounts(include_positions=include_positions)

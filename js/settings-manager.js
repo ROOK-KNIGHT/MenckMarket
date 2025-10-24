@@ -4,6 +4,7 @@ class SettingsManager {
         this.settings = {};
         this.notificationSettings = {};
         this.securitySettings = {};
+        this.alertsConfig = null;
         this.init();
     }
     
@@ -11,6 +12,7 @@ class SettingsManager {
         console.log('Initializing settings manager...');
         this.bindEvents();
         this.loadSettings();
+        this.loadAlertsConfig();
         this.initializeNotificationToggles();
     }
     
@@ -73,6 +75,8 @@ class SettingsManager {
     }
     
     bindNotificationEvents() {
+        console.log('🔔 Binding notification events...');
+        
         // Notification channel toggles
         const notificationToggles = [
             'enable-email-notifications',
@@ -82,10 +86,14 @@ class SettingsManager {
         
         notificationToggles.forEach(toggleId => {
             const toggle = document.getElementById(toggleId);
+            console.log(`🔔 Setting up toggle for ${toggleId}:`, toggle);
             if (toggle) {
                 this.setupToggleEventListeners(toggle, toggleId, (toggleElement) => {
+                    console.log(`🔔 Notification toggle changed: ${toggleId}`, toggleElement.checked);
                     this.handleNotificationToggle(toggleElement);
                 });
+            } else {
+                console.warn(`🔔 Toggle element not found: ${toggleId}`);
             }
         });
         
@@ -379,6 +387,9 @@ class SettingsManager {
         // Auto-save settings
         this.saveNotificationSettings();
         
+        // Auto-save to alerts config JSON file
+        this.saveAlertsConfig();
+        
         // Show toast notification
         const channelName = this.getNotificationChannelName(toggleId);
         const status = isEnabled ? 'enabled' : 'disabled';
@@ -428,6 +439,9 @@ class SettingsManager {
         // Auto-save settings
         this.saveNotificationSettings();
         
+        // Auto-save to alerts config JSON file
+        this.saveAlertsConfig();
+        
         // Show toast notification
         const alertName = this.getAlertTypeName(toggleId);
         const status = isEnabled ? 'enabled' : 'disabled';
@@ -449,6 +463,9 @@ class SettingsManager {
         // Auto-save settings
         this.saveNotificationSettings();
         
+        // Auto-save to alerts config JSON file
+        this.saveAlertsConfig();
+        
         const status = isEnabled ? 'enabled' : 'disabled';
         this.showToast(`Quiet hours ${status}`, isEnabled ? 'success' : 'warning');
     }
@@ -456,6 +473,10 @@ class SettingsManager {
     handleAlertFrequencyChange(frequency) {
         this.notificationSettings['alert-frequency'] = frequency;
         this.saveNotificationSettings();
+        
+        // Auto-save to alerts config JSON file
+        this.saveAlertsConfig();
+        
         this.showToast(`Alert frequency set to ${frequency}`, 'info');
     }
     
@@ -468,6 +489,9 @@ class SettingsManager {
         
         // Auto-save settings
         this.saveNotificationSettings();
+        
+        // Auto-save to alerts config JSON file
+        this.saveAlertsConfig();
     }
     
     getNotificationChannelName(toggleId) {
@@ -926,6 +950,34 @@ class SettingsManager {
             console.log('📧 Processing notification test result');
             this.handleNotificationTestResult(data.notification_test_result);
         }
+        
+        if (data.alerts_config_data) {
+            console.log('🔔 Processing alerts config data from WebSocket');
+            this.applyAlertsConfiguration(data.config);
+        }
+        
+        if (data.alerts_config_saved) {
+            console.log('✅ Alerts configuration saved successfully');
+            this.showToast('Alerts configuration saved successfully', 'success');
+        }
+        
+        if (data.alerts_config_updated) {
+            console.log('🔔 Processing alerts config update from WebSocket');
+            this.applyAlertsConfiguration(data.config);
+        }
+        
+        if (data.password_changed) {
+            console.log('🔐 Password changed successfully');
+            this.showToast('Password changed successfully', 'success');
+        }
+        
+        if (data.logout_response) {
+            console.log('👋 Logout successful');
+            this.showToast('Logout successful', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
     }
     
     displayLoginHistory(loginHistory) {
@@ -942,6 +994,220 @@ class SettingsManager {
         }
     }
     
+    // Alerts Configuration Management
+    async loadAlertsConfig() {
+        console.log('Loading alerts configuration...');
+        
+        try {
+            // Request alerts config from WebSocket
+            if (window.volflowApp?.modules?.websocket?.isConnected) {
+                const message = {
+                    type: 'get_alerts_config',
+                    timestamp: new Date().toISOString(),
+                    user: 'web_interface'
+                };
+                
+                window.volflowApp.modules.websocket.send(message);
+                console.log('📡 Alerts config request sent via WebSocket');
+            }
+        } catch (error) {
+            console.error('Error loading alerts config:', error);
+        }
+    }
+    
+    async saveAlertsConfig() {
+        console.log('Saving alerts configuration...');
+        
+        try {
+            const alertsConfig = this.getAlertsConfiguration();
+            
+            // Send alerts config to WebSocket
+            if (window.volflowApp?.modules?.websocket?.isConnected) {
+                const message = {
+                    type: 'save_alerts_config',
+                    config: alertsConfig,
+                    timestamp: new Date().toISOString(),
+                    user: 'web_interface'
+                };
+                
+                window.volflowApp.modules.websocket.send(message);
+                console.log('📡 Alerts config save request sent via WebSocket');
+            }
+            
+            this.showToast('Alerts configuration saved successfully', 'success');
+            
+        } catch (error) {
+            console.error('Error saving alerts config:', error);
+            this.showToast('Failed to save alerts configuration', 'error');
+        }
+    }
+    
+    getAlertsConfiguration() {
+        return {
+            alert_types: {
+                maximum_loss_alert: {
+                    enabled: this.notificationSettings['enable-max-loss-alert'] || false,
+                    loss_threshold: {
+                        value: parseFloat(this.notificationSettings['max-loss-threshold']) || 1000
+                    }
+                },
+                volatility_spike_alert: {
+                    enabled: this.notificationSettings['enable-volatility-alert'] || false,
+                    vix_threshold: {
+                        value: parseFloat(this.notificationSettings['vix-alert-threshold']) || 30
+                    }
+                },
+                position_size_alert: {
+                    enabled: this.notificationSettings['enable-position-size-alert'] || false
+                },
+                strategy_signal_alert: {
+                    enabled: this.notificationSettings['enable-signal-alert'] || false
+                }
+            },
+            notification_channels: {
+                email_notifications: {
+                    enabled: this.notificationSettings['enable-email-notifications'] || false,
+                    email_address: {
+                        value: this.notificationSettings['notification-email'] || ''
+                    }
+                },
+                telegram_notifications: {
+                    enabled: this.notificationSettings['enable-telegram-notifications'] || false,
+                    bot_token: {
+                        value: this.notificationSettings['telegram-bot-token'] || ''
+                    },
+                    chat_id: {
+                        value: this.notificationSettings['telegram-chat-id'] || ''
+                    }
+                },
+                slack_notifications: {
+                    enabled: this.notificationSettings['enable-slack-notifications'] || false,
+                    webhook_url: {
+                        value: this.notificationSettings['slack-webhook-url'] || ''
+                    },
+                    channel: {
+                        value: this.notificationSettings['slack-channel'] || ''
+                    }
+                }
+            },
+            notification_preferences: {
+                alert_frequency: {
+                    value: this.notificationSettings['alert-frequency'] || '5min'
+                },
+                quiet_hours: {
+                    enabled: this.notificationSettings['enable-quiet-hours'] || false,
+                    start_time: this.notificationSettings['quiet-hours-start'] || '22:00',
+                    end_time: this.notificationSettings['quiet-hours-end'] || '08:00'
+                }
+            },
+            updated_by: 'web_interface'
+        };
+    }
+    
+    applyAlertsConfiguration(config) {
+        console.log('Applying alerts configuration:', config);
+        
+        try {
+            const alertsNotifications = config.alerts_notifications || {};
+            
+            // Apply alert types
+            const alertTypes = alertsNotifications.alert_types || {};
+            
+            if (alertTypes.maximum_loss_alert) {
+                const toggle = document.getElementById('enable-max-loss-alert');
+                const threshold = document.getElementById('max-loss-threshold');
+                if (toggle) toggle.checked = alertTypes.maximum_loss_alert.enabled || false;
+                if (threshold && alertTypes.maximum_loss_alert.loss_threshold) {
+                    threshold.value = alertTypes.maximum_loss_alert.loss_threshold.value || 1000;
+                }
+            }
+            
+            if (alertTypes.volatility_spike_alert) {
+                const toggle = document.getElementById('enable-volatility-alert');
+                const threshold = document.getElementById('vix-alert-threshold');
+                if (toggle) toggle.checked = alertTypes.volatility_spike_alert.enabled || false;
+                if (threshold && alertTypes.volatility_spike_alert.vix_threshold) {
+                    threshold.value = alertTypes.volatility_spike_alert.vix_threshold.value || 30;
+                }
+            }
+            
+            if (alertTypes.position_size_alert) {
+                const toggle = document.getElementById('enable-position-size-alert');
+                if (toggle) toggle.checked = alertTypes.position_size_alert.enabled || false;
+            }
+            
+            if (alertTypes.strategy_signal_alert) {
+                const toggle = document.getElementById('enable-signal-alert');
+                if (toggle) toggle.checked = alertTypes.strategy_signal_alert.enabled || false;
+            }
+            
+            // Apply notification channels
+            const channels = alertsNotifications.notification_channels || {};
+            
+            if (channels.email_notifications) {
+                const toggle = document.getElementById('enable-email-notifications');
+                const emailInput = document.getElementById('notification-email');
+                if (toggle) toggle.checked = channels.email_notifications.enabled || false;
+                if (emailInput && channels.email_notifications.email_address) {
+                    emailInput.value = channels.email_notifications.email_address.value || '';
+                }
+            }
+            
+            if (channels.telegram_notifications) {
+                const toggle = document.getElementById('enable-telegram-notifications');
+                const botTokenInput = document.getElementById('telegram-bot-token');
+                const chatIdInput = document.getElementById('telegram-chat-id');
+                if (toggle) toggle.checked = channels.telegram_notifications.enabled || false;
+                if (botTokenInput && channels.telegram_notifications.bot_token) {
+                    botTokenInput.value = channels.telegram_notifications.bot_token.value || '';
+                }
+                if (chatIdInput && channels.telegram_notifications.chat_id) {
+                    chatIdInput.value = channels.telegram_notifications.chat_id.value || '';
+                }
+            }
+            
+            if (channels.slack_notifications) {
+                const toggle = document.getElementById('enable-slack-notifications');
+                const webhookInput = document.getElementById('slack-webhook-url');
+                const channelInput = document.getElementById('slack-channel');
+                if (toggle) toggle.checked = channels.slack_notifications.enabled || false;
+                if (webhookInput && channels.slack_notifications.webhook_url) {
+                    webhookInput.value = channels.slack_notifications.webhook_url.value || '';
+                }
+                if (channelInput && channels.slack_notifications.channel) {
+                    channelInput.value = channels.slack_notifications.channel.value || '';
+                }
+            }
+            
+            // Apply notification preferences
+            const preferences = alertsNotifications.notification_preferences || {};
+            
+            if (preferences.alert_frequency) {
+                const frequencySelect = document.getElementById('alert-frequency');
+                if (frequencySelect) {
+                    frequencySelect.value = preferences.alert_frequency.value || '5min';
+                }
+            }
+            
+            if (preferences.quiet_hours) {
+                const toggle = document.getElementById('enable-quiet-hours');
+                const startTime = document.getElementById('quiet-hours-start');
+                const endTime = document.getElementById('quiet-hours-end');
+                if (toggle) toggle.checked = preferences.quiet_hours.enabled || false;
+                if (startTime) startTime.value = preferences.quiet_hours.start_time || '22:00';
+                if (endTime) endTime.value = preferences.quiet_hours.end_time || '08:00';
+            }
+            
+            // Store the config internally
+            this.alertsConfig = config;
+            
+            console.log('✅ Alerts configuration applied successfully');
+            
+        } catch (error) {
+            console.error('Error applying alerts configuration:', error);
+        }
+    }
+    
     showToast(message, type = 'info') {
         // Use the global toast function if available
         if (window.showToast) {
@@ -951,3 +1217,6 @@ class SettingsManager {
         }
     }
 }
+
+// Export SettingsManager to global scope
+window.SettingsManager = SettingsManager;

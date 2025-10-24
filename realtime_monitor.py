@@ -82,7 +82,9 @@ class RealTimeMonitor:
             'database': 5.0,            # Every 5 seconds
             'exceedance_monitor': 2.0,  # Every 2 seconds - monitor exceedance strategy
             'auto_timer_monitor': 30.0, # Every 30 seconds - monitor auto-timer flags and market hours
-            'api_status': 30.0          # Every 30 seconds - monitor API authentication status
+            'api_status': 30.0,         # Every 30 seconds - monitor API authentication status
+            'alert_monitor': 60.0,      # Dynamic interval based on alerts_config.json frequency setting
+            'vix_data': 300.0           # Every 5 minutes (300 seconds) - fetch VIX data
         }
         
         # Last update tracking for each process
@@ -228,6 +230,10 @@ class RealTimeMonitor:
                             self._monitor_auto_timer_strategies()
                         elif process_name == 'api_status':
                             self._monitor_api_status()
+                        elif process_name == 'alert_monitor':
+                            self._monitor_alerts()
+                        elif process_name == 'vix_data':
+                            self._run_vix_data_script()
                         
                         self.last_updates[process_name] = current_time
                         self.logger.debug(f"✅ {process_name} process updated")
@@ -368,7 +374,9 @@ class RealTimeMonitor:
             'database',          # Every 5 seconds
             'exceedance_monitor', # Every 2 seconds - monitor exceedance strategy
             'auto_timer_monitor', # Every 30 seconds - monitor auto-timer flags and market hours
-            'api_status'         # Every 30 seconds - monitor API authentication status
+            'api_status',        # Every 30 seconds - monitor API authentication status
+            'alert_monitor',     # Dynamic interval based on alerts_config.json frequency setting
+            'vix_data'           # Every 5 minutes (300 seconds) - fetch VIX data
         ]
         
         self.logger.info(f"🔥 Starting {len(processes_to_start)} essential processes...")
@@ -875,6 +883,100 @@ class RealTimeMonitor:
             # Update cache with error status
             with self.data_locks['api_status']:
                 self.data_cache['api_status'] = error_status
+
+    def _monitor_alerts(self):
+        """Monitor trading alerts and send email notifications based on alerts_config.json frequency setting."""
+        try:
+            # Update the alert monitor interval dynamically based on alerts_config.json
+            self._update_alert_monitor_interval()
+            
+            # Import and use the alert monitor
+            try:
+                from alert_monitor import AlertMonitor
+                
+                # Create alert monitor instance (lazy loading)
+                if not hasattr(self, '_alert_monitor'):
+                    self._alert_monitor = AlertMonitor()
+                    self.logger.info("🔔 Alert monitor initialized")
+                
+                # Run alert checks
+                alerts_triggered = self._alert_monitor.run_alert_checks()
+                
+                if alerts_triggered > 0:
+                    self.logger.info(f"🚨 Alert monitor: {alerts_triggered} alerts triggered and processed")
+                else:
+                    self.logger.debug("🔔 Alert monitor: No alerts triggered")
+                
+            except ImportError as e:
+                self.logger.error(f"❌ Could not import alert monitor: {e}")
+            except Exception as e:
+                self.logger.error(f"❌ Error in alert monitor: {e}")
+                
+        except Exception as e:
+            self.logger.error(f"❌ Error monitoring alerts: {e}")
+    
+    def _update_alert_monitor_interval(self):
+        """Update the alert monitor interval based on alerts_config.json frequency setting."""
+        try:
+            alerts_config_file = 'alerts_config.json'
+            if not os.path.exists(alerts_config_file):
+                self.logger.debug(f"📋 Alerts config file not found: {alerts_config_file}")
+                return
+            
+            # Read alerts config
+            with open(alerts_config_file, 'r') as f:
+                alerts_config = json.load(f)
+            
+            # Get alert frequency setting
+            prefs = alerts_config.get('alerts_notifications', {}).get('notification_preferences', {})
+            frequency = prefs.get('alert_frequency', {}).get('value', '5min')
+            
+            # Convert frequency to seconds
+            frequency_seconds = {
+                'immediate': 10,    # Check every 10 seconds for immediate alerts
+                '5min': 300,        # Every 5 minutes
+                '15min': 900,       # Every 15 minutes
+                '30min': 1800,      # Every 30 minutes
+                '1hour': 3600       # Every 1 hour
+            }.get(frequency, 300)  # Default to 5 minutes
+            
+            # Update the interval if it has changed
+            current_interval = self.update_intervals.get('alert_monitor', 60.0)
+            if current_interval != frequency_seconds:
+                self.update_intervals['alert_monitor'] = frequency_seconds
+                self.logger.info(f"🔔 Alert monitor interval updated to {frequency_seconds}s (frequency: {frequency})")
+            else:
+                self.logger.debug(f"🔔 Alert monitor interval unchanged: {frequency_seconds}s (frequency: {frequency})")
+                
+        except Exception as e:
+            self.logger.error(f"❌ Error updating alert monitor interval: {e}")
+
+    def _run_vix_data_script(self):
+        """Run VIX data handler script to fetch and update VIX data."""
+        try:
+            self.logger.debug("📊 Running VIX data handler...")
+            
+            # Run VIX data handler in single mode
+            result = subprocess.run([
+                'python3', 'vix_data_handler.py', '--single'
+            ], capture_output=True, text=True, timeout=120)  # 2 minute timeout for VIX data
+            
+            if result.returncode == 0:
+                self.logger.info("✅ VIX data updated successfully")
+                # Log VIX value if available in output
+                if "VIX:" in result.stdout:
+                    vix_line = [line for line in result.stdout.split('\n') if 'VIX:' in line]
+                    if vix_line:
+                        self.logger.info(f"📊 {vix_line[0].strip()}")
+            else:
+                self.logger.warning(f"⚠️ VIX data handler failed with return code {result.returncode}")
+                if result.stderr:
+                    self.logger.warning(f"   Error: {result.stderr.strip()}")
+                    
+        except subprocess.TimeoutExpired:
+            self.logger.error("❌ VIX data handler timed out after 2 minutes")
+        except Exception as e:
+            self.logger.error(f"❌ Error running VIX data handler: {e}")
 
     def _save_trading_config(self, config: dict):
         """Save the updated trading config to file."""

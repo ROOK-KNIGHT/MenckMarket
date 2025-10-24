@@ -1,0 +1,14 @@
+{
+  "auto_logout": {
+    "enabled": false,
+    "timeout": 30
+  },
+  "two_factor_auth": {
+    "enabled": false
+  },
+  "timestamp": "2025-10-24T19:13:04.288Z",
+  "metadata": {
+    "last_updated": "2025-10-24T12:13:04.291913",
+    "updated_by": "settings_manager"
+  }
+}

@@ -1,8 +1,1064 @@
 {
   "strategy_name": "Transaction_Data",
-  "last_updated": "2025-10-24T06:02:49.704185",
-  "total_transactions": 682,
+  "last_updated": "2025-10-24T13:24:21.584303",
+  "total_transactions": 778,
   "transactions": [
+    {
+      "transaction_id": "105562439026",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": -28.0,
+      "price": 263.4555,
+      "amount": 7376.75,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T18:58:01+00:00"
+    },
+    {
+      "transaction_id": "105562438375",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": 28.0,
+      "price": 263.5568,
+      "amount": -7379.59,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T18:54:56+00:00"
+    },
+    {
+      "transaction_id": "105524492555",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": -33.0,
+      "price": 223.567,
+      "amount": 7377.7,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T15:02:47+00:00"
+    },
+    {
+      "transaction_id": "105518283802",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": -80.0,
+      "price": 185.0901,
+      "amount": 14807.2,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:38:09+00:00"
+    },
+    {
+      "transaction_id": "105516067244",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": -33.0,
+      "price": 223.94,
+      "amount": 7390.01,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:26:29+00:00"
+    },
+    {
+      "transaction_id": "105516067138",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": -28.0,
+      "price": 261.19,
+      "amount": 7313.32,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:26:11+00:00"
+    },
+    {
+      "transaction_id": "105513746648",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": -40.0,
+      "price": 184.44,
+      "amount": 7377.59,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:25:22+00:00"
+    },
+    {
+      "transaction_id": "105513746428",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -17.0,
+      "price": 441.85,
+      "amount": 7511.45,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:25:04+00:00"
+    },
+    {
+      "transaction_id": "105513746422",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 17.0,
+      "price": 441.7099,
+      "amount": -7509.07,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:25:01+00:00"
+    },
+    {
+      "transaction_id": "105513746410",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": 28.0,
+      "price": 261.1153,
+      "amount": -7311.23,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:25:00+00:00"
+    },
+    {
+      "transaction_id": "105513746398",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 184.3899,
+      "amount": -7375.6,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:25:00+00:00"
+    },
+    {
+      "transaction_id": "105513746343",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 33.0,
+      "price": 223.825,
+      "amount": -7386.23,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:24:58+00:00"
+    },
+    {
+      "transaction_id": "105513745706",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": -28.0,
+      "price": 260.99,
+      "amount": 7307.72,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:23:43+00:00"
+    },
+    {
+      "transaction_id": "105513743434",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": -30.0,
+      "price": 250.05,
+      "amount": 7501.5,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:20:03+00:00"
+    },
+    {
+      "transaction_id": "105513743408",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": 30.0,
+      "price": 249.932,
+      "amount": -7497.96,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:19:57+00:00"
+    },
+    {
+      "transaction_id": "105513743420",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": 28.0,
+      "price": 260.9199,
+      "amount": -7305.76,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:19:57+00:00"
+    },
+    {
+      "transaction_id": "105513743396",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 33.0,
+      "price": 223.89,
+      "amount": -7388.37,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:19:56+00:00"
+    },
+    {
+      "transaction_id": "105513742482",
+      "symbol": "PLTR",
+      "transaction_type": "TRADE",
+      "quantity": -40.0,
+      "price": 185.62,
+      "amount": 7424.79,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:17:58+00:00"
+    },
+    {
+      "transaction_id": "105510816461",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": -30.0,
+      "price": 249.69,
+      "amount": 7490.7,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:16:07+00:00"
+    },
+    {
+      "transaction_id": "105510816098",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": -11.0,
+      "price": 260.59,
+      "amount": 2866.49,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:15:24+00:00"
+    },
+    {
+      "transaction_id": "105510816100",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": -7.0,
+      "price": 260.59,
+      "amount": 1824.13,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:15:24+00:00"
+    },
+    {
+      "transaction_id": "105510816096",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": -10.0,
+      "price": 260.59,
+      "amount": 2605.9,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:15:24+00:00"
+    },
+    {
+      "transaction_id": "105510815776",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": 30.0,
+      "price": 249.3913,
+      "amount": -7481.74,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:14:58+00:00"
+    },
+    {
+      "transaction_id": "105510815804",
+      "symbol": "PLTR",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 185.5904,
+      "amount": -7423.62,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:14:58+00:00"
+    },
+    {
+      "transaction_id": "105510815764",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": 28.0,
+      "price": 260.525,
+      "amount": -7294.7,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:14:57+00:00"
+    },
+    {
+      "transaction_id": "105510815719",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 17.0,
+      "price": 443.0799,
+      "amount": -7532.36,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:14:57+00:00"
+    },
+    {
+      "transaction_id": "105510815746",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 33.0,
+      "price": 224.2456,
+      "amount": -7400.1,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:14:57+00:00"
+    },
+    {
+      "transaction_id": "105510815759",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": -33.0,
+      "price": 224.33,
+      "amount": 7402.88,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:14:57+00:00"
+    },
+    {
+      "transaction_id": "105510815761",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -17.0,
+      "price": 443.08,
+      "amount": 7532.36,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:14:57+00:00"
+    },
+    {
+      "transaction_id": "105510814871",
+      "symbol": "PLTR",
+      "transaction_type": "TRADE",
+      "quantity": -40.0,
+      "price": 185.1918,
+      "amount": 7407.66,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:13:19+00:00"
+    },
+    {
+      "transaction_id": "105510813388",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -17.0,
+      "price": 442.31,
+      "amount": 7519.27,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:10:18+00:00"
+    },
+    {
+      "transaction_id": "105510813356",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": -33.0,
+      "price": 224.38,
+      "amount": 7404.53,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:10:15+00:00"
+    },
+    {
+      "transaction_id": "105510813267",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 184.9352,
+      "amount": -7397.41,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:09:58+00:00"
+    },
+    {
+      "transaction_id": "105510813259",
+      "symbol": "PLTR",
+      "transaction_type": "TRADE",
+      "quantity": -40.0,
+      "price": 185.05,
+      "amount": 7401.99,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:09:57+00:00"
+    },
+    {
+      "transaction_id": "105510813241",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 17.0,
+      "price": 441.941,
+      "amount": -7513.0,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:09:57+00:00"
+    },
+    {
+      "transaction_id": "105510813253",
+      "symbol": "PLTR",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 184.98,
+      "amount": -7399.2,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:09:57+00:00"
+    },
+    {
+      "transaction_id": "105510813229",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 33.0,
+      "price": 224.265,
+      "amount": -7400.75,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:09:56+00:00"
+    },
+    {
+      "transaction_id": "105507911256",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": -33.0,
+      "price": 224.03,
+      "amount": 7392.98,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:05:13+00:00"
+    },
+    {
+      "transaction_id": "105507911120",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 185.0299,
+      "amount": -7401.2,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:05:01+00:00"
+    },
+    {
+      "transaction_id": "105507911126",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": -40.0,
+      "price": 185.0348,
+      "amount": 7401.38,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:05:01+00:00"
+    },
+    {
+      "transaction_id": "105507911128",
+      "symbol": "PLTR",
+      "transaction_type": "TRADE",
+      "quantity": -40.0,
+      "price": 185.18,
+      "amount": 7407.19,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:05:01+00:00"
+    },
+    {
+      "transaction_id": "105507911100",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": -18.0,
+      "price": 251.18,
+      "amount": 4521.24,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:05:00+00:00"
+    },
+    {
+      "transaction_id": "105507911096",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": -8.0,
+      "price": 251.18,
+      "amount": 2009.44,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:05:00+00:00"
+    },
+    {
+      "transaction_id": "105507911098",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": -4.0,
+      "price": 251.18,
+      "amount": 1004.72,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:05:00+00:00"
+    },
+    {
+      "transaction_id": "105507911074",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -17.0,
+      "price": 440.2,
+      "amount": 7483.4,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:04:59+00:00"
+    },
+    {
+      "transaction_id": "105507911078",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": 30.0,
+      "price": 251.09,
+      "amount": -7532.7,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:04:59+00:00"
+    },
+    {
+      "transaction_id": "105507911063",
+      "symbol": "PLTR",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 185.1063,
+      "amount": -7404.25,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:04:59+00:00"
+    },
+    {
+      "transaction_id": "105507911032",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 33.0,
+      "price": 223.9463,
+      "amount": -7390.23,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:04:57+00:00"
+    },
+    {
+      "transaction_id": "105507911020",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 17.0,
+      "price": 440.1399,
+      "amount": -7482.38,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:04:56+00:00"
+    },
+    {
+      "transaction_id": "105507909607",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": -28.0,
+      "price": 260.36,
+      "amount": 7290.08,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:02:17+00:00"
+    },
+    {
+      "transaction_id": "105507909534",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -17.0,
+      "price": 441.54,
+      "amount": 7506.18,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:02:12+00:00"
+    },
+    {
+      "transaction_id": "105507908740",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": -24.0,
+      "price": 223.76,
+      "amount": 5370.23,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:00:41+00:00"
+    },
+    {
+      "transaction_id": "105507908736",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": -9.0,
+      "price": 223.76,
+      "amount": 2013.84,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:00:41+00:00"
+    },
+    {
+      "transaction_id": "105507908377",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": -30.0,
+      "price": 250.39,
+      "amount": 7511.7,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T14:00:00+00:00"
+    },
+    {
+      "transaction_id": "105507908365",
+      "symbol": "PLTR",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 185.605,
+      "amount": -7424.2,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:59:59+00:00"
+    },
+    {
+      "transaction_id": "105507908335",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": 30.0,
+      "price": 250.26,
+      "amount": -7507.8,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:59:58+00:00"
+    },
+    {
+      "transaction_id": "105507908348",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 185.6099,
+      "amount": -7424.4,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:59:58+00:00"
+    },
+    {
+      "transaction_id": "105507908275",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 17.0,
+      "price": 441.3399,
+      "amount": -7502.78,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:59:57+00:00"
+    },
+    {
+      "transaction_id": "105507908313",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": 28.0,
+      "price": 260.185,
+      "amount": -7285.18,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:59:57+00:00"
+    },
+    {
+      "transaction_id": "105507908293",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 33.0,
+      "price": 223.6571,
+      "amount": -7380.68,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:59:57+00:00"
+    },
+    {
+      "transaction_id": "105505236719",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -17.0,
+      "price": 442.3388,
+      "amount": 7519.76,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:56:37+00:00"
+    },
+    {
+      "transaction_id": "105505236409",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": -40.0,
+      "price": 185.7,
+      "amount": 7427.99,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:55:58+00:00"
+    },
+    {
+      "transaction_id": "105505236016",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": -29.0,
+      "price": 259.86,
+      "amount": 7535.94,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:55:12+00:00"
+    },
+    {
+      "transaction_id": "105505235940",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": -30.0,
+      "price": 249.37,
+      "amount": 7481.1,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:55:04+00:00"
+    },
+    {
+      "transaction_id": "105505235919",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": -33.0,
+      "price": 223.29,
+      "amount": 7368.56,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:55:01+00:00"
+    },
+    {
+      "transaction_id": "105505235835",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": 30.0,
+      "price": 249.2989,
+      "amount": -7478.97,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:54:59+00:00"
+    },
+    {
+      "transaction_id": "105505235876",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": 29.0,
+      "price": 259.8042,
+      "amount": -7534.32,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:54:59+00:00"
+    },
+    {
+      "transaction_id": "105505235862",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 185.625,
+      "amount": -7425.0,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:54:59+00:00"
+    },
+    {
+      "transaction_id": "105505235824",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -12.0,
+      "price": 441.51,
+      "amount": 5298.12,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:54:58+00:00"
+    },
+    {
+      "transaction_id": "105505235826",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -5.0,
+      "price": 441.51,
+      "amount": 2207.55,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:54:58+00:00"
+    },
+    {
+      "transaction_id": "105505235814",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 17.0,
+      "price": 441.5488,
+      "amount": -7506.33,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:54:58+00:00"
+    },
+    {
+      "transaction_id": "105505235783",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 33.0,
+      "price": 223.2018,
+      "amount": -7365.66,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:54:56+00:00"
+    },
+    {
+      "transaction_id": "105505234585",
+      "symbol": "PLTR",
+      "transaction_type": "TRADE",
+      "quantity": -40.0,
+      "price": 185.77,
+      "amount": 7430.79,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:52:49+00:00"
+    },
+    {
+      "transaction_id": "105505234354",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": -30.0,
+      "price": 248.18,
+      "amount": 7445.4,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:52:23+00:00"
+    },
+    {
+      "transaction_id": "105505233670",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": -33.0,
+      "price": 223.31,
+      "amount": 7369.22,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:51:21+00:00"
+    },
+    {
+      "transaction_id": "105505233607",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": 30.0,
+      "price": 247.629,
+      "amount": -7428.87,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:51:16+00:00"
+    },
+    {
+      "transaction_id": "105505233595",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 17.0,
+      "price": 442.58,
+      "amount": -7523.86,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:51:15+00:00"
+    },
+    {
+      "transaction_id": "105505233581",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": -29.0,
+      "price": 259.44,
+      "amount": 7523.76,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:51:15+00:00"
+    },
+    {
+      "transaction_id": "105505233583",
+      "symbol": "PLTR",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 185.55,
+      "amount": -7422.0,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:51:15+00:00"
+    },
+    {
+      "transaction_id": "105505233569",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": 29.0,
+      "price": 259.465,
+      "amount": -7524.49,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:51:14+00:00"
+    },
+    {
+      "transaction_id": "105505233553",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 185.4997,
+      "amount": -7419.99,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:51:14+00:00"
+    },
+    {
+      "transaction_id": "105505233566",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": -40.0,
+      "price": 185.5345,
+      "amount": 7421.37,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:51:14+00:00"
+    },
+    {
+      "transaction_id": "105505233531",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 33.0,
+      "price": 223.1599,
+      "amount": -7364.28,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:51:13+00:00"
+    },
+    {
+      "transaction_id": "105502400238",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": -33.0,
+      "price": 223.84,
+      "amount": 7386.71,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:45:42+00:00"
+    },
+    {
+      "transaction_id": "105502397320",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": -26.0,
+      "price": 259.84,
+      "amount": 6755.84,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:41:04+00:00"
+    },
+    {
+      "transaction_id": "105502397298",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": -2.0,
+      "price": 259.84,
+      "amount": 519.68,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:41:02+00:00"
+    },
+    {
+      "transaction_id": "105500271780",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": -30.0,
+      "price": 249.93,
+      "amount": 7497.9,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:40:18+00:00"
+    },
+    {
+      "transaction_id": "105500271580",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": -40.0,
+      "price": 185.67,
+      "amount": 7426.79,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:40:03+00:00"
+    },
+    {
+      "transaction_id": "105500271552",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": 30.0,
+      "price": 249.405,
+      "amount": -7482.15,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:40:02+00:00"
+    },
+    {
+      "transaction_id": "105500271558",
+      "symbol": "PLTR",
+      "transaction_type": "TRADE",
+      "quantity": -40.0,
+      "price": 185.17,
+      "amount": 7406.79,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:40:02+00:00"
+    },
+    {
+      "transaction_id": "105500271513",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 16.0,
+      "price": 443.4199,
+      "amount": -7094.72,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:40:01+00:00"
+    },
+    {
+      "transaction_id": "105500271536",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -16.0,
+      "price": 443.57,
+      "amount": 7097.12,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:40:01+00:00"
+    },
+    {
+      "transaction_id": "105500271540",
+      "symbol": "NVDA",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 185.57,
+      "amount": -7422.8,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:40:01+00:00"
+    },
+    {
+      "transaction_id": "105500271497",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 33.0,
+      "price": 223.7402,
+      "amount": -7383.43,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:40:01+00:00"
+    },
+    {
+      "transaction_id": "105500271477",
+      "symbol": "AAPL",
+      "transaction_type": "TRADE",
+      "quantity": 28.0,
+      "price": 259.635,
+      "amount": -7269.78,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:40:00+00:00"
+    },
+    {
+      "transaction_id": "105500271454",
+      "symbol": "PLTR",
+      "transaction_type": "TRADE",
+      "quantity": 40.0,
+      "price": 185.0787,
+      "amount": -7403.15,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-24T13:40:00+00:00"
+    },
     {
       "transaction_id": "105478362534",
       "symbol": "AMZN",
@@ -37,23 +1093,23 @@
       "timestamp": "2025-10-23T19:55:00+00:00"
     },
     {
-      "transaction_id": "105476318621",
-      "symbol": "TSLA",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 448.655,
-      "amount": -448.66,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-23T19:54:57+00:00"
-    },
-    {
       "transaction_id": "105476318649",
       "symbol": "AAPL",
       "transaction_type": "TRADE",
       "quantity": 1.0,
       "price": 259.575,
       "amount": -259.58,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-23T19:54:57+00:00"
+    },
+    {
+      "transaction_id": "105476318621",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 448.655,
+      "amount": -448.66,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-23T19:54:57+00:00"
@@ -213,17 +1269,6 @@
       "timestamp": "2025-10-23T18:29:56+00:00"
     },
     {
-      "transaction_id": "105460836645",
-      "symbol": "AMD",
-      "transaction_type": "TRADE",
-      "quantity": -119.0,
-      "price": 235.3567,
-      "amount": 28007.43,
-      "fees": 0.02,
-      "account": "Account 1",
-      "timestamp": "2025-10-23T18:28:01+00:00"
-    },
-    {
       "transaction_id": "105460836647",
       "symbol": "AMD",
       "transaction_type": "TRADE",
@@ -231,6 +1276,17 @@
       "price": 235.3567,
       "amount": 89670.84,
       "fees": 0.06,
+      "account": "Account 1",
+      "timestamp": "2025-10-23T18:28:01+00:00"
+    },
+    {
+      "transaction_id": "105460836645",
+      "symbol": "AMD",
+      "transaction_type": "TRADE",
+      "quantity": -119.0,
+      "price": 235.3567,
+      "amount": 28007.43,
+      "fees": 0.02,
       "account": "Account 1",
       "timestamp": "2025-10-23T18:28:01+00:00"
     },
@@ -521,23 +1577,23 @@
       "timestamp": "2025-10-23T17:10:31+00:00"
     },
     {
-      "transaction_id": "105449966144",
-      "symbol": "TSLA",
-      "transaction_type": "TRADE",
-      "quantity": -1.0,
-      "price": 446.95,
-      "amount": 446.95,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-23T17:10:08+00:00"
-    },
-    {
       "transaction_id": "105449966148",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": -1.0,
       "price": 220.19,
       "amount": 220.19,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-23T17:10:08+00:00"
+    },
+    {
+      "transaction_id": "105449966144",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -1.0,
+      "price": 446.95,
+      "amount": 446.95,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-23T17:10:08+00:00"
@@ -554,23 +1610,23 @@
       "timestamp": "2025-10-23T17:09:57+00:00"
     },
     {
-      "transaction_id": "105449966060",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 220.105,
-      "amount": -220.11,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-23T17:09:56+00:00"
-    },
-    {
       "transaction_id": "105449966072",
       "symbol": "AAPL",
       "transaction_type": "TRADE",
       "quantity": 1.0,
       "price": 259.96,
       "amount": -259.96,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-23T17:09:56+00:00"
+    },
+    {
+      "transaction_id": "105449966060",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 220.105,
+      "amount": -220.11,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-23T17:09:56+00:00"
@@ -862,12 +1918,12 @@
       "timestamp": "2025-10-23T15:55:53+00:00"
     },
     {
-      "transaction_id": "105439838487",
-      "symbol": "TSLA",
+      "transaction_id": "105439838475",
+      "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": 1.0,
-      "price": 432.875,
-      "amount": -432.88,
+      "price": 220.0988,
+      "amount": -220.1,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-23T15:54:58+00:00"
@@ -884,12 +1940,12 @@
       "timestamp": "2025-10-23T15:54:58+00:00"
     },
     {
-      "transaction_id": "105439838475",
-      "symbol": "AMZN",
+      "transaction_id": "105439838487",
+      "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": 1.0,
-      "price": 220.0988,
-      "amount": -220.1,
+      "price": 432.875,
+      "amount": -432.88,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-23T15:54:58+00:00"
@@ -994,23 +2050,23 @@
       "timestamp": "2025-10-23T15:44:57+00:00"
     },
     {
-      "transaction_id": "105437244843",
-      "symbol": "TSLA",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 431.26,
-      "amount": -431.26,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-23T15:44:56+00:00"
-    },
-    {
       "transaction_id": "105437244831",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": 1.0,
       "price": 219.4741,
       "amount": -219.47,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-23T15:44:56+00:00"
+    },
+    {
+      "transaction_id": "105437244843",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 431.26,
+      "amount": -431.26,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-23T15:44:56+00:00"
@@ -1313,23 +2369,23 @@
       "timestamp": "2025-10-23T14:40:04+00:00"
     },
     {
-      "transaction_id": "105425193610",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 220.4799,
-      "amount": -220.48,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-23T14:39:56+00:00"
-    },
-    {
       "transaction_id": "105425193598",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": 1.0,
       "price": 421.5999,
       "amount": -421.6,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-23T14:39:56+00:00"
+    },
+    {
+      "transaction_id": "105425193610",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 220.4799,
+      "amount": -220.48,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-23T14:39:56+00:00"
@@ -1478,6 +2534,17 @@
       "timestamp": "2025-10-23T14:19:59+00:00"
     },
     {
+      "transaction_id": "105418516677",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 423.5699,
+      "amount": -423.57,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-23T14:19:56+00:00"
+    },
+    {
       "transaction_id": "105418516691",
       "symbol": "AAPL",
       "transaction_type": "TRADE",
@@ -1495,17 +2562,6 @@
       "quantity": 1.0,
       "price": 219.3148,
       "amount": -219.31,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-23T14:19:56+00:00"
-    },
-    {
-      "transaction_id": "105418516677",
-      "symbol": "TSLA",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 423.5699,
-      "amount": -423.57,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-23T14:19:56+00:00"
@@ -1555,23 +2611,23 @@
       "timestamp": "2025-10-23T14:14:58+00:00"
     },
     {
-      "transaction_id": "105418514777",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 219.76,
-      "amount": -219.76,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-23T14:14:57+00:00"
-    },
-    {
       "transaction_id": "105418514756",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": 1.0,
       "price": 424.755,
       "amount": -424.76,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-23T14:14:57+00:00"
+    },
+    {
+      "transaction_id": "105418514777",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 219.76,
+      "amount": -219.76,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-23T14:14:57+00:00"
@@ -1643,23 +2699,23 @@
       "timestamp": "2025-10-23T14:04:57+00:00"
     },
     {
-      "transaction_id": "105415225870",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 219.9099,
-      "amount": -219.91,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-23T14:04:56+00:00"
-    },
-    {
       "transaction_id": "105415225853",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": 1.0,
       "price": 424.11,
       "amount": -424.11,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-23T14:04:56+00:00"
+    },
+    {
+      "transaction_id": "105415225870",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 219.9099,
+      "amount": -219.91,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-23T14:04:56+00:00"
@@ -1775,17 +2831,6 @@
       "timestamp": "2025-10-22T19:11:32+00:00"
     },
     {
-      "transaction_id": "105376176034",
-      "symbol": "TSLA",
-      "transaction_type": "TRADE",
-      "quantity": -1.0,
-      "price": 437.57,
-      "amount": 437.57,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T19:11:02+00:00"
-    },
-    {
       "transaction_id": "105376176032",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
@@ -1797,12 +2842,23 @@
       "timestamp": "2025-10-22T19:11:02+00:00"
     },
     {
-      "transaction_id": "105376175675",
-      "symbol": "AMZN",
+      "transaction_id": "105376176034",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -1.0,
+      "price": 437.57,
+      "amount": 437.57,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T19:11:02+00:00"
+    },
+    {
+      "transaction_id": "105376175698",
+      "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": 1.0,
-      "price": 217.8899,
-      "amount": -217.89,
+      "price": 437.38,
+      "amount": -437.38,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T19:09:56+00:00"
@@ -1819,23 +2875,23 @@
       "timestamp": "2025-10-22T19:09:56+00:00"
     },
     {
-      "transaction_id": "105376175711",
+      "transaction_id": "105376175675",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": 1.0,
-      "price": 217.8858,
+      "price": 217.8899,
       "amount": -217.89,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T19:09:56+00:00"
     },
     {
-      "transaction_id": "105376175698",
-      "symbol": "TSLA",
+      "transaction_id": "105376175711",
+      "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": 1.0,
-      "price": 437.38,
-      "amount": -437.38,
+      "price": 217.8858,
+      "amount": -217.89,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T19:09:56+00:00"
@@ -1973,7 +3029,7 @@
       "timestamp": "2025-10-22T18:54:55+00:00"
     },
     {
-      "transaction_id": "105368571519",
+      "transaction_id": "105368571521",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -1984,7 +3040,7 @@
       "timestamp": "2025-10-22T18:25:04+00:00"
     },
     {
-      "transaction_id": "105368571521",
+      "transaction_id": "105368571519",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -2039,7 +3095,7 @@
       "timestamp": "2025-10-22T18:20:48+00:00"
     },
     {
-      "transaction_id": "105368570363",
+      "transaction_id": "105368570365",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -2050,7 +3106,7 @@
       "timestamp": "2025-10-22T18:20:09+00:00"
     },
     {
-      "transaction_id": "105368570365",
+      "transaction_id": "105368570363",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -2237,17 +3293,6 @@
       "timestamp": "2025-10-22T17:59:59+00:00"
     },
     {
-      "transaction_id": "105365430515",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 216.99,
-      "amount": -216.99,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T17:59:56+00:00"
-    },
-    {
       "transaction_id": "105365430511",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
@@ -2259,15 +3304,15 @@
       "timestamp": "2025-10-22T17:59:56+00:00"
     },
     {
-      "transaction_id": "105365430497",
-      "symbol": "TSLA",
+      "transaction_id": "105365430515",
+      "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": 1.0,
-      "price": 431.2561,
-      "amount": -431.26,
+      "price": 216.99,
+      "amount": -216.99,
       "fees": 0.0,
       "account": "Account 1",
-      "timestamp": "2025-10-22T17:59:55+00:00"
+      "timestamp": "2025-10-22T17:59:56+00:00"
     },
     {
       "transaction_id": "105365430487",
@@ -2281,7 +3326,18 @@
       "timestamp": "2025-10-22T17:59:55+00:00"
     },
     {
-      "transaction_id": "105365429271",
+      "transaction_id": "105365430497",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 431.2561,
+      "amount": -431.26,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T17:59:55+00:00"
+    },
+    {
+      "transaction_id": "105365429274",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -2292,7 +3348,7 @@
       "timestamp": "2025-10-22T17:55:05+00:00"
     },
     {
-      "transaction_id": "105365429274",
+      "transaction_id": "105365429271",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -2501,7 +3557,7 @@
       "timestamp": "2025-10-22T17:17:45+00:00"
     },
     {
-      "transaction_id": "105359782082",
+      "transaction_id": "105359782084",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -2512,7 +3568,7 @@
       "timestamp": "2025-10-22T17:15:23+00:00"
     },
     {
-      "transaction_id": "105359782084",
+      "transaction_id": "105359782082",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -2534,23 +3590,23 @@
       "timestamp": "2025-10-22T17:14:56+00:00"
     },
     {
-      "transaction_id": "105355851974",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 217.7145,
-      "amount": -217.71,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T17:14:56+00:00"
-    },
-    {
       "transaction_id": "105355851979",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": 1.0,
       "price": 432.9999,
       "amount": -433.0,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T17:14:56+00:00"
+    },
+    {
+      "transaction_id": "105355851974",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 217.7145,
+      "amount": -217.71,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T17:14:56+00:00"
@@ -2611,23 +3667,23 @@
       "timestamp": "2025-10-22T17:09:47+00:00"
     },
     {
-      "transaction_id": "105355850358",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 218.04,
-      "amount": -218.04,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T17:04:55+00:00"
-    },
-    {
       "transaction_id": "105355850354",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": 1.0,
       "price": 218.0526,
       "amount": -218.05,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T17:04:55+00:00"
+    },
+    {
+      "transaction_id": "105355850358",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 218.04,
+      "amount": -218.04,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T17:04:55+00:00"
@@ -2699,23 +3755,23 @@
       "timestamp": "2025-10-22T16:54:55+00:00"
     },
     {
-      "transaction_id": "105355847116",
-      "symbol": "TSLA",
-      "transaction_type": "TRADE",
-      "quantity": -1.0,
-      "price": 432.66,
-      "amount": 432.66,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T16:50:27+00:00"
-    },
-    {
       "transaction_id": "105355847118",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": -1.0,
       "price": 432.69,
       "amount": 432.69,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T16:50:27+00:00"
+    },
+    {
+      "transaction_id": "105355847116",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -1.0,
+      "price": 432.66,
+      "amount": 432.66,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T16:50:27+00:00"
@@ -2743,7 +3799,7 @@
       "timestamp": "2025-10-22T16:49:55+00:00"
     },
     {
-      "transaction_id": "105353735060",
+      "transaction_id": "105353735062",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -2754,7 +3810,7 @@
       "timestamp": "2025-10-22T16:45:14+00:00"
     },
     {
-      "transaction_id": "105353735062",
+      "transaction_id": "105353735060",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -2809,6 +3865,17 @@
       "timestamp": "2025-10-22T16:40:02+00:00"
     },
     {
+      "transaction_id": "105353732904",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 433.0787,
+      "amount": -433.08,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T16:39:56+00:00"
+    },
+    {
       "transaction_id": "105353732908",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
@@ -2820,15 +3887,15 @@
       "timestamp": "2025-10-22T16:39:56+00:00"
     },
     {
-      "transaction_id": "105353732904",
-      "symbol": "TSLA",
+      "transaction_id": "105351525751",
+      "symbol": "AMZN",
       "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 433.0787,
-      "amount": -433.08,
+      "quantity": -1.0,
+      "price": 218.6,
+      "amount": 218.6,
       "fees": 0.0,
       "account": "Account 1",
-      "timestamp": "2025-10-22T16:39:56+00:00"
+      "timestamp": "2025-10-22T16:34:59+00:00"
     },
     {
       "transaction_id": "105351525748",
@@ -2853,17 +3920,6 @@
       "timestamp": "2025-10-22T16:34:59+00:00"
     },
     {
-      "transaction_id": "105351525751",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": -1.0,
-      "price": 218.6,
-      "amount": 218.6,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T16:34:59+00:00"
-    },
-    {
       "transaction_id": "105351525738",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
@@ -2875,12 +3931,12 @@
       "timestamp": "2025-10-22T16:34:57+00:00"
     },
     {
-      "transaction_id": "105351525730",
+      "transaction_id": "105351525726",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": 1.0,
-      "price": 432.27,
-      "amount": -432.27,
+      "price": 432.2463,
+      "amount": -432.25,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T16:34:56+00:00"
@@ -2897,23 +3953,23 @@
       "timestamp": "2025-10-22T16:34:56+00:00"
     },
     {
-      "transaction_id": "105351525726",
-      "symbol": "TSLA",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 432.2463,
-      "amount": -432.25,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T16:34:56+00:00"
-    },
-    {
       "transaction_id": "105351525694",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": 1.0,
       "price": 218.5699,
       "amount": -218.57,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T16:34:56+00:00"
+    },
+    {
+      "transaction_id": "105351525730",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 432.27,
+      "amount": -432.27,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T16:34:56+00:00"
@@ -2952,7 +4008,7 @@
       "timestamp": "2025-10-22T16:29:55+00:00"
     },
     {
-      "transaction_id": "105348716532",
+      "transaction_id": "105348716530",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -2963,7 +4019,7 @@
       "timestamp": "2025-10-22T16:25:21+00:00"
     },
     {
-      "transaction_id": "105348716530",
+      "transaction_id": "105348716532",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -2996,12 +4052,12 @@
       "timestamp": "2025-10-22T16:25:13+00:00"
     },
     {
-      "transaction_id": "105348716301",
-      "symbol": "AMZN",
+      "transaction_id": "105348716267",
+      "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": 1.0,
-      "price": 218.6099,
-      "amount": -218.61,
+      "price": 433.835,
+      "amount": -433.84,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T16:24:56+00:00"
@@ -3018,12 +4074,12 @@
       "timestamp": "2025-10-22T16:24:56+00:00"
     },
     {
-      "transaction_id": "105348716267",
-      "symbol": "TSLA",
+      "transaction_id": "105348716301",
+      "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": 1.0,
-      "price": 433.835,
-      "amount": -433.84,
+      "price": 218.6099,
+      "amount": -218.61,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T16:24:56+00:00"
@@ -3216,7 +4272,7 @@
       "timestamp": "2025-10-22T15:31:56+00:00"
     },
     {
-      "transaction_id": "105338715422",
+      "transaction_id": "105338715424",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -3227,7 +4283,7 @@
       "timestamp": "2025-10-22T15:30:03+00:00"
     },
     {
-      "transaction_id": "105338715424",
+      "transaction_id": "105338715422",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -3271,23 +4327,23 @@
       "timestamp": "2025-10-22T15:29:56+00:00"
     },
     {
-      "transaction_id": "105338715374",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 218.715,
-      "amount": -218.72,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T15:29:55+00:00"
-    },
-    {
       "transaction_id": "105338715368",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": 1.0,
       "price": 218.7395,
       "amount": -218.74,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T15:29:55+00:00"
+    },
+    {
+      "transaction_id": "105338715374",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 218.715,
+      "amount": -218.72,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T15:29:55+00:00"
@@ -3414,23 +4470,23 @@
       "timestamp": "2025-10-22T15:00:03+00:00"
     },
     {
-      "transaction_id": "105333239193",
-      "symbol": "TSLA",
-      "transaction_type": "TRADE",
-      "quantity": 1.0,
-      "price": 437.615,
-      "amount": -437.62,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T14:59:56+00:00"
-    },
-    {
       "transaction_id": "105333239175",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": 1.0,
       "price": 218.5285,
       "amount": -218.53,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T14:59:56+00:00"
+    },
+    {
+      "transaction_id": "105333239193",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 1.0,
+      "price": 437.615,
+      "amount": -437.62,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T14:59:56+00:00"
@@ -3579,23 +4635,23 @@
       "timestamp": "2025-10-22T14:30:22+00:00"
     },
     {
-      "transaction_id": "105324510407",
-      "symbol": "TSLA",
-      "transaction_type": "TRADE",
-      "quantity": 2.0,
-      "price": 433.8099,
-      "amount": -867.62,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T14:29:56+00:00"
-    },
-    {
       "transaction_id": "105324510425",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": -2.0,
       "price": 433.92,
       "amount": 867.84,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T14:29:56+00:00"
+    },
+    {
+      "transaction_id": "105324510407",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 2.0,
+      "price": 433.8099,
+      "amount": -867.62,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T14:29:56+00:00"
@@ -3689,23 +4745,23 @@
       "timestamp": "2025-10-22T14:18:07+00:00"
     },
     {
-      "transaction_id": "105322072056",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": 5.0,
-      "price": 218.1199,
-      "amount": -1090.6,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T14:14:56+00:00"
-    },
-    {
       "transaction_id": "105322072072",
       "symbol": "TSLA",
       "transaction_type": "TRADE",
       "quantity": 2.0,
       "price": 439.05,
       "amount": -878.1,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T14:14:56+00:00"
+    },
+    {
+      "transaction_id": "105322072056",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 5.0,
+      "price": 218.1199,
+      "amount": -1090.6,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T14:14:56+00:00"
@@ -3942,12 +4998,34 @@
       "timestamp": "2025-10-22T13:37:01+00:00"
     },
     {
-      "transaction_id": "105310259256",
+      "transaction_id": "105310259260",
+      "symbol": "JOBY",
+      "transaction_type": "TRADE",
+      "quantity": -72.0,
+      "price": 15.75,
+      "amount": 1133.99,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:37:00+00:00"
+    },
+    {
+      "transaction_id": "105310259278",
+      "symbol": "UBER",
+      "transaction_type": "TRADE",
+      "quantity": 12.0,
+      "price": 92.3967,
+      "amount": -1108.76,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:37:00+00:00"
+    },
+    {
+      "transaction_id": "105310259291",
       "symbol": "ORCL",
       "transaction_type": "TRADE",
-      "quantity": 4.0,
-      "price": 274.215,
-      "amount": -1096.86,
+      "quantity": -1.0,
+      "price": 274.27,
+      "amount": 274.27,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:37:00+00:00"
@@ -3964,34 +5042,12 @@
       "timestamp": "2025-10-22T13:37:00+00:00"
     },
     {
-      "transaction_id": "105310259278",
-      "symbol": "UBER",
-      "transaction_type": "TRADE",
-      "quantity": 12.0,
-      "price": 92.3967,
-      "amount": -1108.76,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:37:00+00:00"
-    },
-    {
-      "transaction_id": "105310259260",
-      "symbol": "JOBY",
-      "transaction_type": "TRADE",
-      "quantity": -72.0,
-      "price": 15.75,
-      "amount": 1133.99,
-      "fees": 0.01,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:37:00+00:00"
-    },
-    {
-      "transaction_id": "105310259291",
+      "transaction_id": "105310259256",
       "symbol": "ORCL",
       "transaction_type": "TRADE",
-      "quantity": -1.0,
-      "price": 274.27,
-      "amount": 274.27,
+      "quantity": 4.0,
+      "price": 274.215,
+      "amount": -1096.86,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:37:00+00:00"
@@ -4006,17 +5062,6 @@
       "fees": 0.01,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:37:00+00:00"
-    },
-    {
-      "transaction_id": "105310259219",
-      "symbol": "TSLA",
-      "transaction_type": "TRADE",
-      "quantity": 2.0,
-      "price": 442.1685,
-      "amount": -884.34,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:36:59+00:00"
     },
     {
       "transaction_id": "105310259235",
@@ -4041,15 +5086,15 @@
       "timestamp": "2025-10-22T13:36:59+00:00"
     },
     {
-      "transaction_id": "105310259171",
-      "symbol": "QBTS",
+      "transaction_id": "105310259219",
+      "symbol": "TSLA",
       "transaction_type": "TRADE",
-      "quantity": 38.0,
-      "price": 29.6621,
-      "amount": -1127.16,
+      "quantity": 2.0,
+      "price": 442.1685,
+      "amount": -884.34,
       "fees": 0.0,
       "account": "Account 1",
-      "timestamp": "2025-10-22T13:36:58+00:00"
+      "timestamp": "2025-10-22T13:36:59+00:00"
     },
     {
       "transaction_id": "105310259185",
@@ -4058,6 +5103,17 @@
       "quantity": 5.0,
       "price": 218.68,
       "amount": -1093.4,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:36:58+00:00"
+    },
+    {
+      "transaction_id": "105310259171",
+      "symbol": "QBTS",
+      "transaction_type": "TRADE",
+      "quantity": 38.0,
+      "price": 29.6621,
+      "amount": -1127.16,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:36:58+00:00"
@@ -4129,23 +5185,23 @@
       "timestamp": "2025-10-22T13:36:03+00:00"
     },
     {
-      "transaction_id": "105310258296",
-      "symbol": "V",
-      "transaction_type": "TRADE",
-      "quantity": 3.0,
-      "price": 345.9467,
-      "amount": -1037.84,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:36:03+00:00"
-    },
-    {
       "transaction_id": "105310258284",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": 5.0,
       "price": 218.45,
       "amount": -1092.25,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:36:03+00:00"
+    },
+    {
+      "transaction_id": "105310258296",
+      "symbol": "V",
+      "transaction_type": "TRADE",
+      "quantity": 3.0,
+      "price": 345.9467,
+      "amount": -1037.84,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:36:03+00:00"
@@ -4239,23 +5295,23 @@
       "timestamp": "2025-10-22T13:35:03+00:00"
     },
     {
-      "transaction_id": "105310257429",
-      "symbol": "INTC",
+      "transaction_id": "105310257463",
+      "symbol": "ORCL",
       "transaction_type": "TRADE",
-      "quantity": -30.0,
-      "price": 37.3221,
-      "amount": 1119.66,
+      "quantity": -4.0,
+      "price": 274.62,
+      "amount": 1098.48,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:35:02+00:00"
     },
     {
-      "transaction_id": "105310257444",
+      "transaction_id": "105310257435",
       "symbol": "JOBY",
       "transaction_type": "TRADE",
-      "quantity": -1.0,
+      "quantity": -23.0,
       "price": 15.87,
-      "amount": 15.87,
+      "amount": 365.01,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:35:02+00:00"
@@ -4283,37 +5339,26 @@
       "timestamp": "2025-10-22T13:35:02+00:00"
     },
     {
-      "transaction_id": "105310257435",
+      "transaction_id": "105310257429",
+      "symbol": "INTC",
+      "transaction_type": "TRADE",
+      "quantity": -30.0,
+      "price": 37.3221,
+      "amount": 1119.66,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:35:02+00:00"
+    },
+    {
+      "transaction_id": "105310257444",
       "symbol": "JOBY",
       "transaction_type": "TRADE",
-      "quantity": -23.0,
+      "quantity": -1.0,
       "price": 15.87,
-      "amount": 365.01,
+      "amount": 15.87,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:35:02+00:00"
-    },
-    {
-      "transaction_id": "105310257463",
-      "symbol": "ORCL",
-      "transaction_type": "TRADE",
-      "quantity": -4.0,
-      "price": 274.62,
-      "amount": 1098.48,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:35:02+00:00"
-    },
-    {
-      "transaction_id": "105310257393",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": 5.0,
-      "price": 218.8399,
-      "amount": -1094.2,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:35:01+00:00"
     },
     {
       "transaction_id": "105310257417",
@@ -4349,13 +5394,24 @@
       "timestamp": "2025-10-22T13:35:01+00:00"
     },
     {
-      "transaction_id": "105310257308",
+      "transaction_id": "105310257393",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 5.0,
+      "price": 218.8399,
+      "amount": -1094.2,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:35:01+00:00"
+    },
+    {
+      "transaction_id": "105310257314",
       "symbol": "JOBY",
       "transaction_type": "TRADE",
-      "quantity": -22.0,
+      "quantity": -1.0,
       "price": 15.87,
-      "amount": 349.13,
-      "fees": 0.01,
+      "amount": 15.87,
+      "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:35:00+00:00"
     },
@@ -4366,50 +5422,6 @@
       "quantity": 199.0,
       "price": 5.7299,
       "amount": -1140.25,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:35:00+00:00"
-    },
-    {
-      "transaction_id": "105310257310",
-      "symbol": "UBER",
-      "transaction_type": "TRADE",
-      "quantity": 12.0,
-      "price": 92.1827,
-      "amount": -1106.19,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:35:00+00:00"
-    },
-    {
-      "transaction_id": "105310257366",
-      "symbol": "LAES",
-      "transaction_type": "TRADE",
-      "quantity": -199.0,
-      "price": 5.7102,
-      "amount": 1136.3,
-      "fees": 0.03,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:35:00+00:00"
-    },
-    {
-      "transaction_id": "105310257375",
-      "symbol": "LYFT",
-      "transaction_type": "TRADE",
-      "quantity": 56.0,
-      "price": 20.165,
-      "amount": -1129.24,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:35:00+00:00"
-    },
-    {
-      "transaction_id": "105310257314",
-      "symbol": "JOBY",
-      "transaction_type": "TRADE",
-      "quantity": -1.0,
-      "price": 15.87,
-      "amount": 15.87,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:35:00+00:00"
@@ -4437,15 +5449,48 @@
       "timestamp": "2025-10-22T13:35:00+00:00"
     },
     {
-      "transaction_id": "105310257293",
-      "symbol": "JOBY",
+      "transaction_id": "105310257375",
+      "symbol": "LYFT",
       "transaction_type": "TRADE",
-      "quantity": -9.0,
-      "price": 15.87,
-      "amount": 142.83,
+      "quantity": 56.0,
+      "price": 20.165,
+      "amount": -1129.24,
       "fees": 0.0,
       "account": "Account 1",
-      "timestamp": "2025-10-22T13:34:59+00:00"
+      "timestamp": "2025-10-22T13:35:00+00:00"
+    },
+    {
+      "transaction_id": "105310257366",
+      "symbol": "LAES",
+      "transaction_type": "TRADE",
+      "quantity": -199.0,
+      "price": 5.7102,
+      "amount": 1136.3,
+      "fees": 0.03,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:35:00+00:00"
+    },
+    {
+      "transaction_id": "105310257308",
+      "symbol": "JOBY",
+      "transaction_type": "TRADE",
+      "quantity": -22.0,
+      "price": 15.87,
+      "amount": 349.13,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:35:00+00:00"
+    },
+    {
+      "transaction_id": "105310257310",
+      "symbol": "UBER",
+      "transaction_type": "TRADE",
+      "quantity": 12.0,
+      "price": 92.1827,
+      "amount": -1106.19,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:35:00+00:00"
     },
     {
       "transaction_id": "105310257296",
@@ -4455,17 +5500,6 @@
       "price": 346.515,
       "amount": -1039.55,
       "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:34:59+00:00"
-    },
-    {
-      "transaction_id": "105310257276",
-      "symbol": "VERU",
-      "transaction_type": "TRADE",
-      "quantity": -270.0,
-      "price": 4.21,
-      "amount": 1136.66,
-      "fees": 0.04,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:34:59+00:00"
     },
@@ -4492,6 +5526,39 @@
       "timestamp": "2025-10-22T13:34:59+00:00"
     },
     {
+      "transaction_id": "105310257293",
+      "symbol": "JOBY",
+      "transaction_type": "TRADE",
+      "quantity": -9.0,
+      "price": 15.87,
+      "amount": 142.83,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:34:59+00:00"
+    },
+    {
+      "transaction_id": "105310257276",
+      "symbol": "VERU",
+      "transaction_type": "TRADE",
+      "quantity": -270.0,
+      "price": 4.21,
+      "amount": 1136.66,
+      "fees": 0.04,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:34:59+00:00"
+    },
+    {
+      "transaction_id": "105310257248",
+      "symbol": "QBTS",
+      "transaction_type": "TRADE",
+      "quantity": 37.0,
+      "price": 30.015,
+      "amount": -1110.56,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:34:58+00:00"
+    },
+    {
       "transaction_id": "105310257245",
       "symbol": "WMT",
       "transaction_type": "TRADE",
@@ -4509,17 +5576,6 @@
       "quantity": 270.0,
       "price": 4.2663,
       "amount": -1151.9,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:34:58+00:00"
-    },
-    {
-      "transaction_id": "105310257248",
-      "symbol": "QBTS",
-      "transaction_type": "TRADE",
-      "quantity": 37.0,
-      "price": 30.015,
-      "amount": -1110.56,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:34:58+00:00"
@@ -4580,17 +5636,6 @@
       "timestamp": "2025-10-22T13:34:06+00:00"
     },
     {
-      "transaction_id": "105308041569",
-      "symbol": "AMD",
-      "transaction_type": "TRADE",
-      "quantity": 2.0,
-      "price": 236.9062,
-      "amount": -473.81,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:34:03+00:00"
-    },
-    {
       "transaction_id": "105308041567",
       "symbol": "AMD",
       "transaction_type": "TRADE",
@@ -4602,15 +5647,15 @@
       "timestamp": "2025-10-22T13:34:03+00:00"
     },
     {
-      "transaction_id": "105308041553",
-      "symbol": "UBER",
+      "transaction_id": "105308041569",
+      "symbol": "AMD",
       "transaction_type": "TRADE",
-      "quantity": 12.0,
-      "price": 92.5599,
-      "amount": -1110.72,
+      "quantity": 2.0,
+      "price": 236.9062,
+      "amount": -473.81,
       "fees": 0.0,
       "account": "Account 1",
-      "timestamp": "2025-10-22T13:34:02+00:00"
+      "timestamp": "2025-10-22T13:34:03+00:00"
     },
     {
       "transaction_id": "105308041530",
@@ -4631,6 +5676,17 @@
       "price": 30.26,
       "amount": 1119.61,
       "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:34:02+00:00"
+    },
+    {
+      "transaction_id": "105308041553",
+      "symbol": "UBER",
+      "transaction_type": "TRADE",
+      "quantity": 12.0,
+      "price": 92.5599,
+      "amount": -1110.72,
+      "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:34:02+00:00"
     },
@@ -4657,12 +5713,34 @@
       "timestamp": "2025-10-22T13:34:01+00:00"
     },
     {
-      "transaction_id": "105308041478",
+      "transaction_id": "105308041456",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
-      "quantity": -5.0,
-      "price": 218.51,
-      "amount": 1092.55,
+      "quantity": 5.0,
+      "price": 218.5201,
+      "amount": -1092.6,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:34:00+00:00"
+    },
+    {
+      "transaction_id": "105308041487",
+      "symbol": "JOBY",
+      "transaction_type": "TRADE",
+      "quantity": -47.0,
+      "price": 15.86,
+      "amount": 745.41,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:34:00+00:00"
+    },
+    {
+      "transaction_id": "105308041482",
+      "symbol": "LYFT",
+      "transaction_type": "TRADE",
+      "quantity": 56.0,
+      "price": 20.2285,
+      "amount": -1132.8,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:34:00+00:00"
@@ -4690,48 +5768,15 @@
       "timestamp": "2025-10-22T13:34:00+00:00"
     },
     {
-      "transaction_id": "105308041482",
-      "symbol": "LYFT",
-      "transaction_type": "TRADE",
-      "quantity": 56.0,
-      "price": 20.2285,
-      "amount": -1132.8,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:34:00+00:00"
-    },
-    {
-      "transaction_id": "105308041487",
-      "symbol": "JOBY",
-      "transaction_type": "TRADE",
-      "quantity": -47.0,
-      "price": 15.86,
-      "amount": 745.41,
-      "fees": 0.01,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:34:00+00:00"
-    },
-    {
-      "transaction_id": "105308041456",
+      "transaction_id": "105308041478",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
-      "quantity": 5.0,
-      "price": 218.5201,
-      "amount": -1092.6,
+      "quantity": -5.0,
+      "price": 218.51,
+      "amount": 1092.55,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:34:00+00:00"
-    },
-    {
-      "transaction_id": "105308041424",
-      "symbol": "V",
-      "transaction_type": "TRADE",
-      "quantity": 3.0,
-      "price": 346.7399,
-      "amount": -1040.22,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:33:59+00:00"
     },
     {
       "transaction_id": "105308041421",
@@ -4756,15 +5801,15 @@
       "timestamp": "2025-10-22T13:33:59+00:00"
     },
     {
-      "transaction_id": "105308041379",
-      "symbol": "QBTS",
+      "transaction_id": "105308041424",
+      "symbol": "V",
       "transaction_type": "TRADE",
-      "quantity": 37.0,
-      "price": 30.2176,
-      "amount": -1118.05,
+      "quantity": 3.0,
+      "price": 346.7399,
+      "amount": -1040.22,
       "fees": 0.0,
       "account": "Account 1",
-      "timestamp": "2025-10-22T13:33:58+00:00"
+      "timestamp": "2025-10-22T13:33:59+00:00"
     },
     {
       "transaction_id": "105308041362",
@@ -4773,6 +5818,17 @@
       "quantity": 10.0,
       "price": 106.0999,
       "amount": -1061.0,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:33:58+00:00"
+    },
+    {
+      "transaction_id": "105308041379",
+      "symbol": "QBTS",
+      "transaction_type": "TRADE",
+      "quantity": 37.0,
+      "price": 30.2176,
+      "amount": -1118.05,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:33:58+00:00"
@@ -4822,6 +5878,17 @@
       "timestamp": "2025-10-22T13:33:12+00:00"
     },
     {
+      "transaction_id": "105308040736",
+      "symbol": "ORCL",
+      "transaction_type": "TRADE",
+      "quantity": -4.0,
+      "price": 273.62,
+      "amount": 1094.48,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:33:10+00:00"
+    },
+    {
       "transaction_id": "105308040743",
       "symbol": "ORCL",
       "transaction_type": "TRADE",
@@ -4844,15 +5911,15 @@
       "timestamp": "2025-10-22T13:33:10+00:00"
     },
     {
-      "transaction_id": "105308040736",
-      "symbol": "ORCL",
+      "transaction_id": "105308040728",
+      "symbol": "LYFT",
       "transaction_type": "TRADE",
-      "quantity": -4.0,
-      "price": 273.62,
-      "amount": 1094.48,
-      "fees": 0.0,
+      "quantity": -46.0,
+      "price": 20.27,
+      "amount": 932.41,
+      "fees": 0.01,
       "account": "Account 1",
-      "timestamp": "2025-10-22T13:33:10+00:00"
+      "timestamp": "2025-10-22T13:33:09+00:00"
     },
     {
       "transaction_id": "105308040726",
@@ -4862,17 +5929,6 @@
       "price": 20.27,
       "amount": 202.7,
       "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:33:09+00:00"
-    },
-    {
-      "transaction_id": "105308040728",
-      "symbol": "LYFT",
-      "transaction_type": "TRADE",
-      "quantity": -46.0,
-      "price": 20.27,
-      "amount": 932.41,
-      "fees": 0.01,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:33:09+00:00"
     },
@@ -4910,17 +5966,6 @@
       "timestamp": "2025-10-22T13:33:08+00:00"
     },
     {
-      "transaction_id": "105308040644",
-      "symbol": "WMT",
-      "transaction_type": "TRADE",
-      "quantity": -7.0,
-      "price": 106.23,
-      "amount": 743.61,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:33:02+00:00"
-    },
-    {
       "transaction_id": "105308040641",
       "symbol": "WMT",
       "transaction_type": "TRADE",
@@ -4932,15 +5977,15 @@
       "timestamp": "2025-10-22T13:33:02+00:00"
     },
     {
-      "transaction_id": "105308040624",
-      "symbol": "TSLA",
+      "transaction_id": "105308040644",
+      "symbol": "WMT",
       "transaction_type": "TRADE",
-      "quantity": 2.0,
-      "price": 442.4799,
-      "amount": -884.96,
+      "quantity": -7.0,
+      "price": 106.23,
+      "amount": 743.61,
       "fees": 0.0,
       "account": "Account 1",
-      "timestamp": "2025-10-22T13:33:01+00:00"
+      "timestamp": "2025-10-22T13:33:02+00:00"
     },
     {
       "transaction_id": "105308040612",
@@ -4949,6 +5994,17 @@
       "quantity": 56.0,
       "price": 20.2499,
       "amount": -1133.99,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:33:01+00:00"
+    },
+    {
+      "transaction_id": "105308040624",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": 2.0,
+      "price": 442.4799,
+      "amount": -884.96,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:33:01+00:00"
@@ -4976,23 +6032,23 @@
       "timestamp": "2025-10-22T13:33:00+00:00"
     },
     {
-      "transaction_id": "105308040530",
-      "symbol": "UBER",
-      "transaction_type": "TRADE",
-      "quantity": -12.0,
-      "price": 92.485,
-      "amount": 1109.82,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:32:59+00:00"
-    },
-    {
       "transaction_id": "105308040565",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
       "quantity": 5.0,
       "price": 219.0399,
       "amount": -1095.2,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:32:59+00:00"
+    },
+    {
+      "transaction_id": "105308040530",
+      "symbol": "UBER",
+      "transaction_type": "TRADE",
+      "quantity": -12.0,
+      "price": 92.485,
+      "amount": 1109.82,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:32:59+00:00"
@@ -5009,23 +6065,23 @@
       "timestamp": "2025-10-22T13:32:59+00:00"
     },
     {
-      "transaction_id": "105308040511",
-      "symbol": "V",
-      "transaction_type": "TRADE",
-      "quantity": -3.0,
-      "price": 346.05,
-      "amount": 1038.15,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:32:58+00:00"
-    },
-    {
       "transaction_id": "105308040516",
       "symbol": "UBER",
       "transaction_type": "TRADE",
       "quantity": 12.0,
       "price": 92.485,
       "amount": -1109.82,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:32:58+00:00"
+    },
+    {
+      "transaction_id": "105308040511",
+      "symbol": "V",
+      "transaction_type": "TRADE",
+      "quantity": -3.0,
+      "price": 346.05,
+      "amount": 1038.15,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:32:58+00:00"
@@ -5042,17 +6098,6 @@
       "timestamp": "2025-10-22T13:32:58+00:00"
     },
     {
-      "transaction_id": "105308040484",
-      "symbol": "V",
-      "transaction_type": "TRADE",
-      "quantity": 3.0,
-      "price": 346.6199,
-      "amount": -1039.86,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:32:57+00:00"
-    },
-    {
       "transaction_id": "105308040469",
       "symbol": "QBTS",
       "transaction_type": "TRADE",
@@ -5064,12 +6109,12 @@
       "timestamp": "2025-10-22T13:32:57+00:00"
     },
     {
-      "transaction_id": "105308040472",
-      "symbol": "JOBY",
+      "transaction_id": "105308040484",
+      "symbol": "V",
       "transaction_type": "TRADE",
-      "quantity": 71.0,
-      "price": 15.98,
-      "amount": -1134.58,
+      "quantity": 3.0,
+      "price": 346.6199,
+      "amount": -1039.86,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:32:57+00:00"
@@ -5081,6 +6126,17 @@
       "quantity": 36.0,
       "price": 30.8895,
       "amount": -1112.02,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:32:57+00:00"
+    },
+    {
+      "transaction_id": "105308040472",
+      "symbol": "JOBY",
+      "transaction_type": "TRADE",
+      "quantity": 71.0,
+      "price": 15.98,
+      "amount": -1134.58,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:32:57+00:00"
@@ -5108,6 +6164,17 @@
       "timestamp": "2025-10-22T13:32:41+00:00"
     },
     {
+      "transaction_id": "105308039853",
+      "symbol": "LAES",
+      "transaction_type": "TRADE",
+      "quantity": -192.0,
+      "price": 5.93,
+      "amount": 1138.53,
+      "fees": 0.03,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:32:21+00:00"
+    },
+    {
       "transaction_id": "105308039851",
       "symbol": "QBTS",
       "transaction_type": "TRADE",
@@ -5126,17 +6193,6 @@
       "price": 31.27,
       "amount": 281.43,
       "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:32:21+00:00"
-    },
-    {
-      "transaction_id": "105308039853",
-      "symbol": "LAES",
-      "transaction_type": "TRADE",
-      "quantity": -192.0,
-      "price": 5.93,
-      "amount": 1138.53,
-      "fees": 0.03,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:32:21+00:00"
     },
@@ -5163,23 +6219,23 @@
       "timestamp": "2025-10-22T13:32:06+00:00"
     },
     {
-      "transaction_id": "105308039667",
-      "symbol": "INTC",
-      "transaction_type": "TRADE",
-      "quantity": -30.0,
-      "price": 37.6302,
-      "amount": 1128.91,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:32:06+00:00"
-    },
-    {
       "transaction_id": "105308039658",
       "symbol": "INTC",
       "transaction_type": "TRADE",
       "quantity": 30.0,
       "price": 37.646,
       "amount": -1129.38,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:32:06+00:00"
+    },
+    {
+      "transaction_id": "105308039667",
+      "symbol": "INTC",
+      "transaction_type": "TRADE",
+      "quantity": -30.0,
+      "price": 37.6302,
+      "amount": 1128.91,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:32:06+00:00"
@@ -5207,17 +6263,6 @@
       "timestamp": "2025-10-22T13:32:05+00:00"
     },
     {
-      "transaction_id": "105308039579",
-      "symbol": "TSLA",
-      "transaction_type": "TRADE",
-      "quantity": -2.0,
-      "price": 444.59,
-      "amount": 889.18,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:32:05+00:00"
-    },
-    {
       "transaction_id": "105308039563",
       "symbol": "WMT",
       "transaction_type": "TRADE",
@@ -5235,6 +6280,17 @@
       "quantity": 56.0,
       "price": 20.3199,
       "amount": -1137.91,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:32:05+00:00"
+    },
+    {
+      "transaction_id": "105308039579",
+      "symbol": "TSLA",
+      "transaction_type": "TRADE",
+      "quantity": -2.0,
+      "price": 444.59,
+      "amount": 889.18,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:32:05+00:00"
@@ -5273,6 +6329,17 @@
       "timestamp": "2025-10-22T13:32:03+00:00"
     },
     {
+      "transaction_id": "105308039454",
+      "symbol": "V",
+      "transaction_type": "TRADE",
+      "quantity": 3.0,
+      "price": 345.66,
+      "amount": -1036.98,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:32:03+00:00"
+    },
+    {
       "transaction_id": "105308039483",
       "symbol": "AMZN",
       "transaction_type": "TRADE",
@@ -5295,17 +6362,6 @@
       "timestamp": "2025-10-22T13:32:03+00:00"
     },
     {
-      "transaction_id": "105308039454",
-      "symbol": "V",
-      "transaction_type": "TRADE",
-      "quantity": 3.0,
-      "price": 345.66,
-      "amount": -1036.98,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:32:03+00:00"
-    },
-    {
       "transaction_id": "105308039029",
       "symbol": "INTC",
       "transaction_type": "TRADE",
@@ -5317,13 +6373,13 @@
       "timestamp": "2025-10-22T13:31:21+00:00"
     },
     {
-      "transaction_id": "105308038841",
+      "transaction_id": "105308038843",
       "symbol": "LAES",
       "transaction_type": "TRADE",
-      "quantity": -70.0,
+      "quantity": -5.0,
       "price": 5.88,
-      "amount": 411.59,
-      "fees": 0.01,
+      "amount": 29.4,
+      "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:31:06+00:00"
     },
@@ -5339,23 +6395,23 @@
       "timestamp": "2025-10-22T13:31:06+00:00"
     },
     {
+      "transaction_id": "105308038841",
+      "symbol": "LAES",
+      "transaction_type": "TRADE",
+      "quantity": -70.0,
+      "price": 5.88,
+      "amount": 411.59,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:31:06+00:00"
+    },
+    {
       "transaction_id": "105308038835",
       "symbol": "LAES",
       "transaction_type": "TRADE",
       "quantity": -19.0,
       "price": 5.88,
       "amount": 111.72,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:31:06+00:00"
-    },
-    {
-      "transaction_id": "105308038843",
-      "symbol": "LAES",
-      "transaction_type": "TRADE",
-      "quantity": -5.0,
-      "price": 5.88,
-      "amount": 29.4,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:31:06+00:00"
@@ -5383,23 +6439,23 @@
       "timestamp": "2025-10-22T13:31:03+00:00"
     },
     {
-      "transaction_id": "105308038776",
-      "symbol": "INTC",
-      "transaction_type": "TRADE",
-      "quantity": 30.0,
-      "price": 37.7199,
-      "amount": -1131.6,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:31:02+00:00"
-    },
-    {
       "transaction_id": "105308038763",
       "symbol": "UBER",
       "transaction_type": "TRADE",
       "quantity": 12.0,
       "price": 92.5218,
       "amount": -1110.26,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:31:02+00:00"
+    },
+    {
+      "transaction_id": "105308038776",
+      "symbol": "INTC",
+      "transaction_type": "TRADE",
+      "quantity": 30.0,
+      "price": 37.7199,
+      "amount": -1131.6,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:31:02+00:00"
@@ -5416,39 +6472,6 @@
       "timestamp": "2025-10-22T13:31:01+00:00"
     },
     {
-      "transaction_id": "105308038725",
-      "symbol": "AMZN",
-      "transaction_type": "TRADE",
-      "quantity": 5.0,
-      "price": 219.487421,
-      "amount": -1097.44,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:31:00+00:00"
-    },
-    {
-      "transaction_id": "105308038722",
-      "symbol": "QBTS",
-      "transaction_type": "TRADE",
-      "quantity": -21.0,
-      "price": 30.71,
-      "amount": 644.9,
-      "fees": 0.01,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:31:00+00:00"
-    },
-    {
-      "transaction_id": "105308038720",
-      "symbol": "QBTS",
-      "transaction_type": "TRADE",
-      "quantity": -5.0,
-      "price": 30.71,
-      "amount": 153.55,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-22T13:31:00+00:00"
-    },
-    {
       "transaction_id": "105308038698",
       "symbol": "QBTS",
       "transaction_type": "TRADE",
@@ -5460,7 +6483,7 @@
       "timestamp": "2025-10-22T13:31:00+00:00"
     },
     {
-      "transaction_id": "105308038714",
+      "transaction_id": "105308038720",
       "symbol": "QBTS",
       "transaction_type": "TRADE",
       "quantity": -5.0,
@@ -5482,7 +6505,7 @@
       "timestamp": "2025-10-22T13:31:00+00:00"
     },
     {
-      "transaction_id": "105308038675",
+      "transaction_id": "105308038714",
       "symbol": "QBTS",
       "transaction_type": "TRADE",
       "quantity": -5.0,
@@ -5490,7 +6513,29 @@
       "amount": 153.55,
       "fees": 0.0,
       "account": "Account 1",
-      "timestamp": "2025-10-22T13:30:59+00:00"
+      "timestamp": "2025-10-22T13:31:00+00:00"
+    },
+    {
+      "transaction_id": "105308038722",
+      "symbol": "QBTS",
+      "transaction_type": "TRADE",
+      "quantity": -21.0,
+      "price": 30.71,
+      "amount": 644.9,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:31:00+00:00"
+    },
+    {
+      "transaction_id": "105308038725",
+      "symbol": "AMZN",
+      "transaction_type": "TRADE",
+      "quantity": 5.0,
+      "price": 219.487421,
+      "amount": -1097.44,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:31:00+00:00"
     },
     {
       "transaction_id": "105308038637",
@@ -5510,6 +6555,17 @@
       "quantity": 37.0,
       "price": 30.69,
       "amount": -1135.53,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-22T13:30:59+00:00"
+    },
+    {
+      "transaction_id": "105308038675",
+      "symbol": "QBTS",
+      "transaction_type": "TRADE",
+      "quantity": -5.0,
+      "price": 30.71,
+      "amount": 153.55,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-22T13:30:59+00:00"
@@ -5790,13 +6846,13 @@
       "timestamp": "2025-10-17T14:22:47+00:00"
     },
     {
-      "transaction_id": "105003327071",
+      "transaction_id": "105003327069",
       "symbol": "LAES",
       "transaction_type": "TRADE",
-      "quantity": -30.0,
+      "quantity": -100.0,
       "price": 6.13,
-      "amount": 183.89,
-      "fees": 0.01,
+      "amount": 612.98,
+      "fees": 0.02,
       "account": "Account 1",
       "timestamp": "2025-10-16T19:34:30+00:00"
     },
@@ -5808,17 +6864,6 @@
       "price": 6.13,
       "amount": 4971.3,
       "fees": 0.13,
-      "account": "Account 1",
-      "timestamp": "2025-10-16T19:34:30+00:00"
-    },
-    {
-      "transaction_id": "105003327069",
-      "symbol": "LAES",
-      "transaction_type": "TRADE",
-      "quantity": -100.0,
-      "price": 6.13,
-      "amount": 612.98,
-      "fees": 0.02,
       "account": "Account 1",
       "timestamp": "2025-10-16T19:34:30+00:00"
     },
@@ -5845,6 +6890,17 @@
       "timestamp": "2025-10-16T19:34:30+00:00"
     },
     {
+      "transaction_id": "105003327071",
+      "symbol": "LAES",
+      "transaction_type": "TRADE",
+      "quantity": -30.0,
+      "price": 6.13,
+      "amount": 183.89,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-16T19:34:30+00:00"
+    },
+    {
       "transaction_id": "105003327065",
       "symbol": "LAES",
       "transaction_type": "TRADE",
@@ -5856,12 +6912,23 @@
       "timestamp": "2025-10-16T19:34:30+00:00"
     },
     {
-      "transaction_id": "105003327057",
+      "transaction_id": "105003327049",
       "symbol": "LAES",
       "transaction_type": "TRADE",
-      "quantity": -1.0,
+      "quantity": -40.0,
+      "price": 6.131,
+      "amount": 245.23,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-16T19:34:29+00:00"
+    },
+    {
+      "transaction_id": "105003327051",
+      "symbol": "LAES",
+      "transaction_type": "TRADE",
+      "quantity": -5.0,
       "price": 6.13,
-      "amount": 6.13,
+      "amount": 30.65,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-16T19:34:29+00:00"
@@ -5873,6 +6940,17 @@
       "quantity": -39.0,
       "price": 6.13,
       "amount": 239.06,
+      "fees": 0.01,
+      "account": "Account 1",
+      "timestamp": "2025-10-16T19:34:29+00:00"
+    },
+    {
+      "transaction_id": "105003327053",
+      "symbol": "LAES",
+      "transaction_type": "TRADE",
+      "quantity": -100.0,
+      "price": 6.13,
+      "amount": 612.99,
       "fees": 0.01,
       "account": "Account 1",
       "timestamp": "2025-10-16T19:34:29+00:00"
@@ -5900,35 +6978,13 @@
       "timestamp": "2025-10-16T19:34:29+00:00"
     },
     {
-      "transaction_id": "105003327049",
+      "transaction_id": "105003327057",
       "symbol": "LAES",
       "transaction_type": "TRADE",
-      "quantity": -40.0,
-      "price": 6.131,
-      "amount": 245.23,
-      "fees": 0.01,
-      "account": "Account 1",
-      "timestamp": "2025-10-16T19:34:29+00:00"
-    },
-    {
-      "transaction_id": "105003327051",
-      "symbol": "LAES",
-      "transaction_type": "TRADE",
-      "quantity": -5.0,
+      "quantity": -1.0,
       "price": 6.13,
-      "amount": 30.65,
+      "amount": 6.13,
       "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-16T19:34:29+00:00"
-    },
-    {
-      "transaction_id": "105003327053",
-      "symbol": "LAES",
-      "transaction_type": "TRADE",
-      "quantity": -100.0,
-      "price": 6.13,
-      "amount": 612.99,
-      "fees": 0.01,
       "account": "Account 1",
       "timestamp": "2025-10-16T19:34:29+00:00"
     },
@@ -5977,7 +7033,7 @@
       "timestamp": "2025-10-16T15:46:41+00:00"
     },
     {
-      "transaction_id": "104832834172",
+      "transaction_id": "104832834169",
       "symbol": "AAPL",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -5988,7 +7044,7 @@
       "timestamp": "2025-10-15T13:48:09+00:00"
     },
     {
-      "transaction_id": "104832834169",
+      "transaction_id": "104832834172",
       "symbol": "AAPL",
       "transaction_type": "TRADE",
       "quantity": -1.0,
@@ -6527,17 +7583,6 @@
       "timestamp": "2025-10-10T13:38:10+00:00"
     },
     {
-      "transaction_id": "104529369817",
-      "symbol": "BAC",
-      "transaction_type": "TRADE",
-      "quantity": 6.0,
-      "price": 50.0499,
-      "amount": -300.3,
-      "fees": 0.0,
-      "account": "Account 1",
-      "timestamp": "2025-10-10T13:37:59+00:00"
-    },
-    {
       "transaction_id": "104529369808",
       "symbol": "AAPL",
       "transaction_type": "TRADE",
@@ -6555,6 +7600,17 @@
       "quantity": 1.0,
       "price": 227.56,
       "amount": -227.56,
+      "fees": 0.0,
+      "account": "Account 1",
+      "timestamp": "2025-10-10T13:37:59+00:00"
+    },
+    {
+      "transaction_id": "104529369817",
+      "symbol": "BAC",
+      "transaction_type": "TRADE",
+      "quantity": 6.0,
+      "price": 50.0499,
+      "amount": -300.3,
       "fees": 0.0,
       "account": "Account 1",
       "timestamp": "2025-10-10T13:37:59+00:00"
@@ -7512,6 +8568,6 @@
     "update_frequency": "realtime_monitor_calls",
     "database_integration": true,
     "auto_updated": true,
-    "creation_date": "2025-10-24T06:02:49.704192"
+    "creation_date": "2025-10-24T13:24:21.584308"
   }
 }

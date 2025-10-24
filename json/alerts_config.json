@@ -1,0 +1,161 @@
+{
+  "alerts_notifications": {
+    "alert_types": {
+      "maximum_loss_alert": {
+        "enabled": false,
+        "description": "Alert when position loss exceeds threshold",
+        "loss_threshold": {
+          "value": 1000
+        }
+      },
+      "volatility_spike_alert": {
+        "enabled": false,
+        "description": "Alert when market volatility spikes",
+        "vix_threshold": {
+          "value": 30
+        }
+      },
+      "position_size_alert": {
+        "enabled": false,
+        "description": "Alert when position size exceeds limit"
+      },
+      "strategy_signal_alert": {
+        "enabled": false,
+        "description": "Alert when new trading signals are generated"
+      }
+    },
+    "notification_channels": {
+      "email_notifications": {
+        "enabled": false,
+        "description": "Send alerts via email",
+        "email_address": {
+          "value": ""
+        }
+      },
+      "telegram_notifications": {
+        "enabled": false,
+        "description": "Send alerts via Telegram bot",
+        "bot_token": {
+          "value": ""
+        },
+        "chat_id": {
+          "value": ""
+        }
+      },
+      "slack_notifications": {
+        "enabled": false,
+        "description": "Send alerts via Slack webhook",
+        "webhook_url": {
+          "value": ""
+        },
+        "channel": {
+          "value": ""
+        }
+      }
+    },
+    "notification_preferences": {
+      "alert_frequency": {
+        "value": "immediate"
+      },
+      "quiet_hours": {
+        "enabled": false,
+        "start_time": "22:00",
+        "end_time": "08:00"
+      }
+    },
+    "test_notifications": {
+      "description": "Send test notifications to verify setup",
+      "last_test": "2025-10-24T11:59:08.082118",
+      "test_results": {
+        "email": null,
+        "telegram": null,
+        "slack": null
+      }
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "last_updated": "2025-10-24T10:56:15.432910",
+    "updated_by": "web_interface"
+  },
+  "validation_rules": {
+    "loss_threshold": {
+      "required": true,
+      "type": "number",
+      "min": 100,
+      "max": 10000
+    },
+    "vix_threshold": {
+      "required": true,
+      "type": "number",
+      "min": 15,
+      "max": 80
+    },
+    "email_address": {
+      "required_if_enabled": true,
+      "type": "email",
+      "pattern": "^[^@]+@[^@]+\\.[^@]+$"
+    },
+    "telegram_bot_token": {
+      "required_if_enabled": true,
+      "type": "string",
+      "pattern": "^[0-9]+:[A-Za-z0-9_-]+$"
+    },
+    "telegram_chat_id": {
+      "required_if_enabled": true,
+      "type": "string",
+      "pattern": "^-?[0-9]+$"
+    },
+    "slack_webhook_url": {
+      "required_if_enabled": true,
+      "type": "url",
+      "pattern": "^https://hooks\\.slack\\.com/services/.+"
+    },
+    "quiet_hours_time": {
+      "type": "time",
+      "pattern": "^([01]?[0-9]|2[0-3]):[0-5][0-9]$"
+    }
+  },
+  "default_settings": {
+    "alert_types": {
+      "maximum_loss_alert": {
+        "enabled": true,
+        "loss_threshold": 1000
+      },
+      "volatility_spike_alert": {
+        "enabled": true,
+        "vix_threshold": 30
+      },
+      "position_size_alert": {
+        "enabled": true
+      },
+      "strategy_signal_alert": {
+        "enabled": true
+      }
+    },
+    "notification_channels": {
+      "email_notifications": {
+        "enabled": true,
+        "email_address": ""
+      },
+      "telegram_notifications": {
+        "enabled": false,
+        "bot_token": "",
+        "chat_id": ""
+      },
+      "slack_notifications": {
+        "enabled": false,
+        "webhook_url": "",
+        "channel": ""
+      }
+    },
+    "notification_preferences": {
+      "alert_frequency": "5min",
+      "quiet_hours": {
+        "enabled": false,
+        "start_time": "22:00",
+        "end_time": "08:00"
+      }
+    }
+  }
+}

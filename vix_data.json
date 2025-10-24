@@ -1,0 +1,39 @@
+{
+  "strategy_name": "VIX_Data_Handler",
+  "last_updated": "2025-10-24T13:23:17.106086",
+  "data_source": "schwab_historical_data",
+  "update_frequency": "minute_intervals",
+  "vix_data": {
+    "symbol": "$VIX",
+    "timestamp": "2025-10-24T13:23:17.105972",
+    "last_updated": "2025-10-24T12:59:00",
+    "current_vix": 16.41,
+    "current_high": 16.44,
+    "current_low": 16.41,
+    "current_volume": 0,
+    "daily_high": 17.22,
+    "daily_low": 16.02,
+    "daily_range": 1.1999999999999993,
+    "position_in_daily_range": 32.50000000000007,
+    "vix_20_avg": 16.390500000000007,
+    "vix_50_avg": 16.365,
+    "vix_volatility": 0.015776212754932573,
+    "vix_level": "NORMAL",
+    "market_fear": "CALM",
+    "above_20_avg": true,
+    "above_50_avg": true,
+    "daily_change_pct": -4.5375218150087315
+  },
+  "metadata": {
+    "symbol": "$VIX",
+    "data_type": "volatility_index",
+    "calculation_method": "intraday_1min",
+    "interpretation": {
+      "LOW": "VIX < 15 - Market complacency",
+      "NORMAL": "VIX 15-20 - Normal volatility",
+      "ELEVATED": "VIX 20-30 - Increased concern",
+      "HIGH": "VIX 30-40 - High fear",
+      "EXTREME": "VIX > 40 - Extreme fear/panic"
+    }
+  }
+}

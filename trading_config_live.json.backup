@@ -34,29 +34,32 @@
   "strategies": {
     "pml": {
       "market_config": {
-        "market_open": "09:40",
+        "market_open": "09:35",
         "market_close": "15:55",
-        "last_updated": "2025-10-23T00:16:01.158393",
+        "last_updated": "2025-10-23T21:53:28.044554",
         "updated_by": "strategy_manager",
         "market_hours_only": true
       },
       "running_state": {
         "is_running": false,
-        "last_updated": "2025-10-23T12:56:03.136943",
+        "last_updated": "2025-10-24T12:56:17.835237",
         "updated_by": "auto_timer_monitor"
       },
       "auto_approve": false,
       "risk_management": {
-        "strategy_allocation": 2,
-        "position_size": 10,
-        "max_contracts": 10,
-        "last_updated": "2025-10-22T22:48:08.173904",
+        "strategy_allocation": 100,
+        "position_size": 20,
+        "max_contracts": 100,
+        "last_updated": "2025-10-23T21:53:53.889582",
         "updated_by": "strategy_manager"
       },
       "pmlstrategy_watchlist": [
         "AMZN",
         "TSLA",
-        "AAPL"
+        "AAPL",
+        "NVDA",
+        "AMD",
+        "PLTR"
       ],
       "auto_timer": true
     },
@@ -67,7 +70,7 @@
       },
       "running_state": {
         "is_running": true,
-        "last_updated": "2025-10-23T06:59:31.507184",
+        "last_updated": "2025-10-24T06:30:21.954425",
         "updated_by": "auto_timer_monitor"
       },
       "auto_approve": true,

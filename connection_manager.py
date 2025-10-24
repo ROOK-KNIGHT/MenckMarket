@@ -20,23 +20,51 @@ load_dotenv()
 config = get_config()
 api_config = config.get_api_config()
 
-# Get configuration from environment variables with config fallbacks
-APP_KEY = os.getenv("SCHWAB_APP_KEY")
-APP_SECRET = os.getenv("SCHWAB_APP_SECRET")
-REDIRECT_URI = os.getenv("SCHWAB_REDIRECT_URI")
-TOKEN_FILE = os.getenv("SCHWAB_TOKEN_FILE")  # Keep as fallback for local development
-
 # AWS Secrets Manager configuration
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 SECRET_NAME = os.getenv("SCHWAB_SECRET_NAME", "production/schwab-api/tokens")
+CREDENTIALS_SECRET_NAME = os.getenv("SCHWAB_CREDENTIALS_SECRET_NAME", "production/schwab-api/credentials")
 USE_AWS_SECRETS = os.getenv("USE_AWS_SECRETS", "true").lower() == "true"
+TOKEN_FILE = os.getenv("SCHWAB_TOKEN_FILE")  # Keep as fallback for local development
 
-# Validate required environment variables
-if not all([APP_KEY, APP_SECRET, REDIRECT_URI]):
-    raise ValueError("Missing required Schwab API environment variables. Please check your .env file.")
+# Initialize Schwab API credentials from AWS
+APP_KEY = None
+APP_SECRET = None
+REDIRECT_URI = None
 
-if USE_AWS_SECRETS and not SECRET_NAME:
-    raise ValueError("AWS Secrets Manager is enabled but SCHWAB_SECRET_NAME is not set.")
+def load_schwab_credentials_from_aws():
+    """Load Schwab API credentials from AWS Secrets Manager"""
+    global APP_KEY, APP_SECRET, REDIRECT_URI
+    
+    try:
+        if not secrets_client:
+            return False
+            
+        # Try to get Schwab API credentials from AWS
+        response = secrets_client.get_secret_value(SecretId=CREDENTIALS_SECRET_NAME)
+        credentials = json.loads(response['SecretString'])
+        
+        # Map AWS secret keys to connection manager variables
+        APP_KEY = credentials.get('schwab_client_id')
+        APP_SECRET = credentials.get('schwab_client_secret')
+        REDIRECT_URI = credentials.get('schwab_callback_url', 'https://127.0.0.1')
+        
+        if APP_KEY and APP_SECRET:
+            print(f"✅ Schwab API credentials loaded from AWS: {CREDENTIALS_SECRET_NAME}")
+            return True
+        else:
+            print("❌ Invalid Schwab API credentials in AWS secret")
+            return False
+            
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'ResourceNotFoundException':
+            print(f"❌ Schwab API credentials not found in AWS: {CREDENTIALS_SECRET_NAME}")
+        else:
+            print(f"❌ AWS error loading Schwab credentials: {e}")
+        return False
+    except Exception as e:
+        print(f"❌ Error loading Schwab credentials from AWS: {e}")
+        return False
 
 # Initialize AWS Secrets Manager client if enabled
 secrets_client = None
@@ -44,6 +72,14 @@ if USE_AWS_SECRETS:
     try:
         secrets_client = boto3.client('secretsmanager', region_name=AWS_REGION)
         print(f"✅ AWS Secrets Manager initialized for region: {AWS_REGION}")
+        
+        # Load Schwab API credentials from AWS
+        if load_schwab_credentials_from_aws():
+            print("✅ Connection manager ready with AWS credentials")
+        else:
+            print("❌ Failed to load Schwab credentials from AWS")
+            USE_AWS_SECRETS = False
+            
     except NoCredentialsError:
         print("❌ AWS credentials not found. Falling back to local token storage.")
         USE_AWS_SECRETS = False
@@ -53,8 +89,20 @@ if USE_AWS_SECRETS:
 
 # Use configured base URL - Updated for current Schwab API
 BASE_URL = api_config.get('base_url', 'https://api.schwabapi.com')
-AUTH_URL = f"{BASE_URL}/v1/oauth/authorize?response_type=code&client_id={APP_KEY}&redirect_uri={REDIRECT_URI}"
-TOKEN_URL = f"{BASE_URL}/v1/oauth/token"
+
+# Initialize URLs after loading credentials
+def initialize_urls():
+    """Initialize AUTH_URL and TOKEN_URL after credentials are loaded"""
+    global AUTH_URL, TOKEN_URL
+    if APP_KEY and REDIRECT_URI:
+        AUTH_URL = f"{BASE_URL}/v1/oauth/authorize?response_type=code&client_id={APP_KEY}&redirect_uri={REDIRECT_URI}"
+        TOKEN_URL = f"{BASE_URL}/v1/oauth/token"
+    else:
+        AUTH_URL = None
+        TOKEN_URL = None
+
+# Initialize URLs
+initialize_urls()
 
 # Get retry and timeout settings from configuration
 MAX_RETRIES = api_config.get('max_retries', 5)

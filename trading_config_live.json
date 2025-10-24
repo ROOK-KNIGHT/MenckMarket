@@ -42,7 +42,7 @@
       },
       "running_state": {
         "is_running": false,
-        "last_updated": "2025-10-23T12:56:03.136943",
+        "last_updated": "2025-10-24T12:56:17.835237",
         "updated_by": "auto_timer_monitor"
       },
       "auto_approve": false,
@@ -70,7 +70,7 @@
       },
       "running_state": {
         "is_running": false,
-        "last_updated": "2025-10-23T13:01:03.749355",
+        "last_updated": "2025-10-24T13:01:18.372862",
         "updated_by": "auto_timer_monitor"
       },
       "auto_approve": false,

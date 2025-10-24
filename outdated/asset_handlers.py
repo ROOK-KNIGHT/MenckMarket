@@ -10,7 +10,7 @@ import logging
 from typing import List, Optional, Dict
 from datetime import datetime
 
-from trading_engine import (
+from json.outdated.trading_engine import (
     AssetHandler, AssetType, TradingSignal, Position, OrderResult,
     OrderAction, OrderType
 )
@@ -449,7 +449,7 @@ def main():
     print(f"Asset type: {option_handler.get_asset_type()}")
     
     # Test validation
-    from trading_engine import TradingSignal, AssetType, OrderAction, OrderType
+    from json.outdated.trading_engine import TradingSignal, AssetType, OrderAction, OrderType
     
     equity_signal = TradingSignal(
         asset_type=AssetType.EQUITY,

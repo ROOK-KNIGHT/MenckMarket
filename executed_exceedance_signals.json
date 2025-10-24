@@ -1,7 +1,7 @@
 {
   "strategy_name": "Exceedance_Strategy_Executed_Signals",
-  "last_updated": "2025-10-23T12:54:57.685058",
-  "total_executed_signals": 72,
+  "last_updated": "2025-10-24T11:54:56.815324",
+  "total_executed_signals": 116,
   "executed_signals": {
     "AMZN_21788_41_NEW": {
       "signal": {
@@ -2090,6 +2090,1282 @@
       },
       "executed_at": "2025-10-23T12:54:57.685043",
       "signal_id": "AAPL_25954_41_NEW"
+    },
+    "PLTR_18509_254_NEW": {
+      "signal": {
+        "symbol": "PLTR",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:39:58.661622",
+        "entry_reason": "NEW: Price below lower band ($0.89)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 185.09,
+        "position_in_range": 49.68291055276872,
+        "high_exceedance": 0.33520576878655106,
+        "low_exceedance": 0.8906857623215103,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "PLTR_18509_254_NEW",
+        "profit_target": 185.17
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "PLTR",
+        "quantity": 40,
+        "profit_target": 185.17,
+        "executed_at": "2025-10-24T06:40:00.061975"
+      },
+      "executed_at": "2025-10-24T06:40:00.063424",
+      "signal_id": "PLTR_18509_254_NEW"
+    },
+    "AAPL_25972_254_NEW": {
+      "signal": {
+        "symbol": "AAPL",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:39:58.660976",
+        "entry_reason": "NEW: Price above upper band (+$0.53)",
+        "position_size": 28,
+        "auto_approve": true,
+        "current_price": 259.7199,
+        "position_in_range": 52.729492394654265,
+        "high_exceedance": 0.5261292170465595,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AAPL_25972_254_NEW",
+        "profit_target": 259.84
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AAPL",
+        "quantity": 28,
+        "profit_target": 259.84,
+        "executed_at": "2025-10-24T06:40:00.520095"
+      },
+      "executed_at": "2025-10-24T06:40:00.520902",
+      "signal_id": "AAPL_25972_254_NEW"
+    },
+    "AMZN_22374_254_NEW": {
+      "signal": {
+        "symbol": "AMZN",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:39:58.660181",
+        "entry_reason": "NEW: Price below lower band ($0.40)",
+        "position_size": 33,
+        "auto_approve": true,
+        "current_price": 223.74,
+        "position_in_range": 49.79591881258723,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.399674090576724,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMZN_22374_254_NEW",
+        "profit_target": 223.84
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMZN",
+        "quantity": 33,
+        "profit_target": 223.84,
+        "executed_at": "2025-10-24T06:40:00.937799"
+      },
+      "executed_at": "2025-10-24T06:40:00.938885",
+      "signal_id": "AMZN_22374_254_NEW"
+    },
+    "TSLA_44337_254_NEW": {
+      "signal": {
+        "symbol": "TSLA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:39:58.660682",
+        "entry_reason": "NEW: Price above upper band (+$1.50)",
+        "position_size": 16,
+        "auto_approve": true,
+        "current_price": 443.37,
+        "position_in_range": 47.91934144577626,
+        "high_exceedance": 1.5026034975878702,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "TSLA_44337_254_NEW",
+        "profit_target": 443.57
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "TSLA",
+        "quantity": 16,
+        "profit_target": 443.57,
+        "executed_at": "2025-10-24T06:40:01.389473"
+      },
+      "executed_at": "2025-10-24T06:40:01.390480",
+      "signal_id": "TSLA_44337_254_NEW"
+    },
+    "NVDA_18559_254_NEW": {
+      "signal": {
+        "symbol": "NVDA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:39:58.661279",
+        "entry_reason": "NEW: Price below lower band ($0.67)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 185.59,
+        "position_in_range": 50.88945557349869,
+        "high_exceedance": 0.01747644402163928,
+        "low_exceedance": 0.6661560311872847,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "NVDA_18559_254_NEW",
+        "profit_target": 185.67
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "NVDA",
+        "quantity": 40,
+        "profit_target": 185.67,
+        "executed_at": "2025-10-24T06:40:01.808122"
+      },
+      "executed_at": "2025-10-24T06:40:01.809785",
+      "signal_id": "NVDA_18559_254_NEW"
+    },
+    "AMD_24982_254_NEW": {
+      "signal": {
+        "symbol": "AMD",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:39:58.662170",
+        "entry_reason": "NEW: Price below lower band ($0.66)",
+        "position_size": 30,
+        "auto_approve": true,
+        "current_price": 249.82,
+        "position_in_range": 53.552008870532454,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.6570358613592191,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMD_24982_254_NEW",
+        "profit_target": 249.93
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMD",
+        "quantity": 30,
+        "profit_target": 249.93,
+        "executed_at": "2025-10-24T06:40:02.341910"
+      },
+      "executed_at": "2025-10-24T06:40:02.347729",
+      "signal_id": "AMD_24982_254_NEW"
+    },
+    "AMZN_22321_257_NEW": {
+      "signal": {
+        "symbol": "AMZN",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:51:12.284635",
+        "entry_reason": "NEW: Price above upper band (+$0.57)",
+        "position_size": 33,
+        "auto_approve": true,
+        "current_price": 223.21,
+        "position_in_range": 49.867431723640024,
+        "high_exceedance": 0.5667270239794959,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMZN_22321_257_NEW",
+        "profit_target": 223.31
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMZN",
+        "quantity": 33,
+        "profit_target": 223.31,
+        "executed_at": "2025-10-24T06:51:13.674541"
+      },
+      "executed_at": "2025-10-24T06:51:13.675695",
+      "signal_id": "AMZN_22321_257_NEW"
+    },
+    "NVDA_18534_257_NEW": {
+      "signal": {
+        "symbol": "NVDA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:51:12.284986",
+        "entry_reason": "NEW: Price above upper band (+$0.34)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 185.3395,
+        "position_in_range": 50.970750298518176,
+        "high_exceedance": 0.337526705346221,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "NVDA_18534_257_NEW",
+        "profit_target": 185.42
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "NVDA",
+        "quantity": 40,
+        "profit_target": 185.42,
+        "executed_at": "2025-10-24T06:51:14.121251"
+      },
+      "executed_at": "2025-10-24T06:51:14.122073",
+      "signal_id": "NVDA_18534_257_NEW"
+    },
+    "AAPL_25932_257_NEW": {
+      "signal": {
+        "symbol": "AAPL",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:51:12.285232",
+        "entry_reason": "NEW: Price above upper band (+$0.84)",
+        "position_size": 29,
+        "auto_approve": true,
+        "current_price": 259.32,
+        "position_in_range": 52.702456362841275,
+        "high_exceedance": 0.8447155864466254,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AAPL_25932_257_NEW",
+        "profit_target": 259.44
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AAPL",
+        "quantity": 29,
+        "profit_target": 259.44,
+        "executed_at": "2025-10-24T06:51:14.579501"
+      },
+      "executed_at": "2025-10-24T06:51:14.580653",
+      "signal_id": "AAPL_25932_257_NEW"
+    },
+    "PLTR_18569_257_NEW": {
+      "signal": {
+        "symbol": "PLTR",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:51:12.285367",
+        "entry_reason": "NEW: Price below lower band ($0.43)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 185.695,
+        "position_in_range": 49.733999486432516,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.4336224193813223,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "PLTR_18569_257_NEW",
+        "profit_target": 185.78
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "PLTR",
+        "quantity": 40,
+        "profit_target": 185.78,
+        "executed_at": "2025-10-24T06:51:15.038922"
+      },
+      "executed_at": "2025-10-24T06:51:15.040075",
+      "signal_id": "PLTR_18569_257_NEW"
+    },
+    "TSLA_44253_257_NEW": {
+      "signal": {
+        "symbol": "TSLA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:51:12.284871",
+        "entry_reason": "NEW: Price above upper band (+$0.69)",
+        "position_size": 17,
+        "auto_approve": true,
+        "current_price": 442.53,
+        "position_in_range": 47.9084470269499,
+        "high_exceedance": 0.688989212815386,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "TSLA_44253_257_NEW",
+        "profit_target": 442.73
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "TSLA",
+        "quantity": 17,
+        "profit_target": 442.73,
+        "executed_at": "2025-10-24T06:51:15.590414"
+      },
+      "executed_at": "2025-10-24T06:51:15.591288",
+      "signal_id": "TSLA_44253_257_NEW"
+    },
+    "AMD_24807_257_NEW": {
+      "signal": {
+        "symbol": "AMD",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:51:12.285564",
+        "entry_reason": "NEW: Price above upper band (+$0.92)",
+        "position_size": 30,
+        "auto_approve": true,
+        "current_price": 248.0679,
+        "position_in_range": 53.55995636799551,
+        "high_exceedance": 0.9158625356523942,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMD_24807_257_NEW",
+        "profit_target": 248.18
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMD",
+        "quantity": 30,
+        "profit_target": 248.18,
+        "executed_at": "2025-10-24T06:51:15.964654"
+      },
+      "executed_at": "2025-10-24T06:51:15.965381",
+      "signal_id": "AMD_24807_257_NEW"
+    },
+    "AMZN_22319_257_NEW": {
+      "signal": {
+        "symbol": "AMZN",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:54:55.322811",
+        "entry_reason": "NEW: Price below lower band ($0.01)",
+        "position_size": 33,
+        "auto_approve": true,
+        "current_price": 223.195,
+        "position_in_range": 49.78554252016614,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.01353465074780047,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMZN_22319_257_NEW",
+        "profit_target": 223.3
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMZN",
+        "quantity": 33,
+        "profit_target": 223.3,
+        "executed_at": "2025-10-24T06:54:56.611976"
+      },
+      "executed_at": "2025-10-24T06:54:56.612714",
+      "signal_id": "AMZN_22319_257_NEW"
+    },
+    "TSLA_44124_257_NEW": {
+      "signal": {
+        "symbol": "TSLA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:54:55.322651",
+        "entry_reason": "NEW: Price above upper band (+$0.37)",
+        "position_size": 17,
+        "auto_approve": true,
+        "current_price": 441.24,
+        "position_in_range": 47.8773975098943,
+        "high_exceedance": 0.36722547878844125,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "TSLA_44124_257_NEW",
+        "profit_target": 441.44
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "TSLA",
+        "quantity": 17,
+        "profit_target": 441.44,
+        "executed_at": "2025-10-24T06:54:58.548887"
+      },
+      "executed_at": "2025-10-24T06:54:58.549635",
+      "signal_id": "TSLA_44124_257_NEW"
+    },
+    "AMD_24926_257_NEW": {
+      "signal": {
+        "symbol": "AMD",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:54:55.323632",
+        "entry_reason": "NEW: Price below lower band ($1.20)",
+        "position_size": 30,
+        "auto_approve": true,
+        "current_price": 249.26,
+        "position_in_range": 53.49377829680402,
+        "high_exceedance": 0.0,
+        "low_exceedance": 1.1956461993214873,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMD_24926_257_NEW",
+        "profit_target": 249.37
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMD",
+        "quantity": 30,
+        "profit_target": 249.37,
+        "executed_at": "2025-10-24T06:54:58.977682"
+      },
+      "executed_at": "2025-10-24T06:54:58.978302",
+      "signal_id": "AMD_24926_257_NEW"
+    },
+    "NVDA_18562_257_NEW": {
+      "signal": {
+        "symbol": "NVDA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:54:55.323539",
+        "entry_reason": "NEW: Price below lower band ($0.21)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 185.625,
+        "position_in_range": 50.923337529658916,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.21452596231353027,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "NVDA_18562_257_NEW",
+        "profit_target": 185.71
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "NVDA",
+        "quantity": 40,
+        "profit_target": 185.71,
+        "executed_at": "2025-10-24T06:54:59.339083"
+      },
+      "executed_at": "2025-10-24T06:54:59.339684",
+      "signal_id": "NVDA_18562_257_NEW"
+    },
+    "AAPL_25974_257_NEW": {
+      "signal": {
+        "symbol": "AAPL",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:54:55.323195",
+        "entry_reason": "NEW: Price below lower band ($0.12)",
+        "position_size": 29,
+        "auto_approve": true,
+        "current_price": 259.74,
+        "position_in_range": 52.569072494630944,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.12411096960983059,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AAPL_25974_257_NEW",
+        "profit_target": 259.86
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AAPL",
+        "quantity": 29,
+        "profit_target": 259.86,
+        "executed_at": "2025-10-24T06:54:59.720951"
+      },
+      "executed_at": "2025-10-24T06:54:59.722046",
+      "signal_id": "AAPL_25974_257_NEW"
+    },
+    "TSLA_44134_258_NEW": {
+      "signal": {
+        "symbol": "TSLA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:59:55.615863",
+        "entry_reason": "NEW: Price below lower band ($0.45)",
+        "position_size": 17,
+        "auto_approve": true,
+        "current_price": 441.34,
+        "position_in_range": 47.87741221045205,
+        "high_exceedance": 0.1263966793325153,
+        "low_exceedance": 0.4509410180008899,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "TSLA_44134_258_NEW",
+        "profit_target": 441.54
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "TSLA",
+        "quantity": 17,
+        "profit_target": 441.54,
+        "executed_at": "2025-10-24T06:59:57.012248"
+      },
+      "executed_at": "2025-10-24T06:59:57.013290",
+      "signal_id": "TSLA_44134_258_NEW"
+    },
+    "AMZN_22366_258_NEW": {
+      "signal": {
+        "symbol": "AMZN",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:59:55.616366",
+        "entry_reason": "NEW: Price below lower band ($0.13)",
+        "position_size": 33,
+        "auto_approve": true,
+        "current_price": 223.66,
+        "position_in_range": 49.82037837247774,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.12798767366641073,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMZN_22366_258_NEW",
+        "profit_target": 223.76
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMZN",
+        "quantity": 33,
+        "profit_target": 223.76,
+        "executed_at": "2025-10-24T06:59:57.433322"
+      },
+      "executed_at": "2025-10-24T06:59:57.434132",
+      "signal_id": "AMZN_22366_258_NEW"
+    },
+    "AAPL_26024_258_NEW": {
+      "signal": {
+        "symbol": "AAPL",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:59:55.616099",
+        "entry_reason": "NEW: Price below lower band ($0.30)",
+        "position_size": 28,
+        "auto_approve": true,
+        "current_price": 260.24,
+        "position_in_range": 52.599834002910114,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.3036855225745967,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AAPL_26024_258_NEW",
+        "profit_target": 260.36
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AAPL",
+        "quantity": 28,
+        "profit_target": 260.36,
+        "executed_at": "2025-10-24T06:59:57.801623"
+      },
+      "executed_at": "2025-10-24T06:59:57.804180",
+      "signal_id": "AAPL_26024_258_NEW"
+    },
+    "AMD_25028_258_NEW": {
+      "signal": {
+        "symbol": "AMD",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:59:55.616572",
+        "entry_reason": "NEW: Price below lower band ($0.62)",
+        "position_size": 30,
+        "auto_approve": true,
+        "current_price": 250.2828,
+        "position_in_range": 53.56249413264925,
+        "high_exceedance": 0.14921351741395483,
+        "low_exceedance": 0.6161859051812257,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMD_25028_258_NEW",
+        "profit_target": 250.4
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMD",
+        "quantity": 30,
+        "profit_target": 250.4,
+        "executed_at": "2025-10-24T06:59:58.274829"
+      },
+      "executed_at": "2025-10-24T06:59:58.275489",
+      "signal_id": "AMD_25028_258_NEW"
+    },
+    "NVDA_18566_258_NEW": {
+      "signal": {
+        "symbol": "NVDA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:59:55.617017",
+        "entry_reason": "NEW: Price below lower band ($0.00)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 185.6588,
+        "position_in_range": 50.95953562423728,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.002831929760048979,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "NVDA_18566_258_NEW",
+        "profit_target": 185.74
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "NVDA",
+        "quantity": 40,
+        "profit_target": 185.74,
+        "executed_at": "2025-10-24T06:59:58.665898"
+      },
+      "executed_at": "2025-10-24T06:59:58.666640",
+      "signal_id": "NVDA_18566_258_NEW"
+    },
+    "PLTR_18569_258_NEW": {
+      "signal": {
+        "symbol": "PLTR",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T06:59:55.617141",
+        "entry_reason": "NEW: Price below lower band ($0.12)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 185.6879,
+        "position_in_range": 49.749742888665274,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.12202294719440943,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "PLTR_18569_258_NEW",
+        "profit_target": 185.77
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "PLTR",
+        "quantity": 40,
+        "profit_target": 185.77,
+        "executed_at": "2025-10-24T06:59:59.198835"
+      },
+      "executed_at": "2025-10-24T06:59:59.200459",
+      "signal_id": "PLTR_18569_258_NEW"
+    },
+    "TSLA_44000_259_NEW": {
+      "signal": {
+        "symbol": "TSLA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:04:55.586910",
+        "entry_reason": "NEW: Price above upper band (+$0.43)",
+        "position_size": 17,
+        "auto_approve": true,
+        "current_price": 440.0001,
+        "position_in_range": 47.8601528327711,
+        "high_exceedance": 0.43477445408768745,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "TSLA_44000_259_NEW",
+        "profit_target": 440.2
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "TSLA",
+        "quantity": 17,
+        "profit_target": 440.2,
+        "executed_at": "2025-10-24T07:04:56.907133"
+      },
+      "executed_at": "2025-10-24T07:04:56.907845",
+      "signal_id": "TSLA_44000_259_NEW"
+    },
+    "AMZN_22393_259_NEW": {
+      "signal": {
+        "symbol": "AMZN",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:04:55.586716",
+        "entry_reason": "NEW: Price below lower band ($0.05)",
+        "position_size": 33,
+        "auto_approve": true,
+        "current_price": 223.93,
+        "position_in_range": 49.84380001079428,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.048026415631369446,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMZN_22393_259_NEW",
+        "profit_target": 224.03
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMZN",
+        "quantity": 33,
+        "profit_target": 224.03,
+        "executed_at": "2025-10-24T07:04:57.352683"
+      },
+      "executed_at": "2025-10-24T07:04:57.353420",
+      "signal_id": "AMZN_22393_259_NEW"
+    },
+    "PLTR_18510_259_NEW": {
+      "signal": {
+        "symbol": "PLTR",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:04:55.586836",
+        "entry_reason": "NEW: Price above upper band (+$0.15)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 185.1,
+        "position_in_range": 49.746803795537055,
+        "high_exceedance": 0.15313275337629761,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "PLTR_18510_259_NEW",
+        "profit_target": 185.18
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "PLTR",
+        "quantity": 40,
+        "profit_target": 185.18,
+        "executed_at": "2025-10-24T07:04:59.063868"
+      },
+      "executed_at": "2025-10-24T07:04:59.065188",
+      "signal_id": "PLTR_18510_259_NEW"
+    },
+    "AMD_25107_259_NEW": {
+      "signal": {
+        "symbol": "AMD",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:04:55.586959",
+        "entry_reason": "NEW: Price below lower band ($0.14)",
+        "position_size": 30,
+        "auto_approve": true,
+        "current_price": 251.0678,
+        "position_in_range": 53.58290294122101,
+        "high_exceedance": 0.0007372465019273022,
+        "low_exceedance": 0.139965767279989,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMD_25107_259_NEW",
+        "profit_target": 251.18
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMD",
+        "quantity": 30,
+        "profit_target": 251.18,
+        "executed_at": "2025-10-24T07:04:59.446206"
+      },
+      "executed_at": "2025-10-24T07:04:59.447556",
+      "signal_id": "AMD_25107_259_NEW"
+    },
+    "NVDA_18494_259_NEW": {
+      "signal": {
+        "symbol": "NVDA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:04:55.587411",
+        "entry_reason": "NEW: Price above upper band (+$0.45)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 184.94,
+        "position_in_range": 50.95857893238699,
+        "high_exceedance": 0.44621430092570336,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "NVDA_18494_259_NEW",
+        "profit_target": 185.02
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "NVDA",
+        "quantity": 40,
+        "profit_target": 185.02,
+        "executed_at": "2025-10-24T07:05:01.408021"
+      },
+      "executed_at": "2025-10-24T07:05:01.410751",
+      "signal_id": "NVDA_18494_259_NEW"
+    },
+    "AMZN_22428_260_NEW": {
+      "signal": {
+        "symbol": "AMZN",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:09:55.621772",
+        "entry_reason": "NEW: Price below lower band ($0.13)",
+        "position_size": 33,
+        "auto_approve": true,
+        "current_price": 224.28,
+        "position_in_range": 49.847532299436274,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.12772483233493404,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMZN_22428_260_NEW",
+        "profit_target": 224.38
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMZN",
+        "quantity": 33,
+        "profit_target": 224.38,
+        "executed_at": "2025-10-24T07:09:56.916219"
+      },
+      "executed_at": "2025-10-24T07:09:56.917387",
+      "signal_id": "AMZN_22428_260_NEW"
+    },
+    "TSLA_44211_260_NEW": {
+      "signal": {
+        "symbol": "TSLA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:09:55.621667",
+        "entry_reason": "NEW: Price below lower band ($1.38)",
+        "position_size": 17,
+        "auto_approve": true,
+        "current_price": 442.11,
+        "position_in_range": 47.84055327358345,
+        "high_exceedance": 0.0,
+        "low_exceedance": 1.3802296065706514,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "TSLA_44211_260_NEW",
+        "profit_target": 442.31
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "TSLA",
+        "quantity": 17,
+        "profit_target": 442.31,
+        "executed_at": "2025-10-24T07:09:57.306846"
+      },
+      "executed_at": "2025-10-24T07:09:57.308563",
+      "signal_id": "TSLA_44211_260_NEW"
+    },
+    "PLTR_18494_260_NEW": {
+      "signal": {
+        "symbol": "PLTR",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:09:55.622569",
+        "entry_reason": "NEW: Price above upper band (+$0.33)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 184.94,
+        "position_in_range": 49.7213258905577,
+        "high_exceedance": 0.33264137790968107,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "PLTR_18494_260_NEW",
+        "profit_target": 185.02
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "PLTR",
+        "quantity": 40,
+        "profit_target": 185.02,
+        "executed_at": "2025-10-24T07:09:57.695153"
+      },
+      "executed_at": "2025-10-24T07:09:57.697871",
+      "signal_id": "PLTR_18494_260_NEW"
+    },
+    "NVDA_18495_260_NEW": {
+      "signal": {
+        "symbol": "NVDA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:09:55.622355",
+        "entry_reason": "NEW: Price below lower band ($0.00)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 184.95,
+        "position_in_range": 50.911913031529195,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.0037840977295786615,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "NVDA_18495_260_NEW",
+        "profit_target": 185.03
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "NVDA",
+        "quantity": 40,
+        "profit_target": 185.03,
+        "executed_at": "2025-10-24T07:09:58.112823"
+      },
+      "executed_at": "2025-10-24T07:09:58.114412",
+      "signal_id": "NVDA_18495_260_NEW"
+    },
+    "TSLA_44288_261_NEW": {
+      "signal": {
+        "symbol": "TSLA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:14:55.610393",
+        "entry_reason": "NEW: Price below lower band ($0.57)",
+        "position_size": 17,
+        "auto_approve": true,
+        "current_price": 442.8809,
+        "position_in_range": 47.88965961312602,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.5686973508849746,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "TSLA_44288_261_NEW",
+        "profit_target": 443.08
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "TSLA",
+        "quantity": 17,
+        "profit_target": 443.08,
+        "executed_at": "2025-10-24T07:14:56.994926"
+      },
+      "executed_at": "2025-10-24T07:14:56.996667",
+      "signal_id": "TSLA_44288_261_NEW"
+    },
+    "AMZN_22423_261_NEW": {
+      "signal": {
+        "symbol": "AMZN",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:14:55.610502",
+        "entry_reason": "NEW: Price above upper band (+$0.08)",
+        "position_size": 33,
+        "auto_approve": true,
+        "current_price": 224.23,
+        "position_in_range": 49.8683789951415,
+        "high_exceedance": 0.07573966287000644,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMZN_22423_261_NEW",
+        "profit_target": 224.33
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMZN",
+        "quantity": 33,
+        "profit_target": 224.33,
+        "executed_at": "2025-10-24T07:14:57.425139"
+      },
+      "executed_at": "2025-10-24T07:14:57.427151",
+      "signal_id": "AMZN_22423_261_NEW"
+    },
+    "AAPL_26047_261_NEW": {
+      "signal": {
+        "symbol": "AAPL",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:14:55.610258",
+        "entry_reason": "NEW: Price below lower band ($0.06)",
+        "position_size": 28,
+        "auto_approve": true,
+        "current_price": 260.47,
+        "position_in_range": 52.654259800043114,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.06293929683005217,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AAPL_26047_261_NEW",
+        "profit_target": 260.59
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AAPL",
+        "quantity": 28,
+        "profit_target": 260.59,
+        "executed_at": "2025-10-24T07:14:57.790490"
+      },
+      "executed_at": "2025-10-24T07:14:57.795686",
+      "signal_id": "AAPL_26047_261_NEW"
+    },
+    "AMD_24958_261_NEW": {
+      "signal": {
+        "symbol": "AMD",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:14:55.611177",
+        "entry_reason": "NEW: Price above upper band (+$1.21)",
+        "position_size": 30,
+        "auto_approve": true,
+        "current_price": 249.58,
+        "position_in_range": 53.59721597524762,
+        "high_exceedance": 1.2110542243401028,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMD_24958_261_NEW",
+        "profit_target": 249.69
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMD",
+        "quantity": 30,
+        "profit_target": 249.69,
+        "executed_at": "2025-10-24T07:14:58.221647"
+      },
+      "executed_at": "2025-10-24T07:14:58.222613",
+      "signal_id": "AMD_24958_261_NEW"
+    },
+    "PLTR_18554_261_NEW": {
+      "signal": {
+        "symbol": "PLTR",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:14:55.611472",
+        "entry_reason": "NEW: Price below lower band ($0.71)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 185.54,
+        "position_in_range": 49.67940539097503,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.7075445130527669,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "PLTR_18554_261_NEW",
+        "profit_target": 185.62
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "PLTR",
+        "quantity": 40,
+        "profit_target": 185.62,
+        "executed_at": "2025-10-24T07:14:58.697407"
+      },
+      "executed_at": "2025-10-24T07:14:58.698510",
+      "signal_id": "PLTR_18554_261_NEW"
+    },
+    "AMZN_22401_262_NEW": {
+      "signal": {
+        "symbol": "AMZN",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:19:55.386105",
+        "entry_reason": "NEW: Price above upper band (+$0.03)",
+        "position_size": 33,
+        "auto_approve": true,
+        "current_price": 224.0065,
+        "position_in_range": 49.85561594156863,
+        "high_exceedance": 0.02903584508518975,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMZN_22401_262_NEW",
+        "profit_target": 224.11
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMZN",
+        "quantity": 33,
+        "profit_target": 224.11,
+        "executed_at": "2025-10-24T07:19:56.730541"
+      },
+      "executed_at": "2025-10-24T07:19:56.731351",
+      "signal_id": "AMZN_22401_262_NEW"
+    },
+    "AMD_24994_262_NEW": {
+      "signal": {
+        "symbol": "AMD",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:19:55.386710",
+        "entry_reason": "NEW: Price below lower band ($0.01)",
+        "position_size": 30,
+        "auto_approve": true,
+        "current_price": 249.935,
+        "position_in_range": 53.5076854463456,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.013396689510443593,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMD_24994_262_NEW",
+        "profit_target": 250.05
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMD",
+        "quantity": 30,
+        "profit_target": 250.05,
+        "executed_at": "2025-10-24T07:19:57.126228"
+      },
+      "executed_at": "2025-10-24T07:19:57.127081",
+      "signal_id": "AMD_24994_262_NEW"
+    },
+    "AAPL_26087_262_NEW": {
+      "signal": {
+        "symbol": "AAPL",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:19:55.386417",
+        "entry_reason": "NEW: Price below lower band ($0.06)",
+        "position_size": 28,
+        "auto_approve": true,
+        "current_price": 260.87,
+        "position_in_range": 52.57778256645388,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.06437057741482022,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AAPL_26087_262_NEW",
+        "profit_target": 260.99
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AAPL",
+        "quantity": 28,
+        "profit_target": 260.99,
+        "executed_at": "2025-10-24T07:19:57.645450"
+      },
+      "executed_at": "2025-10-24T07:19:57.646956",
+      "signal_id": "AAPL_26087_262_NEW"
+    },
+    "AMZN_22384_263_NEW": {
+      "signal": {
+        "symbol": "AMZN",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:24:55.946168",
+        "entry_reason": "NEW: Price below lower band ($0.07)",
+        "position_size": 33,
+        "auto_approve": true,
+        "current_price": 223.84,
+        "position_in_range": 49.82983411100984,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.06746800314172674,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AMZN_22384_263_NEW",
+        "profit_target": 223.94
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AMZN",
+        "quantity": 33,
+        "profit_target": 223.94,
+        "executed_at": "2025-10-24T07:24:58.785608"
+      },
+      "executed_at": "2025-10-24T07:24:58.786871",
+      "signal_id": "AMZN_22384_263_NEW"
+    },
+    "NVDA_18436_263_NEW": {
+      "signal": {
+        "symbol": "NVDA",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:24:55.948435",
+        "entry_reason": "NEW: Price above upper band (+$0.08)",
+        "position_size": 40,
+        "auto_approve": true,
+        "current_price": 184.36,
+        "position_in_range": 50.91626838800042,
+        "high_exceedance": 0.07509779545975448,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "NVDA_18436_263_NEW",
+        "profit_target": 184.44
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "NVDA",
+        "quantity": 40,
+        "profit_target": 184.44,
+        "executed_at": "2025-10-24T07:25:00.546485"
+      },
+      "executed_at": "2025-10-24T07:25:00.548069",
+      "signal_id": "NVDA_18436_263_NEW"
+    },
+    "AAPL_26107_263_NEW": {
+      "signal": {
+        "symbol": "AAPL",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T07:24:55.948614",
+        "entry_reason": "NEW: Price below lower band ($0.00)",
+        "position_size": 28,
+        "auto_approve": true,
+        "current_price": 261.07,
+        "position_in_range": 52.590507360943185,
+        "high_exceedance": 0.0,
+        "low_exceedance": 0.004174279923063295,
+        "market_condition": "LOW_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AAPL_26107_263_NEW",
+        "profit_target": 261.19
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AAPL",
+        "quantity": 28,
+        "profit_target": 261.19,
+        "executed_at": "2025-10-24T07:25:00.915638"
+      },
+      "executed_at": "2025-10-24T07:25:00.917025",
+      "signal_id": "AAPL_26107_263_NEW"
+    },
+    "AAPL_26355_29_NEW": {
+      "signal": {
+        "symbol": "AAPL",
+        "signal_type": "BUY",
+        "timestamp": "2025-10-24T11:54:55.440349",
+        "entry_reason": "NEW: Price above upper band (+$0.03)",
+        "position_size": 28,
+        "auto_approve": true,
+        "current_price": 263.55,
+        "position_in_range": 52.75969634445803,
+        "high_exceedance": 0.03491726015977292,
+        "low_exceedance": 0.0,
+        "market_condition": "HIGH_EXCEEDANCE",
+        "has_trade_signal": true,
+        "is_scale_in": false,
+        "existing_position": {},
+        "signal_id": "AAPL_26355_29_NEW",
+        "profit_target": 263.67
+      },
+      "execution_result": {
+        "success": true,
+        "symbol": "AAPL",
+        "quantity": 28,
+        "profit_target": 263.67,
+        "executed_at": "2025-10-24T11:54:56.814659"
+      },
+      "executed_at": "2025-10-24T11:54:56.815320",
+      "signal_id": "AAPL_26355_29_NEW"
     }
   },
   "metadata": {

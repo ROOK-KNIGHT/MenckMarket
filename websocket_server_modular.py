@@ -16,6 +16,7 @@ from typing import Dict, List, Any
 # Import modular handlers
 from websocket_handlers.data_stream_handler import DataStreamHandler
 from websocket_handlers.control_handler import ControlHandler
+from websocket_handlers.alerts_handler import AlertsHandler
 from websocket_handlers.api_connection_handler import handle_api_connection_websocket
 
 # Import the database query handler
@@ -40,6 +41,7 @@ class ModularWebSocketServer:
         # Initialize handlers with broadcast callback
         self.data_handler = DataStreamHandler(self.broadcast_data)
         self.control_handler = ControlHandler(self.broadcast_message, self.db_query_handler)
+        self.alerts_handler = AlertsHandler(self.broadcast_message, self.db_query_handler)
     
     async def handle_close_all_positions(self, websocket, client_msg):
         """Handle close all positions request directly in main server"""
@@ -266,6 +268,19 @@ class ModularWebSocketServer:
                         
                         await api_connection_handler.handle_message(websocket, client_msg)
                     
+                    elif message_type in [
+                        'save_alerts_config', 'get_alerts_config', 'test_notifications',
+                        'update_all_settings', 'trigger_alert', 'get_alert_history',
+                        'clear_alert_history', 'change_password', 'setup_2fa',
+                        'get_login_history', 'logout'
+                    ]:
+                        # Route alerts and settings messages to alerts handler
+                        logger.info(f"🔔 Routing alerts message {message_type} to alerts handler")
+                        handled = await self.alerts_handler.handle_message(websocket, client_msg, client_addr)
+                        
+                        if not handled:
+                            logger.warning(f"⚠️ Alerts handler could not process message type: {message_type}")
+                    
                     else:
                         # Route all other messages to control handler
                         handled = await self.control_handler.handle_message(websocket, client_msg, client_addr)
@@ -316,6 +331,7 @@ class ModularWebSocketServer:
             logger.info(f"✅ Modular WebSocket server running on ws://localhost:{self.port}")
             logger.info("📡 PostgreSQL data streaming: ACTIVE")
             logger.info("🎛️ Control operations: ACTIVE")
+            logger.info("🔔 Alerts & notifications: ACTIVE")
             logger.info("🔄 Database polling every 3 seconds")
             
             # Keep server running
