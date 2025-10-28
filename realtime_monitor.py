@@ -65,9 +65,12 @@ class RealTimeMonitor:
         # Process management
         self.process_threads = {}
         
-        # Script thread tracking for monitoring
+        # Script thread tracking for monitoring - now stores dict with thread, process, start_time
         self.script_threads = {}
         self.script_threads_lock = threading.Lock()
+        
+        # Limit concurrent scripts to prevent overload
+        self.script_semaphore = threading.Semaphore(4)  # Max 4 scripts at once
         
         # Initialize handlers - lazy loading to avoid blocking
         self._handlers = {}
@@ -75,11 +78,11 @@ class RealTimeMonitor:
         
         self.update_intervals = {
             'positions': 5.0,           # Every 5 seconds
-            'transactions': 60.0,       # Every 60 seconds
-            'account': 30.0,            # Every 30 seconds
+            'transactions': 1.0,       # Every 1 second
+            'account': 1.0,            # Every 1 second
             'market_status': 10.0,      # Every 10 seconds
-            'pnl_statistics': 120.0,    # Every 2 minutes (120 seconds)
-            'database': 5.0,            # Every 5 seconds
+            'pnl_statistics': 1.0,      # Every 1 second
+            'database': 1.0,            # Every 1 second
             'exceedance_monitor': 2.0,  # Every 2 seconds - monitor exceedance strategy
             'auto_timer_monitor': 30.0, # Every 30 seconds - monitor auto-timer flags and market hours
             'api_status': 30.0,         # Every 30 seconds - monitor API authentication status
@@ -254,44 +257,64 @@ class RealTimeMonitor:
         return thread
         
     def _run_script(self, script_name: str):
-        """Run a script to fetch and save data in a separate thread."""
+        """Run a script in a non-blocking way using Popen with semaphore control."""
         def run_script_thread():
-            try:
-                import subprocess
-                self.logger.debug(f"🔄 Running {script_name} in separate thread...")
-                
-                result = subprocess.run([
-                    'python3', script_name
-                ], capture_output=True, text=True, timeout=60)  # Increased timeout for complex scripts
-                
-                if result.returncode == 0:
-                    self.logger.debug(f"✅ {script_name} completed successfully")
-                else:
-                    self.logger.warning(f"⚠️ {script_name} failed with return code {result.returncode}")
-                    if result.stderr:
-                        self.logger.warning(f"   Error: {result.stderr.strip()}")
-                        
-            except subprocess.TimeoutExpired:
-                self.logger.error(f"❌ {script_name} timed out after 60 seconds")
-            except Exception as e:
-                self.logger.error(f"❌ Error running {script_name}: {e}")
-            finally:
-                # Remove from tracking when thread completes
-                with self.script_threads_lock:
-                    if script_name in self.script_threads:
-                        del self.script_threads[script_name]
-        
-        # Track script threads for monitoring
+            # Acquire semaphore to limit concurrent scripts
+            with self.script_semaphore:
+                try:
+                    self.logger.debug(f"🔄 Running {script_name} in background...")
+
+                    # Use Popen for non-blocking execution
+                    process = subprocess.Popen(
+                        ['python3', script_name],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        cwd=os.getcwd()
+                    )
+
+                    # Store process for tracking
+                    with self.script_threads_lock:
+                        if script_name in self.script_threads:
+                            self.script_threads[script_name]['process'] = process
+                            self.script_threads[script_name]['start_time'] = time.time()
+
+                    self.logger.debug(f"🚀 Launched {script_name} (PID: {process.pid})")
+
+                    # Wait for completion (but this happens in background thread)
+                    stdout, stderr = process.communicate(timeout=300)  # 5 min timeout
+
+                    returncode = process.returncode
+
+                    if returncode == 0:
+                        self.logger.debug(f"✅ {script_name} completed successfully")
+                        if stdout and stdout.strip():
+                            self.logger.debug(f"📄 Output: {stdout.strip()}")
+                    else:
+                        self.logger.warning(f"⚠️ {script_name} failed (code {returncode})")
+                        if stderr:
+                            self.logger.warning(f"❌ Error: {stderr.strip()}")
+
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    self.logger.error(f"❌ {script_name} timed out after 5 minutes")
+                except Exception as e:
+                    self.logger.error(f"❌ Error running {script_name}: {e}")
+                finally:
+                    with self.script_threads_lock:
+                        self.script_threads.pop(script_name, None)
+
+        # Start the thread
+        script_thread = threading.Thread(target=run_script_thread, daemon=True)
+        script_thread.start()
+
+        # Update tracking
         with self.script_threads_lock:
-            # Clean up any completed threads first
-            completed_scripts = [name for name, thread in self.script_threads.items() if not thread.is_alive()]
-            for name in completed_scripts:
-                del self.script_threads[name]
-            
-            # Start new script thread
-            script_thread = threading.Thread(target=run_script_thread, daemon=True)
-            script_thread.start()
-            self.script_threads[script_name] = script_thread
+            self.script_threads[script_name] = {
+                'thread': script_thread,
+                'process': None,
+                'start_time': time.time()
+            }
             
         self.logger.debug(f"🚀 Started {script_name} in separate thread (tracking {len(self.script_threads)} active script threads)")
     

@@ -18,6 +18,7 @@ from websocket_handlers.data_stream_handler import DataStreamHandler
 from websocket_handlers.control_handler import ControlHandler
 from websocket_handlers.alerts_handler import AlertsHandler
 from websocket_handlers.api_connection_handler import handle_api_connection_websocket
+from websocket_handlers.realtime_monitor_handler import RealtimeDataHandler
 
 # Import the database query handler
 from db_query_handler import DatabaseQueryHandler
@@ -42,6 +43,7 @@ class ModularWebSocketServer:
         self.data_handler = DataStreamHandler(self.broadcast_data)
         self.control_handler = ControlHandler(self.broadcast_message, self.db_query_handler)
         self.alerts_handler = AlertsHandler(self.broadcast_message, self.db_query_handler)
+        self.realtime_data_handler = RealtimeDataHandler(self.broadcast_message, auto_start=True)
     
     async def handle_close_all_positions(self, websocket, client_msg):
         """Handle close all positions request directly in main server"""
@@ -281,6 +283,18 @@ class ModularWebSocketServer:
                         if not handled:
                             logger.warning(f"⚠️ Alerts handler could not process message type: {message_type}")
                     
+                    elif message_type in [
+                        'start_realtime_monitor', 'stop_realtime_monitor', 'get_realtime_monitor_status',
+                        'restart_realtime_monitor', 'start_realtime_data', 'stop_realtime_data',
+                        'get_realtime_data_status', 'restart_realtime_data'
+                    ]:
+                        # Route real-time data messages to real-time data handler
+                        logger.info(f"📊 Routing real-time data message {message_type} to real-time data handler")
+                        handled = await self.realtime_data_handler.handle_message(websocket, client_msg, client_addr)
+                        
+                        if not handled:
+                            logger.warning(f"⚠️ Real-time data handler could not process message type: {message_type}")
+                    
                     else:
                         # Route all other messages to control handler
                         handled = await self.control_handler.handle_message(websocket, client_msg, client_addr)
@@ -324,7 +338,7 @@ class ModularWebSocketServer:
                 self.handle_client,
                 "localhost",
                 self.port,
-                ping_interval=30,
+                ping_interval=2,
                 ping_timeout=10
             )
             
@@ -332,7 +346,11 @@ class ModularWebSocketServer:
             logger.info("📡 PostgreSQL data streaming: ACTIVE")
             logger.info("🎛️ Control operations: ACTIVE")
             logger.info("🔔 Alerts & notifications: ACTIVE")
+            logger.info("📊 Real-time data monitor: ACTIVE (auto-start enabled)")
             logger.info("🔄 Database polling every 3 seconds")
+            
+            # Auto-start real-time data monitor if needed
+            await self.realtime_data_handler.start_auto_monitor_if_needed()
             
             # Keep server running
             await server.wait_closed()
@@ -343,6 +361,9 @@ class ModularWebSocketServer:
         finally:
             self.running = False
             self.data_handler.stop()
+            # Cleanup real-time data handler
+            if hasattr(self, 'realtime_data_handler'):
+                asyncio.create_task(self.realtime_data_handler.cleanup())
             logger.info("🔌 Modular WebSocket server stopped")
     
     def stop(self):
@@ -350,6 +371,9 @@ class ModularWebSocketServer:
         logger.info("🛑 Stopping Modular WebSocket server...")
         self.running = False
         self.data_handler.stop()
+        # Cleanup real-time data handler
+        if hasattr(self, 'realtime_data_handler'):
+            asyncio.create_task(self.realtime_data_handler.cleanup())
 
 def main():
     """Main function"""

@@ -64,10 +64,23 @@
             <!-- Right Side: Trading Performance Statistics -->
             <div class="positions-right">
                 <div class="trading-stats">
-                    <h3 class="stats-title">
-                        <i class="fas fa-chart-pie"></i>
-                        Trading Performance
-                    </h3>
+                    <div class="stats-header">
+                        <h3 class="stats-title">
+                            <i class="fas fa-chart-pie"></i>
+                            Trading Performance
+                        </h3>
+                        <div class="time-period-selector">
+                            <select id="performance-time-period" class="time-period-select">
+                                <option value="today">Today</option>
+                                <option value="7days" selected>7 Days</option>
+                                <option value="1month">1 Month</option>
+                                <option value="3months">3 Months</option>
+                                <option value="6months">6 Months</option>
+                                <option value="1year">1 Year</option>
+                                <option value="all">All Time</option>
+                            </select>
+                        </div>
+                    </div>
                     
                     <!-- Win/Loss Pie Chart -->
                     <div class="stats-chart">

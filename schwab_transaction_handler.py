@@ -2,6 +2,7 @@ import os
 import requests
 import pandas as pd
 import time
+import json
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 from connection_manager import ensure_valid_tokens
@@ -36,6 +37,51 @@ class SchwabTransactionHandler:
             self.base_url = 'https://api.schwabapi.com'
             self.request_timeout = 10
         
+        # Load trading configuration for lookback period
+        self.trading_config = self.load_trading_config()
+        
+    def load_trading_config(self) -> Dict[str, Any]:
+        """
+        Load trading configuration from trading_config_live.json
+        
+        Returns:
+            Dict[str, Any]: Trading configuration dictionary
+        """
+        try:
+            config_file = 'trading_config_live.json'
+            if os.path.exists(config_file):
+                with open(config_file, 'r') as f:
+                    config = json.load(f)
+                print(f"📊 Loaded trading configuration from {config_file}")
+                return config
+            else:
+                print(f"⚠️ Trading config file {config_file} not found, using defaults")
+                return {}
+        except Exception as e:
+            print(f"❌ Error loading trading config: {e}")
+            return {}
+    
+    def get_lookback_period_days(self) -> Optional[int]:
+        """
+        Get the lookback period days from trading configuration
+        
+        Returns:
+            Optional[int]: Number of days to look back, None if not configured
+        """
+        try:
+            # Reload config to get latest values
+            self.trading_config = self.load_trading_config()
+            
+            lookback_days = self.trading_config.get('transaction_handler_lookback', {}).get('lookback_period_days')
+            if lookback_days is not None:
+                print(f"📊 Using lookback period: {lookback_days} days")
+                return int(lookback_days)
+            else:
+                print("⚠️ No lookback period configured in trading config")
+                return None
+        except Exception as e:
+            print(f"❌ Error getting lookback period: {e}")
+            return None
 
     def get_account_numbers(self) -> List[Dict]:
         """
@@ -109,7 +155,7 @@ class SchwabTransactionHandler:
         
         Args:
             account_hash (str): Account hash ID
-            from_date (str, optional): Start date in YYYY-MM-DD format (default: 30 days ago)
+            from_date (str, optional): Start date in YYYY-MM-DD format (required if not using config)
             to_date (str, optional): End date in YYYY-MM-DD format (default: today)
             transaction_type (str, optional): Filter by transaction type (e.g., "TRADE", "DIVIDEND", etc.)
             symbol (str, optional): Filter by security symbol
@@ -118,11 +164,14 @@ class SchwabTransactionHandler:
         Returns:
             List[Dict]: List of transaction dictionaries
         """
-        # Set default date range if not specified (last 30 days)
+        # Set default end date if not specified
         if not to_date:
             to_date = datetime.now().strftime("%Y-%m-%d")
+        
+        # from_date is now required - no default lookback
         if not from_date:
-            from_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+            print("❌ Error: from_date is required. No default lookback period configured.")
+            return []
             
         # Format dates for API with milliseconds as required by Schwab API
         from_date_iso = f"{from_date}T00:00:00.000Z"
@@ -407,7 +456,7 @@ class SchwabTransactionHandler:
             print(f"❌ Error creating transactions.json: {e}")
             return False
 
-    def refresh_and_store_transaction_data(self, days: int = 30) -> Dict[str, Any]:
+    def refresh_and_store_transaction_data(self, days: int = None) -> Dict[str, Any]:
         """Refresh transaction data and create JSON for database insertion"""
         try:
             # Get fresh transaction data
@@ -444,17 +493,21 @@ class SchwabTransactionHandler:
         Get transactions for all accounts over the specified period and automatically update transactions.json.
         
         Args:
-            days (int, optional): Number of days to look back (default: None, uses today only)
+            days (int, optional): Number of days to look back (default: None, uses config lookback period)
             csv_output (bool): Whether to save results to CSV files (default: True)
             
         Returns:
             pd.DataFrame: Combined transaction data from all accounts
         """
-        # If days is None, just get today's transactions
+        # If days is None, use the lookback period from trading config
         if days is None:
-            from_date = datetime.now().strftime("%Y-%m-%d")
-        else:
-            from_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+            days = self.get_lookback_period_days()
+            if days is None:
+                print("❌ Error: No lookback period configured in trading config and no days parameter provided")
+                return pd.DataFrame()
+            print(f"📊 Using lookback period from config: {days} days")
+        
+        from_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
         to_date = datetime.now().strftime("%Y-%m-%d")
         
         # Get account numbers
@@ -727,16 +780,16 @@ def main():
     # Initialize handler
     handler = SchwabTransactionHandler()
     
-    # Get transactions for the last 30 days and create JSON
-    result = handler.refresh_and_store_transaction_data(days=30)
+    # Get transactions using the config lookback period and create JSON
+    result = handler.refresh_and_store_transaction_data(days=None)  # Use config value
     
     if result['success']:
         print(f"✅ Transaction analysis completed")
         print(f"📊 Processed {result['transactions_processed']} transactions")
         print(f"✅ Created transactions.json for database insertion")
         
-        # Get the dataframe for statistics display
-        df = handler.get_all_transactions(days=30, csv_output=False)
+        # Get the dataframe for statistics display using config lookback period
+        df = handler.get_all_transactions(days=None, csv_output=False)  # Use config value
         if not df.empty:
             # Calculate and display win/loss statistics
             stats = handler.calculate_win_loss_stats(df)

@@ -15,8 +15,9 @@ JSON Files Processed:
 - divergence_signals.json
 - current_positions.json
 - options_data.json
-- technical_indicators.json
-"""
+- pnl_statistics.json
+- transactions.json
+- account_data.json"""
 
 import json
 import os
@@ -52,7 +53,6 @@ class DatabaseInserter:
             'pml_signals': 'exceedence_signals.json',  # Now using exceedence_signals.json for PML
             'divergence_signals': 'divergence_signals.json',
             'current_positions': 'current_positions.json',
-            'technical_indicators': 'technical_indicators.json',
             'pnl_statistics': 'pnl_statistics.json',
             'transactions': 'transactions.json',
             'account_data': 'account_data.json'
@@ -346,129 +346,6 @@ class DatabaseInserter:
                 conn.close()
             return False
 
-    def insert_technical_indicators(self, data: Dict[str, Any]) -> bool:
-        """Insert technical indicators into database."""
-        try:
-            conn = psycopg2.connect(**self.db_config)
-            cur = conn.cursor(cursor_factory=RealDictCursor)
-            
-            cur.execute("DELETE FROM technical_indicators;")
-            
-            indicators = data.get('indicators', {})
-            insert_count = 0
-            
-            for symbol, indicator_data in indicators.items():
-                try:
-                    if 'error' in indicator_data:
-                        continue
-                    
-                    base_indicators = indicator_data.get('base_indicators', {})
-                    pml_indicators = indicator_data.get('pml_indicators', {})
-                    iron_condor_indicators = indicator_data.get('iron_condor_indicators', {})
-                    divergence_indicators = indicator_data.get('divergence_indicators', {})
-                    
-                    insert_sql = """
-                    INSERT INTO technical_indicators (
-                        timestamp, symbol, current_price, sma_20, sma_50, ema_9, ema_21, ema_50,
-                        rsi, macd, macd_signal, macd_histogram, atr, realized_volatility,
-                        volume, avg_volume, relative_volume_pct, trend_direction, trend_strength,
-                        pml_price, ceiling_price, floor_price, green_line_price,
-                        call_delta, put_delta, net_delta, pml_cross_bullish, delta_confirmation,
-                        iv_rank, range_pct, recent_high, recent_low, is_range_bound,
-                        is_low_volatility, is_suitable_for_ic, bullish_divergence_detected,
-                        bearish_divergence_detected, divergence_strength, support_levels,
-                        resistance_levels, swing_highs, swing_lows
-                    ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s
-                    )
-                    """
-                    
-                    def convert_numpy_types(obj):
-                        """Convert numpy types to native Python types for JSON serialization"""
-                        import numpy as np
-                        if isinstance(obj, np.integer):
-                            return int(obj)
-                        elif isinstance(obj, np.floating):
-                            return float(obj)
-                        elif isinstance(obj, np.bool_):
-                            return bool(obj)
-                        elif isinstance(obj, np.ndarray):
-                            return obj.tolist()
-                        elif isinstance(obj, dict):
-                            return {key: convert_numpy_types(value) for key, value in obj.items()}
-                        elif isinstance(obj, list):
-                            return [convert_numpy_types(item) for item in obj]
-                        else:
-                            return obj
-                    
-                    values = (
-                        datetime.now().isoformat(),
-                        symbol,
-                        float(base_indicators.get('current_price', 0.0)),
-                        float(base_indicators.get('sma_20', 0.0)),
-                        float(base_indicators.get('sma_50', 0.0)),
-                        float(base_indicators.get('ema_9', 0.0)),
-                        float(base_indicators.get('ema_21', 0.0)),
-                        float(base_indicators.get('ema_50', 0.0)),
-                        float(base_indicators.get('rsi', 50.0)),
-                        float(base_indicators.get('macd', 0.0)),
-                        float(base_indicators.get('macd_signal', 0.0)),
-                        float(base_indicators.get('macd_histogram', 0.0)),
-                        float(base_indicators.get('atr', 0.0)),
-                        float(base_indicators.get('realized_volatility', 20.0)),
-                        int(base_indicators.get('volume', 0)),
-                        float(base_indicators.get('avg_volume', 0.0)),
-                        float(base_indicators.get('relative_volume_pct', 100.0)),
-                        str(base_indicators.get('trend_direction', 'neutral')),
-                        float(base_indicators.get('trend_strength', 0.0)),
-                        float(pml_indicators.get('pml_price', 0.0)),
-                        float(pml_indicators.get('ceiling_price', 0.0)),
-                        float(pml_indicators.get('floor_price', 0.0)),
-                        float(pml_indicators.get('green_line_price', 0.0)),
-                        float(pml_indicators.get('call_delta', 0.0)),
-                        float(pml_indicators.get('put_delta', 0.0)),
-                        float(pml_indicators.get('net_delta', 0.0)),
-                        bool(pml_indicators.get('pml_cross_bullish', False)),
-                        bool(pml_indicators.get('delta_confirmation', False)),
-                        float(iron_condor_indicators.get('iv_rank', 50.0)),
-                        float(iron_condor_indicators.get('range_pct', 0.1)),
-                        float(iron_condor_indicators.get('recent_high', 0.0)),
-                        float(iron_condor_indicators.get('recent_low', 0.0)),
-                        bool(iron_condor_indicators.get('is_range_bound', False)),
-                        bool(iron_condor_indicators.get('is_low_volatility', False)),
-                        bool(iron_condor_indicators.get('is_suitable_for_ic', False)),
-                        bool(divergence_indicators.get('bullish_divergence_detected', False)),
-                        bool(divergence_indicators.get('bearish_divergence_detected', False)),
-                        str(divergence_indicators.get('divergence_strength', 'medium')),
-                        json.dumps(convert_numpy_types(divergence_indicators.get('support_levels', []))),
-                        json.dumps(convert_numpy_types(divergence_indicators.get('resistance_levels', []))),
-                        json.dumps(convert_numpy_types(divergence_indicators.get('swing_highs', []))),
-                        json.dumps(convert_numpy_types(divergence_indicators.get('swing_lows', [])))
-                    )
-                    
-                    cur.execute(insert_sql, values)
-                    insert_count += 1
-                    
-                except Exception as e:
-                    self.logger.error(f"Error inserting technical indicators {symbol}: {e}")
-                    continue
-            
-            conn.commit()
-            cur.close()
-            conn.close()
-            
-            self.logger.info(f"✅ Inserted {insert_count} technical indicators")
-            return True
-            
-        except Exception as e:
-            self.logger.error(f"❌ Error inserting technical indicators: {e}")
-            if 'conn' in locals():
-                conn.rollback()
-                conn.close()
-            return False
-
     def insert_integrated_watchlist(self, data: Dict[str, Any]) -> bool:
         """Insert integrated watchlist into database."""
         try:
@@ -609,17 +486,6 @@ class DatabaseInserter:
         else:
             self.logger.warning(f"Current positions file not found: {self.json_files['current_positions']}")
             results['current_positions'] = False
-        
-        # Technical Indicators
-        if os.path.exists(self.json_files['technical_indicators']):
-            data = self.load_json_file(self.json_files['technical_indicators'])
-            if data:
-                results['technical_indicators'] = self.insert_technical_indicators(data)
-            else:
-                results['technical_indicators'] = False
-        else:
-            self.logger.warning(f"Technical indicators file not found: {self.json_files['technical_indicators']}")
-            results['technical_indicators'] = False
         
         # PnL Statistics
         if os.path.exists(self.json_files['pnl_statistics']):

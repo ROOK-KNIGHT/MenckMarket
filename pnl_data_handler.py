@@ -845,23 +845,67 @@ class PnLDataHandler:
             return False
 
 
+    def load_transactions_from_json(self, filename: str = 'transactions.json') -> pd.DataFrame:
+        """
+        Load transaction data from transactions.json file.
+        
+        Args:
+            filename (str): Path to the transactions JSON file
+            
+        Returns:
+            pd.DataFrame: DataFrame containing transaction data
+        """
+        try:
+            if not os.path.exists(filename):
+                print(f"❌ Transaction file {filename} not found")
+                return pd.DataFrame()
+            
+            with open(filename, 'r') as f:
+                data = json.load(f)
+            
+            transactions = data.get('transactions', [])
+            if not transactions:
+                print("❌ No transactions found in JSON file")
+                return pd.DataFrame()
+            
+            # Convert to DataFrame
+            df = pd.DataFrame(transactions)
+            
+            # Convert timestamp to datetime
+            if 'timestamp' in df.columns:
+                df['date'] = pd.to_datetime(df['timestamp'])
+            
+            # Rename columns to match expected format
+            column_mapping = {
+                'transaction_type': 'type',
+                'timestamp': 'date'
+            }
+            
+            for old_col, new_col in column_mapping.items():
+                if old_col in df.columns and new_col not in df.columns:
+                    df[new_col] = df[old_col]
+            
+            print(f"✅ Loaded {len(df)} transactions from {filename}")
+            print(f"📊 Date range: {df['date'].min()} to {df['date'].max()}")
+            
+            return df
+            
+        except Exception as e:
+            print(f"❌ Error loading transactions from JSON: {e}")
+            return pd.DataFrame()
+
 def main():
-    """Main function - automatically analyze P&L and store in database"""
+    """Main function - automatically analyze P&L from transactions.json and store in database"""
     print("P&L Data Handler - Transaction Analysis")
     print("=" * 50)
     
     # Initialize handler
     handler = PnLDataHandler()
     
-    # First, we need transaction data to analyze
-    # Import the transaction handler to get fresh data
-    from schwab_transaction_handler import SchwabTransactionHandler
+    print("Loading transaction data from transactions.json...")
     
-    print("Fetching transaction data for P&L analysis...")
-    transaction_handler = SchwabTransactionHandler()
-    
-    # Get transactions for the last 30 days
-    df = transaction_handler.get_all_transactions(days=30, csv_output=False)
+    # Load transactions directly from the JSON file
+    df = handler.load_transactions_from_json('transactions.json')
     
     if not df.empty:
         print(f"Analyzing {len(df)} transactions for P&L statistics...")
@@ -898,7 +942,8 @@ def main():
         else:
             print("❌ P&L analysis failed")
     else:
-        print("No transaction data available for P&L analysis")
+        print("❌ No transaction data available for P&L analysis")
+        print("💡 Make sure transactions.json exists and contains transaction data")
 
 
 if __name__ == "__main__":

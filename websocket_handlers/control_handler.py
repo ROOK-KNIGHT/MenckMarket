@@ -66,22 +66,6 @@ class ControlHandler:
                 logger.info(f"📨 Received exchange_tokens message from {client_addr}")
                 await self.handle_exchange_tokens(websocket, client_msg)
             
-            elif message_type == 'start_trading':
-                logger.info(f"📨 Received start_trading message from {client_addr}")
-                await self.handle_start_trading(websocket, client_msg)
-            
-            elif message_type == 'stop_trading':
-                logger.info(f"📨 Received stop_trading message from {client_addr}")
-                await self.handle_stop_trading(websocket, client_msg)
-            
-            elif message_type == 'get_trading_status':
-                logger.info(f"📨 Received get_trading_status message from {client_addr}")
-                await self.handle_get_trading_status(websocket)
-            
-            elif message_type == 'emergency_stop':
-                logger.info(f"📨 Received emergency_stop message from {client_addr}")
-                await self.handle_emergency_stop(websocket, client_msg)
-            
             elif message_type == 'save_trading_config':
                 logger.info(f"📨 Received save_trading_config message from {client_addr}")
                 await self.handle_trading_config_save(websocket, client_msg)
@@ -141,6 +125,10 @@ class ControlHandler:
             elif message_type == 'close_all_positions':
                 logger.info(f"📨 Received close_all_positions message from {client_addr}")
                 await self.handle_close_all_positions(websocket, client_msg)
+            
+            elif message_type == 'request_trading_statistics':
+                logger.info(f"📨 Received request_trading_statistics message from {client_addr}")
+                await self.handle_request_trading_statistics(websocket, client_msg)
             
             else:
                 logger.warning(f"⚠️ Unknown message type: {message_type}")
@@ -998,258 +986,6 @@ class ControlHandler:
         await self.broadcast_callback(message)
         logger.info("📡 Auth status update broadcasted to all clients")
 
-    # Trading Control Handlers
-    async def handle_start_trading(self, websocket, client_msg):
-        """Handle starting the trading engine"""
-        try:
-            logger.info("🚀 Starting trading engine via WebSocket...")
-            
-            # Check if trading engine is already running
-            trading_engine_running = False
-            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-                try:
-                    cmdline = proc.info['cmdline']
-                    if cmdline and any('trading_engine.py' in arg for arg in cmdline):
-                        trading_engine_running = True
-                        logger.info(f"Trading engine already running: PID {proc.info['pid']}")
-                        break
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    continue
-            
-            if not trading_engine_running:
-                # Start new trading engine process
-                logger.info("🚀 Starting new trading_engine.py process...")
-                trading_process = subprocess.Popen([
-                    'python3', 'trading_engine.py'
-                ], 
-                stdout=subprocess.PIPE, 
-                stderr=subprocess.PIPE,
-                cwd=os.getcwd()
-                )
-                
-                logger.info(f"✅ Started trading engine process with PID: {trading_process.pid}")
-                
-                # Give the process a moment to initialize
-                import time
-                time.sleep(2)
-                
-                # Check if the process is still running
-                if trading_process.poll() is None:
-                    logger.info("✅ Trading engine is running successfully")
-                    success = True
-                    message = "Trading engine started successfully"
-                else:
-                    logger.error("❌ Trading engine failed to start")
-                    success = False
-                    message = "Trading engine failed to start"
-            else:
-                success = True
-                message = "Trading engine is already running"
-            
-            # Send response
-            await websocket.send(json.dumps({
-                'type': 'trading_start_response',
-                'success': success,
-                'message': message,
-                'timestamp': datetime.now().isoformat()
-            }))
-            
-            # Broadcast trading status update to all clients
-            if success:
-                await self.broadcast_trading_status_update('running')
-            
-        except Exception as e:
-            error_msg = f'Error starting trading engine: {str(e)}'
-            logger.error(f"❌ {error_msg}")
-            await websocket.send(json.dumps({
-                'type': 'trading_start_response',
-                'success': False,
-                'error': error_msg,
-                'timestamp': datetime.now().isoformat()
-            }))
-
-    async def handle_stop_trading(self, websocket, client_msg):
-        """Handle stopping the trading engine"""
-        try:
-            logger.info("🛑 Stopping trading engine via WebSocket...")
-            
-            # Find and terminate trading engine processes
-            terminated_processes = []
-            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-                try:
-                    cmdline = proc.info['cmdline']
-                    if cmdline and any('trading_engine.py' in arg for arg in cmdline):
-                        logger.info(f"🛑 Terminating trading engine process: PID {proc.info['pid']}")
-                        proc.terminate()
-                        terminated_processes.append(proc.info['pid'])
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    continue
-            
-            if terminated_processes:
-                # Wait for processes to terminate gracefully
-                logger.info(f"⏳ Waiting for {len(terminated_processes)} processes to terminate...")
-                import time
-                time.sleep(2)
-                
-                success = True
-                message = f"Trading engine stopped successfully ({len(terminated_processes)} processes terminated)"
-            else:
-                success = True
-                message = "Trading engine was not running"
-            
-            # Send response
-            await websocket.send(json.dumps({
-                'type': 'trading_stop_response',
-                'success': success,
-                'message': message,
-                'timestamp': datetime.now().isoformat()
-            }))
-            
-            # Broadcast trading status update to all clients
-            await self.broadcast_trading_status_update('stopped')
-            
-        except Exception as e:
-            error_msg = f'Error stopping trading engine: {str(e)}'
-            logger.error(f"❌ {error_msg}")
-            await websocket.send(json.dumps({
-                'type': 'trading_stop_response',
-                'success': False,
-                'error': error_msg,
-                'timestamp': datetime.now().isoformat()
-            }))
-
-    async def handle_get_trading_status(self, websocket):
-        """Handle getting trading engine status"""
-        try:
-            logger.info("🔍 Checking trading engine status via WebSocket...")
-            
-            # Check if trading engine is running
-            trading_engine_running = False
-            active_processes = []
-            
-            for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'create_time']):
-                try:
-                    cmdline = proc.info['cmdline']
-                    if cmdline and any('trading_engine.py' in arg for arg in cmdline):
-                        trading_engine_running = True
-                        active_processes.append({
-                            'pid': proc.info['pid'],
-                            'create_time': datetime.fromtimestamp(proc.info['create_time']).isoformat()
-                        })
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    continue
-            
-            # Check for processed_signals.json
-            processed_signals_exists = os.path.exists('processed_signals.json')
-            processed_signals_count = 0
-            
-            if processed_signals_exists:
-                try:
-                    with open('processed_signals.json', 'r') as f:
-                        processed_signals = json.load(f)
-                        processed_signals_count = len(processed_signals)
-                except Exception:
-                    pass
-            
-            # Check for active orders
-            active_orders_count = 0
-            if os.path.exists('orders/active_orders.json'):
-                try:
-                    with open('orders/active_orders.json', 'r') as f:
-                        active_orders = json.load(f)
-                        active_orders_count = len(active_orders)
-                except Exception:
-                    pass
-            
-            # Determine status
-            if trading_engine_running:
-                status = 'running'
-                status_message = f'Trading engine is running ({len(active_processes)} processes)'
-            else:
-                status = 'stopped'
-                status_message = 'Trading engine is not running'
-            
-            # Send response
-            await websocket.send(json.dumps({
-                'type': 'trading_status_response',
-                'success': True,
-                'running': trading_engine_running,
-                'status': status,
-                'message': status_message,
-                'active_processes': active_processes,
-                'processed_signals_count': processed_signals_count,
-                'active_orders_count': active_orders_count,
-                'processed_signals_file_exists': processed_signals_exists,
-                'timestamp': datetime.now().isoformat()
-            }))
-            
-        except Exception as e:
-            error_msg = f'Error getting trading status: {str(e)}'
-            logger.error(f"❌ {error_msg}")
-            await websocket.send(json.dumps({
-                'type': 'trading_status_response',
-                'success': False,
-                'error': error_msg,
-                'timestamp': datetime.now().isoformat()
-            }))
-
-    async def handle_emergency_stop(self, websocket, client_msg):
-        """Handle emergency stop of trading engine"""
-        try:
-            logger.info("🚨 EMERGENCY STOP triggered via WebSocket...")
-            
-            # Find and forcefully kill all trading-related processes
-            terminated_processes = []
-            process_types = ['trading_engine.py', 'iron_condor_strategy.py', 'pml_strategy.py', 'divergence_strategy.py']
-            
-            for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-                try:
-                    cmdline = proc.info['cmdline']
-                    if cmdline and any(process_type in ' '.join(cmdline) for process_type in process_types):
-                        logger.info(f"🚨 EMERGENCY STOP: Killing process PID {proc.info['pid']}")
-                        proc.kill()  # Use kill() instead of terminate() for emergency stop
-                        terminated_processes.append(proc.info['pid'])
-                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                    continue
-            
-            # Wait briefly for processes to die
-            import time
-            time.sleep(1)
-            
-            success = True
-            message = f"EMERGENCY STOP executed - {len(terminated_processes)} processes terminated"
-            
-            # Send response
-            await websocket.send(json.dumps({
-                'type': 'emergency_stop_response',
-                'success': success,
-                'message': message,
-                'terminated_processes': terminated_processes,
-                'timestamp': datetime.now().isoformat()
-            }))
-            
-            # Broadcast emergency stop to all clients
-            await self.broadcast_trading_status_update('emergency_stopped')
-            
-        except Exception as e:
-            error_msg = f'Error executing emergency stop: {str(e)}'
-            logger.error(f"❌ {error_msg}")
-            await websocket.send(json.dumps({
-                'type': 'emergency_stop_response',
-                'success': False,
-                'error': error_msg,
-                'timestamp': datetime.now().isoformat()
-            }))
-
-    async def broadcast_trading_status_update(self, status):
-        """Broadcast trading status update to all clients"""
-        message = {
-            'type': 'trading_status_updated',
-            'status': status,
-            'timestamp': datetime.now().isoformat()
-        }
-        await self.broadcast_callback(message)
-        logger.info(f"📡 Trading status update ({status}) broadcasted to all clients")
 
     # Trading Configuration Handlers
     async def handle_trading_config_save(self, websocket, client_msg):
@@ -2721,3 +2457,96 @@ class ControlHandler:
                 'error': str(e),
                 'timestamp': datetime.now().isoformat()
             }))
+
+    # Trading Statistics Handler
+    async def handle_request_trading_statistics(self, websocket, client_msg):
+        """Handle request for trading statistics with specific time period - updates config only"""
+        try:
+            time_period = client_msg.get('time_period', '7days')
+            timestamp = client_msg.get('timestamp', datetime.now().isoformat())
+            
+            logger.info(f"📊 Processing trading statistics request for time period: {time_period}")
+            
+            # Map time periods to days for transaction handler lookback
+            time_period_mapping = {
+                'today': 1,
+                '7days': 7,
+                '1month': 30,
+                '3months': 90,
+                '6months': 180,
+                '1year': 365,
+                'all': 1095  # 3 years for "all time"
+            }
+            
+            lookback_days = time_period_mapping.get(time_period, 30)  # Default to 30 days
+            
+            # Update the transaction handler lookback period in trading config
+            success = await self.update_transaction_handler_lookback(lookback_days)
+            
+            if success:
+                logger.info(f"✅ Updated transaction handler lookback for {time_period} ({lookback_days} days)")
+                
+                # Send success response
+                await websocket.send(json.dumps({
+                    'type': 'trading_statistics_response',
+                    'success': True,
+                    'time_period': time_period,
+                    'lookback_days': lookback_days,
+                    'message': f'Transaction handler lookback updated for {time_period}',
+                    'timestamp': datetime.now().isoformat()
+                }))
+                
+            else:
+                logger.error(f"❌ Failed to update transaction handler lookback for {time_period}")
+                
+                await websocket.send(json.dumps({
+                    'type': 'trading_statistics_error',
+                    'success': False,
+                    'error': 'Failed to update transaction handler lookback period',
+                    'time_period': time_period,
+                    'timestamp': datetime.now().isoformat()
+                }))
+            
+        except Exception as e:
+            logger.error(f"❌ Error handling trading statistics request: {e}")
+            await websocket.send(json.dumps({
+                'type': 'trading_statistics_error',
+                'success': False,
+                'error': str(e),
+                'time_period': client_msg.get('time_period', 'unknown'),
+                'timestamp': datetime.now().isoformat()
+            }))
+
+    async def update_transaction_handler_lookback(self, lookback_days):
+        """Update the transaction handler lookback period in trading config"""
+        try:
+            config_file = 'trading_config_live.json'
+            
+            logger.info(f"📊 Updating transaction handler lookback to {lookback_days} days")
+            
+            # Load existing config
+            if os.path.exists(config_file):
+                with open(config_file, 'r') as f:
+                    existing_config = json.load(f)
+            else:
+                existing_config = {}
+            
+            # Ensure transaction_handler_lookback section exists
+            if 'transaction_handler_lookback' not in existing_config:
+                existing_config['transaction_handler_lookback'] = {}
+            
+            # Update the lookback period
+            existing_config['transaction_handler_lookback']['lookback_period_days'] = lookback_days
+            existing_config['transaction_handler_lookback']['last_updated'] = datetime.now().isoformat()
+            existing_config['transaction_handler_lookback']['updated_by'] = 'analytics_manager'
+            
+            # Save updated configuration
+            with open(config_file, 'w') as f:
+                json.dump(existing_config, f, indent=2)
+            
+            logger.info(f"✅ Successfully updated transaction handler lookback to {lookback_days} days")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Error updating transaction handler lookback: {e}")
+            return False

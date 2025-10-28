@@ -3,6 +3,7 @@ class AnalyticsManager {
     constructor() {
         this.tradingStats = {};
         this.winLossChart = null;
+        this.currentTimePeriod = '7days';
         this.init();
     }
     
@@ -14,7 +15,13 @@ class AnalyticsManager {
     }
     
     bindEvents() {
-        // No specific button events for analytics - it's mostly data-driven
+        // Bind time period selector change event
+        const timePeriodSelect = document.getElementById('performance-time-period');
+        if (timePeriodSelect) {
+            timePeriodSelect.addEventListener('change', (e) => {
+                this.handleTimePeriodChange(e.target.value);
+            });
+        }
         console.log('Analytics manager events bound');
     }
     
@@ -83,11 +90,181 @@ class AnalyticsManager {
         this.updateTradingMetrics(defaultMetrics);
     }
     
+    // Handle time period change
+    handleTimePeriodChange(newPeriod) {
+        console.log(`📊 Time period changed to: ${newPeriod}`);
+        this.currentTimePeriod = newPeriod;
+        
+        // Show loading state
+        this.showLoadingState();
+        
+        // Request new data for the selected time period
+        this.requestTradingStatistics(newPeriod);
+        
+        // Show toast notification
+        this.showToast(`Loading ${this.getTimePeriodLabel(newPeriod)} trading statistics...`, 'info');
+    }
+    
+    // Get human-readable label for time period
+    getTimePeriodLabel(period) {
+        const labels = {
+            'today': 'Today\'s',
+            '7days': '7 Days',
+            '1month': '1 Month',
+            '3months': '3 Months',
+            '6months': '6 Months',
+            '1year': '1 Year',
+            'all': 'All Time'
+        };
+        return labels[period] || period;
+    }
+    
+    // Show loading state for statistics
+    showLoadingState() {
+        const elements = [
+            'win-rate', 'total-trades', 'avg-win', 
+            'avg-loss', 'total-pl', 'wl-ratio'
+        ];
+        
+        elements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = '...';
+                element.style.opacity = '0.6';
+            }
+        });
+    }
+    
+    // Hide loading state for statistics
+    hideLoadingState() {
+        const elements = [
+            'win-rate', 'total-trades', 'avg-win', 
+            'avg-loss', 'total-pl', 'wl-ratio'
+        ];
+        
+        elements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.opacity = '1';
+            }
+        });
+    }
+    
+    // Request trading statistics for specific time period
+    requestTradingStatistics(timePeriod) {
+        console.log(`📊 Requesting trading statistics for period: ${timePeriod}`);
+        
+        // Send WebSocket message to request statistics for specific time period
+        if (window.websocketManager && window.websocketManager.isConnected()) {
+            const message = {
+                type: 'request_trading_statistics',
+                time_period: timePeriod,
+                timestamp: new Date().toISOString()
+            };
+            
+            window.websocketManager.send(message);
+            console.log('📊 Trading statistics request sent via WebSocket');
+        } else {
+            console.warn('📊 WebSocket not available, using mock data');
+            // Fallback to mock data for demonstration
+            setTimeout(() => {
+                this.loadMockStatistics(timePeriod);
+            }, 1000);
+        }
+    }
+    
+    // Load mock statistics for demonstration (when WebSocket is not available)
+    loadMockStatistics(timePeriod) {
+        const mockData = {
+            'today': {
+                total_trades: 3,
+                win_rate: 0.667,
+                avg_win: 125.50,
+                avg_loss: -85.25,
+                total_pl: 155.75,
+                win_loss_ratio: 1.47
+            },
+            '7days': {
+                total_trades: 15,
+                win_rate: 0.6,
+                avg_win: 145.75,
+                avg_loss: -95.50,
+                total_pl: 502.25,
+                win_loss_ratio: 1.53
+            },
+            '1month': {
+                total_trades: 42,
+                win_rate: 0.571,
+                avg_win: 165.25,
+                avg_loss: -110.75,
+                total_pl: 1250.50,
+                win_loss_ratio: 1.49
+            },
+            '3months': {
+                total_trades: 128,
+                win_rate: 0.555,
+                avg_win: 175.50,
+                avg_loss: -125.25,
+                total_pl: 2875.75,
+                win_loss_ratio: 1.40
+            },
+            '6months': {
+                total_trades: 256,
+                win_rate: 0.547,
+                avg_win: 185.75,
+                avg_loss: -135.50,
+                total_pl: 4250.25,
+                win_loss_ratio: 1.37
+            },
+            '1year': {
+                total_trades: 485,
+                win_rate: 0.542,
+                avg_win: 195.25,
+                avg_loss: -145.75,
+                total_pl: 7825.50,
+                win_loss_ratio: 1.34
+            },
+            'all': {
+                total_trades: 1247,
+                win_rate: 0.538,
+                avg_win: 205.50,
+                avg_loss: -155.25,
+                total_pl: 15750.75,
+                win_loss_ratio: 1.32
+            }
+        };
+        
+        const stats = mockData[timePeriod] || mockData['7days'];
+        this.updateTradingMetrics(stats);
+        this.hideLoadingState();
+        
+        console.log(`📊 Mock statistics loaded for ${timePeriod}:`, stats);
+    }
+
     // Update from WebSocket data - simplified
     updateFromWebSocket(data) {
         if (data.trading_statistics) {
             console.log('📊 Processing trading statistics from PostgreSQL WebSocket');
             this.updateTradingStatisticsFromDatabase(data.trading_statistics);
+        }
+        
+        // Handle trading statistics response
+        if (data.type === 'trading_statistics_response') {
+            console.log('📊 Received trading statistics response:', data);
+            this.hideLoadingState();
+            
+            if (data.success) {
+                this.showToast(`Updated lookback period to ${data.lookback_days} days for ${this.getTimePeriodLabel(data.time_period)}`, 'success');
+            } else {
+                this.showToast(`Failed to update lookback period: ${data.error}`, 'error');
+            }
+        }
+        
+        // Handle trading statistics error
+        if (data.type === 'trading_statistics_error') {
+            console.log('❌ Trading statistics error:', data);
+            this.hideLoadingState();
+            this.showToast(`Error updating lookback period: ${data.error}`, 'error');
         }
     }
     

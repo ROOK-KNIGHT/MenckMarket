@@ -5,7 +5,7 @@ Database Query Handler for Dashboard Data
 This handler provides all database queries needed for the dashboard:
 1. Trading statistics and P&L data
 2. Current positions
-3. Technical indicators
+3. Strategy signals (Iron Condor, PML, Divergence)
 4. Strategy signals (Iron Condor, PML, Divergence)
 5. Account data
 6. Watchlist data
@@ -348,49 +348,6 @@ class DatabaseQueryHandler:
             self.logger.error(f"❌ Error getting Divergence signals: {e}")
             return []
 
-    def get_technical_indicators(self, limit: int = 50) -> Dict[str, Any]:
-        """Get technical indicators from database."""
-        try:
-            conn = self.get_connection()
-            if not conn:
-                return {}
-            
-            cur = conn.cursor(cursor_factory=RealDictCursor)
-            
-            cur.execute(f"""
-                SELECT * FROM technical_indicators 
-                ORDER BY timestamp DESC
-                LIMIT {limit}
-            """)
-            
-            indicators_data = cur.fetchall()
-            
-            indicators = {}
-            for indicator in indicators_data:
-                symbol = indicator['symbol']
-                indicators[symbol] = {
-                    'symbol': symbol,
-                    'current_price': indicator['current_price'],
-                    'rsi': indicator['rsi'],
-                    'macd': indicator['macd'],
-                    'atr': indicator['atr'],
-                    'trend_direction': indicator['trend_direction'],
-                    'trend_strength': indicator['trend_strength'],
-                    'volume': indicator['volume'],
-                    'pml_price': indicator['pml_price'],
-                    'iv_rank': indicator['iv_rank'],
-                    'timestamp': indicator['timestamp'].isoformat() if indicator['timestamp'] else None
-                }
-            
-            cur.close()
-            conn.close()
-            
-            self.logger.info(f"📊 Retrieved technical indicators for {len(indicators)} symbols from database")
-            return indicators
-            
-        except Exception as e:
-            self.logger.error(f"❌ Error getting technical indicators: {e}")
-            return {}
 
     def get_account_data(self) -> Dict[str, Any]:
         """Get account data from database."""
@@ -548,7 +505,6 @@ class DatabaseQueryHandler:
             iron_condor_signals = self.get_iron_condor_signals()
             pml_signals = self.get_pml_signals()
             divergence_signals = self.get_divergence_signals()
-            technical_indicators = self.get_technical_indicators()
             account_data = self.get_account_data()
             watchlist_data = self.get_watchlist_data()
             recent_transactions = self.get_recent_transactions()
@@ -572,7 +528,6 @@ class DatabaseQueryHandler:
                 'iron_condor_signals': iron_condor_signals,
                 'pml_signals': pml_signals,
                 'divergence_signals': divergence_signals,
-                'technical_indicators': technical_indicators,
                 'account_data': account_data,
                 'watchlist_data': watchlist_data,
                 'recent_transactions': recent_transactions,
@@ -620,7 +575,6 @@ def main():
     print(f"   Iron Condor Signals: {len(data.get('iron_condor_signals', []))}")
     print(f"   PML Signals: {len(data.get('pml_signals', []))}")
     print(f"   Divergence Signals: {len(data.get('divergence_signals', []))}")
-    print(f"   Technical Indicators: {len(data.get('technical_indicators', {}))}")
     print(f"   Watchlist Symbols: {len(data.get('watchlist_data', []))}")
     print(f"   Recent Transactions: {len(data.get('recent_transactions', []))}")
     

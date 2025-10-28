@@ -56,7 +56,7 @@ class ExceedenceStrategy:
         self.risk_mgmt = self.pml_config.get('risk_management', {})
         self.strategy_allocation_pct = self.risk_mgmt.get('strategy_allocation', 20.0) / 100.0
         self.position_size_pct = self.risk_mgmt.get('position_size', 15.0) / 100.0
-        self.max_shares = self.risk_mgmt.get('max_shares', 1000)
+        self.max_shares = self.risk_mgmt.get('max_contracts', 1000)
         self.auto_approve = self.pml_config.get('auto_approve', False)
         
         self.logger.info("ExceedenceStrategy initialized:")
@@ -179,29 +179,34 @@ class ExceedenceStrategy:
             return {}
 
     def load_current_positions(self) -> Dict[str, Dict[str, Any]]:
-        """Load current positions from account data"""
+        """Load current positions from current_positions.json (same source as trading engine)"""
         try:
-            account_data = self.load_account_data()
-            if not account_data:
+            positions_file = 'current_positions.json'
+            if not os.path.exists(positions_file):
+                self.logger.debug(f"📄 {positions_file} not found")
                 return {}
+            
+            with open(positions_file, 'r') as f:
+                data = json.load(f)
             
             positions = {}
             
-            # Check if we have positions data in account_data.json
-            if 'positions' in account_data:
-                for position in account_data['positions']:
-                    symbol = position.get('symbol', '')
-                    quantity = position.get('quantity', 0)
-                    avg_price = position.get('average_price', 0.0)
-                    
-                    if symbol and quantity != 0:
-                        positions[symbol] = {
-                            'quantity': quantity,
-                            'average_price': avg_price,
-                            'market_value': position.get('market_value', 0.0),
-                            'position_type': 'LONG' if quantity > 0 else 'SHORT'
-                        }
+            # Extract positions from current_positions.json structure
+            positions_data = data.get('positions', {})
+            for position_key, position in positions_data.items():
+                symbol = position.get('symbol', '')
+                quantity = position.get('quantity', 0)
+                avg_price = position.get('average_price', 0.0)
+                
+                if symbol and quantity != 0:
+                    positions[symbol] = {
+                        'quantity': quantity,
+                        'average_price': avg_price,
+                        'market_value': position.get('market_value', 0.0),
+                        'position_type': 'LONG' if quantity > 0 else 'SHORT'
+                    }
             
+            self.logger.debug(f"✅ Loaded {len(positions)} current positions from {positions_file}")
             return positions
             
         except Exception as e:
@@ -429,10 +434,11 @@ def analyze_symbol_exceedence_ultra_parallel(symbol: str, exceedance_indicators:
 
 def execute_immediate_trade(trading_engine: ExceedanceTradingEngine, signal: Dict[str, Any]) -> bool:
     """
-    Execute immediate trade using OTA market order with profit target
+    Execute immediate trade using new atomic methods from refactored trading engine
     
-    Handles both new positions and scale-in orders. For scale-in orders,
-    existing profit targets are automatically cancelled before placing the new order.
+    Uses the new modular approach:
+    - execute_new_position_trade() for new positions
+    - execute_scale_in_trade() for scale-in orders
     
     Args:
         trading_engine: Trading engine instance
@@ -447,35 +453,49 @@ def execute_immediate_trade(trading_engine: ExceedanceTradingEngine, signal: Dic
         current_price = signal.get('current_price', 0.0)
         is_scale_in = signal.get('is_scale_in', False)
         
-        # Validate trade parameters
-        if not symbol or quantity <= 0 or current_price <= 0:
-            print(f"❌ Invalid trade parameters: {symbol} {quantity}@${current_price:.2f}")
+        # Validate trade parameters using atomic method
+        validation = trading_engine.validate_trade_params(symbol, quantity, current_price)
+        if not validation['valid']:
+            print(f"❌ Invalid trade parameters: {', '.join(validation['errors'])}")
             return False
         
-        # Calculate profit target using trading engine's method
-        profit_target = trading_engine.calculate_profit_target(current_price)
+        # Calculate profit target using atomic method
+        profit_calc = trading_engine.calculate_profit_target_atomic(current_price, trading_engine.profit_target_pct)
+        if not profit_calc['success']:
+            print(f"❌ Profit target calculation failed: {profit_calc['error']}")
+            return False
         
-        # Add profit target to signal for display purposes
+        profit_target = profit_calc['profit_target']
         signal['profit_target'] = profit_target
         
         trade_type = "SCALE-IN" if is_scale_in else "NEW"
-        print(f"🎯 Executing {trade_type} OTA MARKET order: {symbol} {quantity} shares")
+        print(f"🎯 Executing {trade_type} ATOMIC trade: {symbol} {quantity} shares")
         print(f"   Entry: MARKET (est. ${current_price:.2f})")
         print(f"   Auto Take Profit: ${profit_target:.2f} ({trading_engine.profit_target_pct*100:.3f}%)")
         
+        # Use appropriate atomic method based on trade type
         if is_scale_in:
-            print(f"   🔄 Will cancel existing profit targets before placing order")
-        
-        # Execute the complete trade using OTA market order with scale-in flag
-        result = trading_engine.execute_complete_trade(symbol, quantity, current_price, is_scale_in)
+            print(f"   🔄 Using atomic scale-in trade execution")
+            result = trading_engine.execute_scale_in_trade(symbol, quantity, current_price)
+        else:
+            print(f"   🎯 Using atomic new position trade execution")
+            result = trading_engine.execute_new_position_trade(symbol, quantity, current_price)
         
         if result.get('success', False):
-            order_id = result.get('order_id', 'N/A')
-            print(f"✅ {trade_type} OTA order submitted successfully - Order ID: {order_id}")
+            market_order_id = result.get('market_order_id', 'N/A')
+            profit_order_id = result.get('profit_order_id', 'N/A')
+            print(f"✅ {trade_type} ATOMIC trade completed successfully")
+            print(f"   Market Order ID: {market_order_id}")
+            print(f"   Profit Order ID: {profit_order_id}")
+            
+            if result.get('warning'):
+                print(f"⚠️ Warning: {result['warning']}")
+            
             return True
         else:
             error_msg = result.get('error', 'Unknown error')
-            print(f"❌ {trade_type} OTA order failed: {error_msg}")
+            step = result.get('step', 'unknown')
+            print(f"❌ {trade_type} ATOMIC trade failed at step '{step}': {error_msg}")
             return False
             
     except Exception as e:

@@ -234,21 +234,63 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 1rem;
+}
+
 .stats-title {
     font-size: 1.1rem;
     font-weight: 600;
     color: #2d3748;
-    margin: 0 0 2rem 0;
+    margin: 0;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 1rem;
 }
 
 .stats-title i {
     color: #667eea;
     font-size: 1.2rem;
+}
+
+.time-period-selector {
+    display: flex;
+    align-items: center;
+}
+
+.time-period-select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    color: #2d3748;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    min-width: 100px;
+}
+
+.time-period-select:hover {
+    border-color: #cbd5e0;
+    background: #f7fafc;
+}
+
+.time-period-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.time-period-select option {
+    padding: 0.5rem;
+    background: white;
+    color: #2d3748;
 }
 
 .stats-chart {
@@ -384,6 +426,18 @@
         padding: 1.5rem;
     }
     
+    .stats-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .time-period-select {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
+        min-width: 90px;
+    }
+    
     .stats-chart {
         padding: 0.75rem;
     }
@@ -427,10 +481,29 @@
         padding: 1rem;
     }
     
-    .stats-title {
-        font-size: 1rem;
+    .stats-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
         margin-bottom: 1.5rem;
         padding-bottom: 0.75rem;
+    }
+    
+    .stats-title {
+        font-size: 1rem;
+        margin: 0;
+    }
+    
+    .time-period-selector {
+        align-self: flex-start;
+    }
+    
+    .time-period-select {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.5rem;
+        min-width: 85px;
+        width: 100%;
+        max-width: 150px;
     }
     
     .stats-chart {
