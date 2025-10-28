@@ -16,7 +16,7 @@ Simplified Strategy Overview:
 - Load exceedance indicators from 5min JSON file
 - Generate BUY signals when price is at lower band (position_in_range <= 5%) or upper band (>= 95%)
 - Use PML strategy risk management settings
-- Ultra-parallel processing for time-sensitive signals
+- parallel processing for time-sensitive signals
 """
 
 from typing import Dict, List, Optional, Tuple, Any
@@ -51,7 +51,19 @@ class ExceedenceStrategy:
         # Load PML trading configuration
         self.trading_config = self._load_trading_config()
         self.pml_config = self.trading_config.get('strategies', {}).get('pml', {})
-        
+        # Load account risk limits
+        self.account_risk = self.trading_config.get('risk_management', {}).get('account_limits', {})
+
+        # Get risk management settings from risk management account limits
+        self.risk_limits = {
+            'daily_loss_limit': self.account_risk.get('daily_loss_limit', 5.0),
+            'max_account_risk': self.account_risk.get('max_account_risk', 25.0),
+            'equity_buffer': self.account_risk.get('equity_buffer', 10000.0),
+            'max_positions': self.account_risk.get('max_positions', 10),
+            'max_target_daily_profit_percent': self.account_risk.get('max_target_daily_profit_percent', 0.45),
+            'min_target_daily_profit_percent': self.account_risk.get('min_target_daily_profit_percent', 0.25)
+        }
+
         # Get risk management settings from PML config
         self.risk_mgmt = self.pml_config.get('risk_management', {})
         self.strategy_allocation_pct = self.risk_mgmt.get('strategy_allocation', 20.0) / 100.0
@@ -123,7 +135,7 @@ class ExceedenceStrategy:
             return []
 
     def calculate_position_size(self, current_price: float) -> int:
-        """Calculate position size in shares based on PML risk management settings"""
+        """Calculate position size in shares based on PML risk management settings and account limits"""
         try:
             # Load account data to get equity
             account_data = self.load_account_data()
@@ -136,21 +148,47 @@ class ExceedenceStrategy:
                 self.logger.warning(f"Invalid equity (${equity:.2f}) or price (${current_price:.2f})")
                 return 1
             
+            # Apply equity buffer check
+            available_equity = equity - self.risk_limits['equity_buffer']
+            if available_equity <= 0:
+                self.logger.warning(f"Equity buffer exceeded: Equity=${equity:.2f}, Buffer=${self.risk_limits['equity_buffer']:.2f}")
+                return 0  # No position allowed
+            
+            # Check current positions count against max_positions limit
+            current_positions = self.load_current_positions()
+            position_count = len([pos for pos in current_positions.values() if pos.get('quantity', 0) != 0])
+            
+            if position_count >= self.risk_limits['max_positions']:
+                self.logger.warning(f"Max positions limit reached: {position_count}/{self.risk_limits['max_positions']}")
+                return 0  # No new positions allowed
+            
             # Calculate position value based on strategy allocation and position size percentage
-            strategy_allocation = equity * self.strategy_allocation_pct
+            strategy_allocation = available_equity * self.strategy_allocation_pct
             position_value = strategy_allocation * self.position_size_pct
+            
+            # Apply max account risk limit (percentage of total equity)
+            max_risk_value = equity * (self.risk_limits['max_account_risk'] / 100.0)
+            position_value = min(position_value, max_risk_value)
             
             # Calculate shares
             shares = int(position_value / current_price)
             
-            # Apply max shares limit
+            # Apply max shares limit from strategy config
             shares = min(shares, self.max_shares)
             
-            # Ensure at least 1 share
-            shares = max(1, shares)
+            # Ensure at least 1 share if position is allowed
+            shares = max(1, shares) if shares > 0 else 0
             
-            self.logger.info(f"Position sizing: Equity=${equity:.2f}, Allocation=${strategy_allocation:.2f}, "
-                           f"Position=${position_value:.2f}, Shares={shares}")
+            # Log detailed position sizing calculation
+            self.logger.info(f"Position sizing calculation:")
+            self.logger.info(f"  Total Equity: ${equity:.2f}")
+            self.logger.info(f"  Equity Buffer: ${self.risk_limits['equity_buffer']:.2f}")
+            self.logger.info(f"  Available Equity: ${available_equity:.2f}")
+            self.logger.info(f"  Current Positions: {position_count}/{self.risk_limits['max_positions']}")
+            self.logger.info(f"  Strategy Allocation: ${strategy_allocation:.2f} ({self.strategy_allocation_pct*100:.1f}%)")
+            self.logger.info(f"  Max Account Risk: ${max_risk_value:.2f} ({self.risk_limits['max_account_risk']:.1f}%)")
+            self.logger.info(f"  Position Value: ${position_value:.2f}")
+            self.logger.info(f"  Final Shares: {shares}")
             
             return shares
             
@@ -177,6 +215,103 @@ class ExceedenceStrategy:
         except Exception as e:
             self.logger.error(f"Error loading account data: {e}")
             return {}
+
+    def check_daily_loss_limit(self) -> Tuple[bool, float]:
+        """
+        Check if daily loss limit has been exceeded.
+        
+        Returns:
+            Tuple[bool, float]: (is_within_limit, current_daily_pnl)
+        """
+        try:
+            # Load P&L statistics to get daily P&L
+            if not os.path.exists('pnl_statistics.json'):
+                self.logger.debug("P&L statistics file not found, assuming no daily loss")
+                return True, 0.0
+            
+            with open('pnl_statistics.json', 'r') as f:
+                pnl_data = json.load(f)
+            
+            # Get daily P&L from statistics
+            daily_pnl = pnl_data.get('daily_pnl', 0.0)
+            daily_loss_limit = self.risk_limits['daily_loss_limit']
+            
+            # Check if daily loss exceeds limit (daily_pnl will be negative for losses)
+            daily_loss_amount = abs(min(0, daily_pnl))  # Get absolute value of losses only
+            is_within_limit = daily_loss_amount <= daily_loss_limit
+            
+            if not is_within_limit:
+                self.logger.warning(f"Daily loss limit exceeded: ${daily_loss_amount:.2f} > ${daily_loss_limit:.2f}")
+            else:
+                self.logger.debug(f"Daily loss within limit: ${daily_loss_amount:.2f} <= ${daily_loss_limit:.2f}")
+            
+            return is_within_limit, daily_pnl
+            
+        except Exception as e:
+            self.logger.error(f"Error checking daily loss limit: {e}")
+            # On error, assume within limit to avoid blocking trades unnecessarily
+            return True, 0.0
+
+    def check_daily_profit_targets(self, daily_pnl: float) -> Tuple[bool, str]:
+        """
+        Check if daily profit is within target range (min-max).
+        
+        Args:
+            daily_pnl: Current daily P&L
+            
+        Returns:
+            Tuple[bool, str]: (should_continue_trading, reason)
+        """
+        try:
+            # Load account data to get equity for percentage calculations
+            account_data = self.load_account_data()
+            if not account_data:
+                self.logger.debug("No account data for profit target calculation")
+                return True, "No account data available"
+            
+            equity = account_data.get('equity', 0.0)
+            if equity <= 0:
+                return True, "Invalid equity for profit calculation"
+            
+            # Calculate daily profit percentage
+            daily_profit_pct = (daily_pnl / equity) * 100 if equity > 0 else 0.0
+            
+            min_target_pct = self.risk_limits['min_target_daily_profit_percent']
+            max_target_pct = self.risk_limits['max_target_daily_profit_percent']
+            
+            self.logger.debug(f"Daily profit check: ${daily_pnl:.2f} ({daily_profit_pct:.3f}%) vs targets {min_target_pct:.3f}%-{max_target_pct:.3f}%")
+            
+            # If we've reached the maximum target, stop trading for the day
+            if daily_profit_pct >= max_target_pct:
+                reason = f"Max daily profit target reached: {daily_profit_pct:.3f}% >= {max_target_pct:.3f}%"
+                self.logger.warning(reason)
+                return False, reason
+            
+            # If we're in profit but below minimum target, continue trading
+            if daily_pnl > 0 and daily_profit_pct < min_target_pct:
+                reason = f"Below min profit target: {daily_profit_pct:.3f}% < {min_target_pct:.3f}% - continue trading"
+                self.logger.debug(reason)
+                return True, reason
+            
+            # If we're at or above minimum target but below maximum, continue trading
+            if daily_profit_pct >= min_target_pct and daily_profit_pct < max_target_pct:
+                reason = f"Within profit target range: {daily_profit_pct:.3f}% ({min_target_pct:.3f}%-{max_target_pct:.3f}%) - continue trading"
+                self.logger.debug(reason)
+                return True, reason
+            
+            # If we're at break-even or small loss, continue trading
+            if daily_pnl <= 0:
+                reason = f"At break-even or loss: ${daily_pnl:.2f} - continue trading"
+                self.logger.debug(reason)
+                return True, reason
+            
+            # Default: continue trading
+            return True, "Within acceptable profit range"
+            
+        except Exception as e:
+            self.logger.error(f"Error checking daily profit targets: {e}")
+            # On error, assume we should continue trading
+            return True, f"Error in profit check: {e}"
 
     def load_current_positions(self) -> Dict[str, Dict[str, Any]]:
         """Load current positions from current_positions.json (same source as trading engine)"""
@@ -283,9 +418,10 @@ class ExceedenceStrategy:
         Generate simplified trading signal for long positions only.
         
         Simple logic:
-        1. Check if price is in exceedance condition (≤5% or ≥95% of range)
-        2. If yes → BUY signal (scale-in if position exists, new if not)
-        3. If no → NO_SIGNAL
+        1. Check daily loss limit first
+        2. Check if price is in exceedance condition (≤5% or ≥95% of range)
+        3. If yes → BUY signal (scale-in if position exists, new if not)
+        4. If no → NO_SIGNAL
         
         Args:
             symbol: Symbol to analyze
@@ -295,6 +431,12 @@ class ExceedenceStrategy:
             Trading signal dictionary
         """
         try:
+            # Check daily loss limit first - this is a global check
+            is_within_daily_limit, daily_pnl = self.check_daily_loss_limit()
+            
+            # Check daily profit targets
+            should_continue_trading, profit_reason = self.check_daily_profit_targets(daily_pnl)
+            
             # Load current positions to check for existing position
             current_positions = self.load_current_positions()
             current_position = current_positions.get(symbol, {})
@@ -321,11 +463,27 @@ class ExceedenceStrategy:
                 'market_condition': 'WITHIN_BANDS',
                 'has_trade_signal': False,
                 'is_scale_in': has_position,
-                'existing_position': current_position
+                'existing_position': current_position,
+                'daily_pnl': daily_pnl,
+                'daily_loss_limit_ok': is_within_daily_limit,
+                'daily_profit_target_ok': should_continue_trading,
+                'profit_target_reason': profit_reason
             }
             
             if current_price <= 0:
                 signal['entry_reason'] = 'Invalid current price'
+                return signal
+            
+            # Check daily loss limit before generating any BUY signals
+            if not is_within_daily_limit:
+                signal['entry_reason'] = f"Daily loss limit exceeded: ${abs(min(0, daily_pnl)):.2f} > ${self.risk_limits['daily_loss_limit']:.2f}"
+                signal['market_condition'] = 'DAILY_LOSS_LIMIT_EXCEEDED'
+                return signal
+            
+            # Check daily profit targets before generating any BUY signals
+            if not should_continue_trading:
+                signal['entry_reason'] = f"Daily profit target reached: {profit_reason}"
+                signal['market_condition'] = 'DAILY_PROFIT_TARGET_REACHED'
                 return signal
             
             # CORRECTED: Check for actual exceedance conditions (price beyond bands)
@@ -360,6 +518,13 @@ class ExceedenceStrategy:
                     # New position
                     signal['position_size'] = self.calculate_position_size(current_price)
                     signal['entry_reason'] = f"NEW: Price {exceedance_type}"
+                
+                # If position size is 0 due to risk limits, update signal accordingly
+                if signal['position_size'] == 0:
+                    signal['signal_type'] = 'NO_SIGNAL'
+                    signal['has_trade_signal'] = False
+                    signal['entry_reason'] = f"Risk limits prevent position: {exceedance_type}"
+                    signal['market_condition'] = 'RISK_LIMITS_EXCEEDED'
             
             return signal
             
@@ -377,12 +542,14 @@ class ExceedenceStrategy:
                 'market_condition': 'UNCERTAIN',
                 'has_trade_signal': False,
                 'is_scale_in': False,
-                'existing_position': {}
+                'existing_position': {},
+                'daily_pnl': 0.0,
+                'daily_loss_limit_ok': True
             }
 
-def analyze_symbol_exceedence_ultra_parallel(symbol: str, exceedance_indicators: Dict[str, Any], 
+def analyze_symbol(symbol: str, exceedance_indicators: Dict[str, Any], 
                                            strategy: ExceedenceStrategy) -> Tuple[str, Dict[str, Any]]:
-    """Analyze a single symbol for exceedance signals (ultra-parallel processing)"""
+    """Analyze a single symbol for exceedance signals """
     try:
         # Generate trading signal
         signal = strategy.generate_trading_signal(symbol, exceedance_indicators)
@@ -521,7 +688,7 @@ def generate_fresh_exceedance_indicators() -> bool:
             if result.stdout:
                 output_lines = result.stdout.split('\n')
                 for line in output_lines:
-                    if any(keyword in line for keyword in ['Analysis completed successfully', 'Created 5 JSON files', 'ULTRA-PARALLEL analysis completed']):
+                    if any(keyword in line for keyword in ['Analysis completed successfully', 'Created 5 JSON files', 'analysis completed']):
                         print(f"   {line.strip()}")
             return True
         else:
@@ -539,8 +706,8 @@ def generate_fresh_exceedance_indicators() -> bool:
         print(f"❌ Error running exceedance calculator: {e}")
         return False
 
-def run_exceedence_analysis_ultra_parallel(reload_data: bool = False, execute_trades: bool = False, trading_engine=None) -> Dict[str, Any]:
-    """Run exceedance analysis with ultra-parallel processing for time-sensitive signals"""
+def run_exceedence_analysis(reload_data: bool = False, execute_trades: bool = False, trading_engine=None) -> Dict[str, Any]:
+    """Run exceedance analysis for time-sensitive signals"""
     
     # ALWAYS generate fresh exceedance indicators first for most accurate data
     print("📊 Generating fresh exceedance indicators for most accurate data...")
@@ -590,7 +757,7 @@ def run_exceedence_analysis_ultra_parallel(reload_data: bool = False, execute_tr
     # Filter to only symbols that have exceedance data
     available_symbols = [symbol for symbol in watchlist_symbols if symbol in exceedance_indicators]
     
-    print("🚀 ULTRA-PARALLEL Exceedence Strategy Analysis")
+    print("🚀 Exceedence Strategy Analysis")
     print("=" * 60)
     print(f"Processing {len(available_symbols)} symbols simultaneously...")
     print("⚡ Each symbol runs in its own parallel process for maximum speed")
@@ -608,7 +775,7 @@ def run_exceedence_analysis_ultra_parallel(reload_data: bool = False, execute_tr
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         # Submit all symbol analysis tasks
         future_to_symbol = {
-            executor.submit(analyze_symbol_exceedence_ultra_parallel, symbol, 
+            executor.submit(analyze_symbol, symbol, 
                           exceedance_indicators[symbol], strategy): symbol 
             for symbol in available_symbols
         }
@@ -644,7 +811,7 @@ def run_exceedence_analysis_ultra_parallel(reload_data: bool = False, execute_tr
                 completed_operations += 1
     
     elapsed_time = time.time() - start_time
-    print(f"\n✅ Ultra-parallel analysis completed in {elapsed_time:.2f} seconds")
+    print(f"\n✅ Exceedence analysis completed in {elapsed_time:.2f} seconds")
     print(f"📊 Performance: ~{len(available_symbols) / elapsed_time:.1f} symbols per second")
     
     return exceedence_signals
@@ -798,7 +965,6 @@ def save_exceedence_signals_to_file(exceedence_signals: Dict[str, Any]) -> bool:
                 'data_source': 'exceedance_data/exceedance_indicators_5min.json',
                 'risk_management_source': 'pml_strategy_config',
                 'position_direction': 'long_only',
-                'ultra_parallel_processing': True,
                 'signal_serialization': True,
                 'duplicate_prevention': True
             }
@@ -955,8 +1121,8 @@ def run_continuous_exceedance_monitoring(execute_trades: bool = False):
             print(f"\n🔄 Analysis Cycle #{cycle_count} - {current_time.strftime('%H:%M:%S')} PT")
             print("-" * 50)
             
-            # Run ultra-parallel analysis with fresh data reload and pass trading engine
-            exceedence_signals = run_exceedence_analysis_ultra_parallel(reload_data=True, execute_trades=execute_trades, trading_engine=trading_engine)
+            # Run analysis with fresh data reload and pass trading engine
+            exceedence_signals = run_exceedence_analysis(reload_data=True, execute_trades=execute_trades, trading_engine=trading_engine)
             
             if exceedence_signals:
                 # Save signals to file
@@ -1069,8 +1235,8 @@ def main():
         print("🎯 Trade execution enabled for auto-approved signals")
     print()
     
-    # Run ultra-parallel analysis
-    exceedence_signals = run_exceedence_analysis_ultra_parallel(execute_trades=execute_trades)
+    # Run analysis
+    exceedence_signals = run_exceedence_analysis(execute_trades=execute_trades)
     
     if exceedence_signals:
         # Save signals to file

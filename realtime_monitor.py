@@ -33,6 +33,7 @@ from account_data_handler import AccountDataHandler
 from connection_manager import get_all_positions, make_authenticated_request, handle_api_response, is_authentication_paused, resume_operations, verify_authentication_before_start
 from db_inserter import DatabaseInserter
 from api_status_exporter import APIStatusExporter
+from symbols_monitor_handler import SymbolsMonitorHandler
 
 class RealTimeMonitor:
     """Simplified Real-time Monitor for essential account data only."""    
@@ -50,7 +51,8 @@ class RealTimeMonitor:
             'transactions': threading.RLock(),
             'account': threading.RLock(),
             'market_status': threading.RLock(),
-            'api_status': threading.RLock()
+            'api_status': threading.RLock(),
+            'symbols_monitor': threading.RLock()
         }
         
         # Independent data storage for essential processes only
@@ -59,7 +61,8 @@ class RealTimeMonitor:
             'transactions': {},
             'account': {},
             'market_status': {},
-            'api_status': {}
+            'api_status': {},
+            'symbols_monitor': {}
         }
         
         # Process management
@@ -87,7 +90,8 @@ class RealTimeMonitor:
             'auto_timer_monitor': 30.0, # Every 30 seconds - monitor auto-timer flags and market hours
             'api_status': 30.0,         # Every 30 seconds - monitor API authentication status
             'alert_monitor': 60.0,      # Dynamic interval based on alerts_config.json frequency setting
-            'vix_data': 300.0           # Every 5 minutes (300 seconds) - fetch VIX data
+            'vix_data': 300.0,          # Every 5 minutes (300 seconds) - fetch VIX data
+            'symbols_monitor': 5.0      # Every 5 seconds - monitor symbols and update integrated watchlist
         }
         
         # Last update tracking for each process
@@ -137,6 +141,8 @@ class RealTimeMonitor:
                             self._handlers[handler_name] = AccountDataHandler()
                         elif handler_name == 'db_inserter':
                             self._handlers[handler_name] = DatabaseInserter()
+                        elif handler_name == 'symbols_monitor':
+                            self._handlers[handler_name] = SymbolsMonitorHandler()
                         else:
                             raise ValueError(f"Unknown handler: {handler_name}")
                     except Exception as e:
@@ -160,6 +166,10 @@ class RealTimeMonitor:
     @property
     def db_inserter(self):
         return self._get_handler('db_inserter')
+    
+    @property
+    def symbols_monitor_handler(self):
+        return self._get_handler('symbols_monitor')
     
     def _signal_handler(self, signum, frame):
         """Handle shutdown signals gracefully."""
@@ -237,6 +247,8 @@ class RealTimeMonitor:
                             self._monitor_alerts()
                         elif process_name == 'vix_data':
                             self._run_vix_data_script()
+                        elif process_name == 'symbols_monitor':
+                            self._run_symbols_monitor()
                         
                         self.last_updates[process_name] = current_time
                         self.logger.debug(f"✅ {process_name} process updated")
@@ -399,7 +411,8 @@ class RealTimeMonitor:
             'auto_timer_monitor', # Every 30 seconds - monitor auto-timer flags and market hours
             'api_status',        # Every 30 seconds - monitor API authentication status
             'alert_monitor',     # Dynamic interval based on alerts_config.json frequency setting
-            'vix_data'           # Every 5 minutes (300 seconds) - fetch VIX data
+            'vix_data',          # Every 5 minutes (300 seconds) - fetch VIX data
+            'symbols_monitor'    # Every 5 seconds - monitor symbols and update integrated watchlist
         ]
         
         self.logger.info(f"🔥 Starting {len(processes_to_start)} essential processes...")
@@ -1000,6 +1013,46 @@ class RealTimeMonitor:
             self.logger.error("❌ VIX data handler timed out after 2 minutes")
         except Exception as e:
             self.logger.error(f"❌ Error running VIX data handler: {e}")
+
+    def _run_symbols_monitor(self):
+        """Run symbols monitor to update integrated watchlist with market data."""
+        try:
+            self.logger.debug("📋 Running symbols monitor...")
+            
+            # Get symbols monitor handler
+            symbols_handler = self.symbols_monitor_handler
+            if symbols_handler:
+                # Get watchlist data with market data included
+                watchlist_data = symbols_handler.get_watchlist_data(include_market_data=True)
+                
+                if watchlist_data:
+                    # Update cache with thread-safe access
+                    with self.data_locks['symbols_monitor']:
+                        self.data_cache['symbols_monitor'] = {
+                            'watchlist_data': watchlist_data,
+                            'symbol_count': len(watchlist_data),
+                            'last_updated': datetime.now().isoformat(),
+                            'update_source': 'realtime_monitor'
+                        }
+                    
+                    self.logger.info(f"📋 Symbols monitor updated: {len(watchlist_data)} symbols with market data")
+                    
+                    # Log a few sample symbols for debugging
+                    sample_symbols = list(watchlist_data.keys())[:3]
+                    for symbol in sample_symbols:
+                        symbol_data = watchlist_data[symbol]
+                        price = symbol_data.get('current_price', 0)
+                        change = symbol_data.get('price_change', 0)
+                        change_pct = symbol_data.get('price_change_percent', 0)
+                        self.logger.debug(f"   📈 {symbol}: ${price:.2f} ({change:+.2f}, {change_pct:+.2f}%)")
+                        
+                else:
+                    self.logger.debug("📋 No watchlist data available from symbols monitor")
+            else:
+                self.logger.error("📋 Symbols monitor handler not available")
+                
+        except Exception as e:
+            self.logger.error(f"❌ Error in symbols monitor: {e}")
 
     def _save_trading_config(self, config: dict):
         """Save the updated trading config to file."""
