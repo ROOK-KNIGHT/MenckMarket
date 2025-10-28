@@ -284,6 +284,34 @@
     width: 100%;
 }
 
+/* Profit Range Inputs Styling */
+.profit-range-inputs {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.profit-range-inputs .input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.input-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4a5568;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.profit-range-inputs .config-input {
+    font-size: 0.9rem;
+    text-align: center;
+}
+
 /* Emergency Buttons */
 .emergency-buttons {
     display: flex;

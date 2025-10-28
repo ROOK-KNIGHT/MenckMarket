@@ -4,6 +4,19 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure watchlist panel content is properly positioned */
+.watchlist-panel .panel-content {
+    position: relative;
+    z-index: 1;
+}
+
+.watchlist-panel .panel-header {
+    position: relative;
+    z-index: 2;
 }
 
 .add-symbol-form {

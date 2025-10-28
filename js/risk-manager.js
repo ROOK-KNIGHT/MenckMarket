@@ -37,7 +37,8 @@ class RiskManager {
             'enable_max_account_risk',
             'enable_daily_loss_limit',
             'enable_equity_buffer',
-            'enable_max_positions'
+            'enable_max_positions',
+            'enable_target_daily_profit'
         ];
         
         riskToggles.forEach(toggleId => {
@@ -54,7 +55,9 @@ class RiskManager {
             'max_account_risk',
             'daily_loss_limit',
             'equity_buffer',
-            'max_positions'
+            'max_positions',
+            'min_target_daily_profit_percent',
+            'max_target_daily_profit_percent'
         ];
         
         riskInputs.forEach(inputId => {
@@ -119,7 +122,8 @@ class RiskManager {
             'enable_max_account_risk': 'max_account_risk',
             'enable_daily_loss_limit': 'daily_loss_limit',
             'enable_equity_buffer': 'equity_buffer',
-            'enable_max_positions': 'max_positions'
+            'enable_max_positions': 'max_positions',
+            'enable_target_daily_profit': 'profit-range-inputs'
         };
         
         const inputId = controlMappings[toggleId];
@@ -214,6 +218,9 @@ class RiskManager {
             'max_position_size': 'Maximum Position Size',
             'enable_max_positions': 'Maximum Positions',
             'max_positions': 'Maximum Positions',
+            'enable_target_daily_profit': 'Target Daily Profit Range',
+            'min_target_daily_profit_percent': 'Minimum Target Daily Profit',
+            'max_target_daily_profit_percent': 'Maximum Target Daily Profit',
             'enable_stop_loss': 'Stop Loss',
             'enable_stop_loss_value': 'Stop Loss Value',
             'stop_loss_value': 'Stop Loss Value',
@@ -405,7 +412,10 @@ class RiskManager {
             enable_equity_buffer: true,
             equity_buffer: 10000,
             enable_max_positions: true,
-            max_positions: 15
+            max_positions: 15,
+            enable_target_daily_profit: true,
+            min_target_daily_profit_percent: 0.25,
+            max_target_daily_profit_percent: 0.35
         };
         
         // Apply default configuration to UI
@@ -451,24 +461,22 @@ class RiskManager {
     getRiskConfiguration() {
         return {
             account_limits: {
-                daily_loss_limit: this.riskConfig.daily_loss_limit || 5.0,
-                max_account_risk: this.riskConfig.max_account_risk || 25.0,
-                equity_buffer: this.riskConfig.equity_buffer || 10000.0
+                daily_loss_limit: this.riskConfig.daily_loss_limit || 2.5,
+                max_account_risk: this.riskConfig.max_account_risk || 26.0,
+                equity_buffer: this.riskConfig.equity_buffer || 2000.0,
+                max_target_daily_profit_percent: this.riskConfig.max_target_daily_profit_percent || 0.35,
+                min_target_daily_profit_percent: this.riskConfig.min_target_daily_profit_percent || 0.25
             },
             position_sizing: {
-                max_positions: this.riskConfig.max_positions || 15,
+                max_positions: this.riskConfig.max_positions || 10,
                 max_position_size: this.riskConfig.max_position_size || 5.0
             },
-            stop_loss_settings: {
-                method: this.riskConfig.stop_loss_method || 'atr',
-                value: this.riskConfig.stop_loss_value || 2.0,
-                take_profit_ratio: this.riskConfig.take_profit_ratio || 2.0
-            },
             parameter_states: {
-                enable_max_account_risk: this.riskConfig.enable_max_account_risk || false,
-                enable_daily_loss_limit: this.riskConfig.enable_daily_loss_limit || false,
-                enable_equity_buffer: this.riskConfig.enable_equity_buffer || false,
-                enable_max_positions: this.riskConfig.enable_max_positions || false
+                enable_max_account_risk: this.riskConfig.enable_max_account_risk !== undefined ? this.riskConfig.enable_max_account_risk : true,
+                enable_daily_loss_limit: this.riskConfig.enable_daily_loss_limit !== undefined ? this.riskConfig.enable_daily_loss_limit : true,
+                enable_equity_buffer: this.riskConfig.enable_equity_buffer !== undefined ? this.riskConfig.enable_equity_buffer : true,
+                enable_max_positions: this.riskConfig.enable_max_positions !== undefined ? this.riskConfig.enable_max_positions : true,
+                enable_target_daily_profit: this.riskConfig.enable_target_daily_profit !== undefined ? this.riskConfig.enable_target_daily_profit : true
             },
             timestamp: new Date().toISOString()
         };

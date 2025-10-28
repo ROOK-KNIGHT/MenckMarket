@@ -28,9 +28,6 @@ class SettingsManager {
         if (saveSecurityBtn) saveSecurityBtn.addEventListener('click', () => this.saveSecuritySettings());
         if (logoutSecurityBtn) logoutSecurityBtn.addEventListener('click', () => this.logout());
         
-        // Password management
-        this.bindPasswordManagementEvents();
-        
         // Notification settings
         this.bindNotificationEvents();
         
@@ -44,35 +41,6 @@ class SettingsManager {
         }
     }
     
-    bindPasswordManagementEvents() {
-        const changePasswordBtn = document.getElementById('change-password-btn');
-        const savePasswordBtn = document.getElementById('save-password-btn');
-        const cancelPasswordBtn = document.getElementById('cancel-password-btn');
-        
-        if (changePasswordBtn) {
-            changePasswordBtn.addEventListener('click', () => this.showPasswordChangeForm());
-        }
-        
-        if (savePasswordBtn) {
-            savePasswordBtn.addEventListener('click', () => this.savePassword());
-        }
-        
-        if (cancelPasswordBtn) {
-            cancelPasswordBtn.addEventListener('click', () => this.hidePasswordChangeForm());
-        }
-        
-        // Password validation
-        const newPasswordInput = document.getElementById('new-password');
-        const confirmPasswordInput = document.getElementById('confirm-password');
-        
-        if (newPasswordInput) {
-            newPasswordInput.addEventListener('input', () => this.validatePassword());
-        }
-        
-        if (confirmPasswordInput) {
-            confirmPasswordInput.addEventListener('input', () => this.validatePasswordConfirmation());
-        }
-    }
     
     bindNotificationEvents() {
         console.log('🔔 Binding notification events...');
@@ -154,8 +122,6 @@ class SettingsManager {
         const autoLogoutTimeout = document.getElementById('auto-logout-timeout');
         const logoutCurrentSession = document.getElementById('logout-current-session');
         const viewLoginHistory = document.getElementById('view-login-history');
-        const enable2FA = document.getElementById('enable-2fa');
-        const setup2FABtn = document.getElementById('setup-2fa-btn');
         
         if (enableAutoLogout) {
             this.setupToggleEventListeners(enableAutoLogout, 'enable-auto-logout', (toggleElement) => {
@@ -173,16 +139,6 @@ class SettingsManager {
         
         if (viewLoginHistory) {
             viewLoginHistory.addEventListener('click', () => this.viewLoginHistory());
-        }
-        
-        if (enable2FA) {
-            this.setupToggleEventListeners(enable2FA, 'enable-2fa', (toggleElement) => {
-                this.handle2FAToggle(toggleElement);
-            });
-        }
-        
-        if (setup2FABtn) {
-            setup2FABtn.addEventListener('click', () => this.setup2FA());
         }
     }
     
@@ -214,164 +170,6 @@ class SettingsManager {
         }
     }
     
-    // Password Management
-    showPasswordChangeForm() {
-        const forms = [
-            'password-change-form',
-            'new-password-form',
-            'confirm-password-form',
-            'password-actions'
-        ];
-        
-        forms.forEach(formId => {
-            const form = document.getElementById(formId);
-            if (form) {
-                form.style.display = 'flex';
-            }
-        });
-        
-        // Focus on current password field
-        const currentPasswordInput = document.getElementById('current-password');
-        if (currentPasswordInput) {
-            currentPasswordInput.focus();
-        }
-    }
-    
-    hidePasswordChangeForm() {
-        const forms = [
-            'password-change-form',
-            'new-password-form',
-            'confirm-password-form',
-            'password-actions'
-        ];
-        
-        forms.forEach(formId => {
-            const form = document.getElementById(formId);
-            if (form) {
-                form.style.display = 'none';
-            }
-        });
-        
-        // Clear password fields
-        const passwordInputs = [
-            'current-password',
-            'new-password',
-            'confirm-password'
-        ];
-        
-        passwordInputs.forEach(inputId => {
-            const input = document.getElementById(inputId);
-            if (input) {
-                input.value = '';
-                input.classList.remove('error', 'success');
-            }
-        });
-    }
-    
-    validatePassword() {
-        const newPasswordInput = document.getElementById('new-password');
-        if (!newPasswordInput) return;
-        
-        const password = newPasswordInput.value;
-        const minLength = 8;
-        
-        // Remove existing classes
-        newPasswordInput.classList.remove('error', 'success');
-        
-        if (password.length < minLength) {
-            newPasswordInput.classList.add('error');
-            return false;
-        } else {
-            newPasswordInput.classList.add('success');
-            return true;
-        }
-    }
-    
-    validatePasswordConfirmation() {
-        const newPasswordInput = document.getElementById('new-password');
-        const confirmPasswordInput = document.getElementById('confirm-password');
-        
-        if (!newPasswordInput || !confirmPasswordInput) return;
-        
-        const newPassword = newPasswordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
-        
-        // Remove existing classes
-        confirmPasswordInput.classList.remove('error', 'success');
-        
-        if (confirmPassword && newPassword !== confirmPassword) {
-            confirmPasswordInput.classList.add('error');
-            return false;
-        } else if (confirmPassword && newPassword === confirmPassword) {
-            confirmPasswordInput.classList.add('success');
-            return true;
-        }
-        
-        return false;
-    }
-    
-    async savePassword() {
-        const currentPasswordInput = document.getElementById('current-password');
-        const newPasswordInput = document.getElementById('new-password');
-        const confirmPasswordInput = document.getElementById('confirm-password');
-        
-        if (!currentPasswordInput || !newPasswordInput || !confirmPasswordInput) return;
-        
-        const currentPassword = currentPasswordInput.value;
-        const newPassword = newPasswordInput.value;
-        const confirmPassword = confirmPasswordInput.value;
-        
-        // Validate inputs
-        if (!currentPassword) {
-            this.showToast('Please enter your current password', 'error');
-            return;
-        }
-        
-        if (!this.validatePassword()) {
-            this.showToast('New password must be at least 8 characters long', 'error');
-            return;
-        }
-        
-        if (!this.validatePasswordConfirmation()) {
-            this.showToast('Password confirmation does not match', 'error');
-            return;
-        }
-        
-        // Show loading state
-        const saveBtn = document.getElementById('save-password-btn');
-        const originalContent = saveBtn.innerHTML;
-        saveBtn.disabled = true;
-        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-        
-        try {
-            // Send password change request via WebSocket
-            if (window.volflowApp?.modules?.websocket?.isConnected) {
-                const message = {
-                    type: 'change_password',
-                    current_password: currentPassword,
-                    new_password: newPassword,
-                    timestamp: new Date().toISOString(),
-                    user: 'web_interface'
-                };
-                
-                window.volflowApp.modules.websocket.send(message);
-                console.log('📡 Password change request sent via WebSocket');
-            }
-            
-            // Hide password change form
-            this.hidePasswordChangeForm();
-            
-            this.showToast('Password changed successfully', 'success');
-            
-        } catch (error) {
-            console.error('Error changing password:', error);
-            this.showToast('Failed to change password', 'error');
-        } finally {
-            // Restore button state
-            saveBtn.disabled = false;
-            saveBtn.innerHTML = originalContent;
-        }
-    }
     
     // Notification Management
     handleNotificationToggle(toggle) {
@@ -560,7 +358,20 @@ class SettingsManager {
             autoLogoutSettings.style.display = isEnabled ? 'flex' : 'none';
         }
         
-        // Auto-save settings
+        // Send session management update via WebSocket
+        if (window.volflowApp?.modules?.websocket?.isConnected) {
+            const message = {
+                type: 'toggle_auto_timeout',
+                enable_auto_timeout: isEnabled,
+                timestamp: new Date().toISOString(),
+                updated_by: 'web_interface'
+            };
+            
+            window.volflowApp.modules.websocket.send(message);
+            console.log('📡 Auto timeout toggle sent via WebSocket');
+        }
+        
+        // Auto-save settings locally
         this.saveSecuritySettings();
         
         const status = isEnabled ? 'enabled' : 'disabled';
@@ -569,46 +380,24 @@ class SettingsManager {
     
     handleAutoLogoutTimeoutChange(timeout) {
         this.securitySettings['auto-logout-timeout'] = timeout;
+        
+        // Send session management update via WebSocket
+        if (window.volflowApp?.modules?.websocket?.isConnected) {
+            const message = {
+                type: 'update_session_timeout',
+                timeout_minutes: parseInt(timeout),
+                timestamp: new Date().toISOString(),
+                updated_by: 'web_interface'
+            };
+            
+            window.volflowApp.modules.websocket.send(message);
+            console.log('📡 Session timeout update sent via WebSocket');
+        }
+        
         this.saveSecuritySettings();
         this.showToast(`Auto logout timeout set to ${timeout} minutes`, 'info');
     }
     
-    handle2FAToggle(toggle) {
-        const isEnabled = toggle.checked;
-        
-        // Store 2FA setting
-        this.securitySettings['enable-2fa'] = isEnabled;
-        
-        // Show/hide 2FA setup
-        const setup2FA = document.getElementById('2fa-setup');
-        if (setup2FA) {
-            setup2FA.style.display = isEnabled ? 'flex' : 'none';
-        }
-        
-        // Auto-save settings
-        this.saveSecuritySettings();
-        
-        const status = isEnabled ? 'enabled' : 'disabled';
-        this.showToast(`Two-factor authentication ${status}`, isEnabled ? 'success' : 'warning');
-    }
-    
-    async setup2FA() {
-        console.log('Setting up 2FA...');
-        
-        // Send 2FA setup request via WebSocket
-        if (window.volflowApp?.modules?.websocket?.isConnected) {
-            const message = {
-                type: 'setup_2fa',
-                timestamp: new Date().toISOString(),
-                user: 'web_interface'
-            };
-            
-            window.volflowApp.modules.websocket.send(message);
-            console.log('📡 2FA setup request sent via WebSocket');
-        }
-        
-        this.showToast('2FA setup initiated - check your authenticator app', 'info');
-    }
     
     async viewLoginHistory() {
         console.log('Viewing login history...');
@@ -710,12 +499,6 @@ class SettingsManager {
             autoLogoutSettings.style.display = autoLogoutToggle.checked ? 'flex' : 'none';
         }
         
-        // Initialize 2FA setup
-        const enable2FA = document.getElementById('enable-2fa');
-        const setup2FA = document.getElementById('2fa-setup');
-        if (enable2FA && setup2FA) {
-            setup2FA.style.display = enable2FA.checked ? 'flex' : 'none';
-        }
     }
     
     getNotificationConfiguration() {
@@ -974,6 +757,38 @@ class SettingsManager {
         if (data.logout_response) {
             console.log('👋 Logout successful');
             this.showToast('Logout successful', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
+        
+        // Session Management WebSocket responses
+        if (data.session_settings_saved) {
+            console.log('⏰ Session settings saved successfully');
+            this.showToast('Session settings saved successfully', 'success');
+        }
+        
+        if (data.session_settings_updated) {
+            console.log('⏰ Processing session settings update from WebSocket');
+            // Update UI with new session settings if needed
+        }
+        
+        if (data.session_extended) {
+            console.log('⏰ Session extended successfully');
+            this.showToast(`Session extended by ${data.extension_minutes} minutes`, 'success');
+        }
+        
+        if (data.session_expired) {
+            console.log('⏰ Session expired');
+            this.showToast('Your session has expired due to inactivity', 'warning');
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        }
+        
+        if (data.session_logout_broadcast) {
+            console.log('⏰ Session logout broadcast received');
+            this.showToast(`Logged out: ${data.reason}`, 'info');
             setTimeout(() => {
                 window.location.reload();
             }, 2000);
