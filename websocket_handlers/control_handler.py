@@ -187,6 +187,11 @@ class ControlHandler:
                 if 'account_limits' not in risk_config:
                     risk_config['account_limits'] = {}
                 risk_config['account_limits'].update(config_data['account_limits'])
+                
+                # Add timestamp and updated_by for target daily profit settings
+                if 'max_target_daily_profit_percent' in config_data['account_limits'] or 'min_target_daily_profit_percent' in config_data['account_limits']:
+                    risk_config['account_limits']['last_updated'] = datetime.now().isoformat()
+                    risk_config['account_limits']['updated_by'] = config_data.get('updated_by', 'web_interface')
             
             # Update parameter states
             if 'parameter_states' in config_data:
@@ -266,10 +271,11 @@ class ControlHandler:
                             "max_positions": 10
                         },
                         "parameter_states": {
-                            "enable_max_account_risk": False,
-                            "enable_daily_loss_limit": False,
-                            "enable_equity_buffer": False,
-                            "enable_max_positions": False
+                            "enable_max_account_risk": True,
+                            "enable_daily_loss_limit": True,
+                            "enable_equity_buffer": True,
+                            "enable_max_positions": True,
+                            "enable_target_daily_profit": True
                         },
                         "metadata": {
                             "updated_by": "system_default",

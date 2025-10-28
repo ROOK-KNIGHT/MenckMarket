@@ -6,10 +6,11 @@ This handler provides all database queries needed for the dashboard:
 1. Trading statistics and P&L data
 2. Current positions
 3. Strategy signals (Iron Condor, PML, Divergence)
-4. Strategy signals (Iron Condor, PML, Divergence)
-5. Account data
-6. Watchlist data
-7. Market status and real-time data
+4. Account data
+5. Watchlist data
+6. Market status and real-time data
+7. Recent transactions
+8.
 
 All data for the dashboard comes from PostgreSQL instead of JSON files.
 """

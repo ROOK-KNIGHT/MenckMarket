@@ -17,6 +17,7 @@ from typing import Dict, List, Any
 from websocket_handlers.data_stream_handler import DataStreamHandler
 from websocket_handlers.control_handler import ControlHandler
 from websocket_handlers.alerts_handler import AlertsHandler
+from websocket_handlers.session_management_handler import SessionManagementHandler
 from websocket_handlers.api_connection_handler import handle_api_connection_websocket
 from websocket_handlers.realtime_monitor_handler import RealtimeDataHandler
 
@@ -43,6 +44,7 @@ class ModularWebSocketServer:
         self.data_handler = DataStreamHandler(self.broadcast_data)
         self.control_handler = ControlHandler(self.broadcast_message, self.db_query_handler)
         self.alerts_handler = AlertsHandler(self.broadcast_message, self.db_query_handler)
+        self.session_handler = SessionManagementHandler(self.broadcast_message, self.db_query_handler)
         self.realtime_data_handler = RealtimeDataHandler(self.broadcast_message, auto_start=True)
     
     async def handle_close_all_positions(self, websocket, client_msg):
@@ -284,6 +286,18 @@ class ModularWebSocketServer:
                             logger.warning(f"⚠️ Alerts handler could not process message type: {message_type}")
                     
                     elif message_type in [
+                        'save_session_settings', 'get_session_settings', 'update_session_timeout',
+                        'toggle_auto_timeout', 'extend_session', 'get_session_status',
+                        'force_logout', 'session_heartbeat'
+                    ]:
+                        # Route session management messages to session handler
+                        logger.info(f"⏰ Routing session management message {message_type} to session handler")
+                        handled = await self.session_handler.handle_message(websocket, client_msg, client_addr)
+                        
+                        if not handled:
+                            logger.warning(f"⚠️ Session handler could not process message type: {message_type}")
+                    
+                    elif message_type in [
                         'start_realtime_monitor', 'stop_realtime_monitor', 'get_realtime_monitor_status',
                         'restart_realtime_monitor', 'start_realtime_data', 'stop_realtime_data',
                         'get_realtime_data_status', 'restart_realtime_data'
@@ -346,6 +360,7 @@ class ModularWebSocketServer:
             logger.info("📡 PostgreSQL data streaming: ACTIVE")
             logger.info("🎛️ Control operations: ACTIVE")
             logger.info("🔔 Alerts & notifications: ACTIVE")
+            logger.info("⏰ Session management: ACTIVE")
             logger.info("📊 Real-time data monitor: ACTIVE (auto-start enabled)")
             logger.info("🔄 Database polling every 3 seconds")
             
