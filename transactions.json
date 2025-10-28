@@ -1,6 +1,6 @@
 {
   "strategy_name": "Transaction_Data",
-  "last_updated": "2025-10-28T12:05:52.635683",
+  "last_updated": "2025-10-28T12:07:19.289341",
   "total_transactions": 215,
   "transactions": [
     {
@@ -2372,9 +2372,8 @@
   "metadata": {
     "data_source": "schwab_api",
     "handler_type": "schwab_transaction_handler",
-    "update_frequency": "realtime_monitor_calls",
+    "update_frequency": "on_demand",
     "database_integration": true,
-    "auto_updated": true,
-    "creation_date": "2025-10-28T12:05:52.635698"
+    "creation_date": "2025-10-28T12:07:19.289375"
   }
 }

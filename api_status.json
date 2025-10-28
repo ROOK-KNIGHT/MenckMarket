@@ -1,11 +1,11 @@
 {
-  "timestamp": "2025-10-28T19:05:23.482704+00:00",
+  "timestamp": "2025-10-28T19:06:53.616253+00:00",
   "authentication": {
     "status": "authenticated",
     "authenticated": true,
-    "token_expiry": "0h 19m",
+    "token_expiry": "0h 18m",
     "expires_at": "2025-10-28T19:24:59.950748+00:00",
-    "last_check": "2025-10-28T12:05:24.473853",
+    "last_check": "2025-10-28T12:06:54.582769",
     "account_info": {
       "account_number": "74680244",
       "available": true
@@ -15,7 +15,7 @@
     "schwab": {
       "status": "connected",
       "connected": true,
-      "last_test": "2025-10-28T12:05:24.473805",
+      "last_test": "2025-10-28T12:06:54.582742",
       "error": null,
       "token_expires": "2025-10-28T19:24:59.950748+00:00",
       "details": {}
@@ -26,10 +26,10 @@
     "auth-indicator": "authenticated",
     "schwab-status": "Connected",
     "schwab-indicator": "connected",
-    "connection-last-updated": "Last updated: 12:05:24",
-    "token-expiry": "0h 19m",
-    "last-auth-check": "12:05:24",
+    "connection-last-updated": "Last updated: 12:06:54",
+    "token-expiry": "0h 18m",
+    "last-auth-check": "12:06:54",
     "auth-account-info": "Account: 74680244"
   },
-  "last_updated": "2025-10-28T12:05:24.473853"
+  "last_updated": "2025-10-28T12:06:54.582769"
 }
