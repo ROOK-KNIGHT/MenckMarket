@@ -2,14 +2,14 @@
   "alerts_notifications": {
     "alert_types": {
       "maximum_loss_alert": {
-        "enabled": true,
+        "enabled": false,
         "description": "Alert when position loss exceeds threshold",
         "loss_threshold": {
           "value": 1000
         }
       },
       "volatility_spike_alert": {
-        "enabled": true,
+        "enabled": false,
         "description": "Alert when market volatility spikes",
         "vix_threshold": {
           "value": 30
@@ -20,7 +20,7 @@
         "description": "Alert when position size exceeds limit"
       },
       "strategy_signal_alert": {
-        "enabled": true,
+        "enabled": false,
         "description": "Alert when new trading signals are generated"
       }
     },
@@ -33,7 +33,7 @@
         }
       },
       "telegram_notifications": {
-        "enabled": true,
+        "enabled": false,
         "description": "Send alerts via Telegram bot",
         "bot_token": {
           "value": ""
@@ -43,7 +43,7 @@
         }
       },
       "slack_notifications": {
-        "enabled": true,
+        "enabled": false,
         "description": "Send alerts via Slack webhook",
         "webhook_url": {
           "value": ""
@@ -75,7 +75,7 @@
   },
   "metadata": {
     "version": "1.0.0",
-    "last_updated": "2025-10-24T13:10:13.564259",
+    "last_updated": "2025-10-27T21:36:32.171759",
     "updated_by": "web_interface"
   },
   "validation_rules": {

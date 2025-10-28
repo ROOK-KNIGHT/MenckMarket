@@ -9,29 +9,80 @@ from google.auth.transport import requests
 from google.oauth2 import id_token
 import os
 import json
+import boto3
+from botocore.exceptions import ClientError
 from datetime import datetime, timedelta
 import secrets
 import logging
+import asyncio
+import threading
+from websocket_server_modular import ModularWebSocketServer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def get_google_credentials_from_secrets():
+    """
+    Retrieve Google OAuth credentials from AWS Secrets Manager
+    """
+    secret_name = os.getenv('GOOGLE_OAUTH_SECRET_NAME', 'google-oauth-credentials')
+    region_name = os.getenv('AWS_REGION', 'us-east-1')
+    
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+    
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+        
+        # Parse the secret
+        secret = json.loads(get_secret_value_response['SecretString'])
+        
+        logger.info(f"Successfully retrieved Google OAuth credentials from AWS Secrets Manager")
+        return secret
+        
+    except ClientError as e:
+        logger.error(f"Error retrieving secret from AWS Secrets Manager: {e}")
+        raise e
+    except json.JSONDecodeError as e:
+        logger.error(f"Error parsing secret JSON: {e}")
+        raise e
+    except Exception as e:
+        logger.error(f"Unexpected error retrieving Google credentials: {e}")
+        raise e
+
+def load_google_credentials():
+    """
+    Load Google OAuth credentials from AWS Secrets Manager
+    """
+    try:
+        # Get credentials from AWS Secrets Manager
+        google_credentials = get_google_credentials_from_secrets()
+        client_id = google_credentials.get('client_id')
+        authorized_email = google_credentials.get('authorized_email', 'your-email@gmail.com')
+        
+        if not client_id:
+            raise ValueError("client_id not found in AWS Secrets Manager")
+            
+        logger.info("Google OAuth credentials successfully loaded from AWS Secrets Manager")
+        return client_id, authorized_email
+        
+    except Exception as e:
+        logger.error(f"Failed to load Google OAuth credentials from AWS Secrets Manager: {e}")
+        raise ValueError("Missing Google OAuth credentials - AWS Secrets Manager is required")
+
+# Load Google credentials
+GOOGLE_CLIENT_ID, AUTHORIZED_EMAIL = load_google_credentials()
+logger.info(f"Google SSO configured for authorized user: {AUTHORIZED_EMAIL}")
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', secrets.token_hex(32))
-
-# Load configuration from .env
-from dotenv import load_dotenv
-load_dotenv()
-
-GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
-AUTHORIZED_EMAIL = os.environ.get('AUTHORIZED_EMAIL', 'your-email@gmail.com')
-
-if not GOOGLE_CLIENT_ID:
-    logger.error("GOOGLE_CLIENT_ID not found in environment variables!")
-    exit(1)
-
-logger.info(f"Google SSO configured for authorized user: {AUTHORIZED_EMAIL}")
 
 class AuthManager:
     def __init__(self):
@@ -460,13 +511,112 @@ def health():
         'active_sessions': len(auth_manager.active_sessions)
     })
 
-if __name__ == '__main__':
-    logger.info("Starting VolFlow Authentication Server...")
+def create_auth_app():
+    """
+    Create and configure the Flask authentication app
+    This allows the auth module to be imported and integrated into other applications
+    """
+    auth_app = Flask(__name__)
+    auth_app.secret_key = os.environ.get('FLASK_SECRET_KEY', secrets.token_hex(32))
+    
+    # Register all the routes with the app
+    auth_app.add_url_rule('/', 'index', index)
+    auth_app.add_url_rule('/auth/google', 'google_auth', google_auth, methods=['POST'])
+    auth_app.add_url_rule('/auth/validate', 'validate_session', validate_session, methods=['POST'])
+    auth_app.add_url_rule('/auth/logout', 'logout', logout, methods=['POST'])
+    auth_app.add_url_rule('/dashboard', 'dashboard', dashboard)
+    auth_app.add_url_rule('/index.html', 'serve_index', serve_index)
+    auth_app.add_url_rule('/<path:filename>', 'serve_static', serve_static)
+    auth_app.add_url_rule('/health', 'health', health)
+    
+    return auth_app
+
+def get_auth_manager():
+    """
+    Get the global auth manager instance
+    This allows other modules to access the authentication state
+    """
+    return auth_manager
+
+def register_auth_routes(flask_app):
+    """
+    Register authentication routes with an existing Flask app
+    This allows integration with existing applications
+    """
+    flask_app.add_url_rule('/auth', 'auth_index', index)
+    flask_app.add_url_rule('/auth/google', 'google_auth', google_auth, methods=['POST'])
+    flask_app.add_url_rule('/auth/validate', 'validate_session', validate_session, methods=['POST'])
+    flask_app.add_url_rule('/auth/logout', 'logout', logout, methods=['POST'])
+    flask_app.add_url_rule('/auth/health', 'auth_health', health)
+
+def get_google_client_id():
+    """
+    Get the Google Client ID for use in other modules
+    """
+    return GOOGLE_CLIENT_ID
+
+def get_authorized_email():
+    """
+    Get the authorized email for use in other modules
+    """
+    return AUTHORIZED_EMAIL
+
+def start_websocket_server(port=8765):
+    """
+    Start the websocket server in a separate thread
+    """
+    def run_websocket_server():
+        try:
+            logger.info(f"🚀 Starting WebSocket server on port {port}")
+            websocket_server = ModularWebSocketServer(port)
+            asyncio.run(websocket_server.start_server())
+        except Exception as e:
+            logger.error(f"❌ Error starting WebSocket server: {e}")
+    
+    # Start websocket server in a separate thread
+    websocket_thread = threading.Thread(target=run_websocket_server, daemon=True)
+    websocket_thread.start()
+    logger.info(f"✅ WebSocket server thread started on port {port}")
+    return websocket_thread
+
+def start_combined_server(auth_port=5001, websocket_port=8765):
+    """
+    Start both the authentication server and websocket server
+    """
+    logger.info("🚀 Starting VolFlow Combined Server (Auth + WebSocket)...")
     logger.info(f"Google Client ID: {GOOGLE_CLIENT_ID[:20]}...")
     logger.info(f"Authorized Email: {AUTHORIZED_EMAIL}")
     
+    # Start websocket server in background
+    websocket_thread = start_websocket_server(websocket_port)
+    
+    # Start Flask authentication server
+    logger.info(f"🌐 Starting Flask authentication server on port {auth_port}")
     app.run(
         host='0.0.0.0', 
-        port=int(os.environ.get('AUTH_PORT', 5000)), 
+        port=auth_port, 
         debug=os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
     )
+
+if __name__ == '__main__':
+    # Get ports from environment variables
+    auth_port = int(os.environ.get('AUTH_PORT', 5001))
+    websocket_port = int(os.environ.get('WEBSOCKET_PORT', 8765))
+    
+    # Check if we should start combined server or just auth server
+    start_websocket = os.environ.get('START_WEBSOCKET', 'true').lower() == 'true'
+    
+    if start_websocket:
+        # Start combined server (auth + websocket)
+        start_combined_server(auth_port, websocket_port)
+    else:
+        # Start only authentication server
+        logger.info("Starting VolFlow Authentication Server (Auth Only)...")
+        logger.info(f"Google Client ID: {GOOGLE_CLIENT_ID[:20]}...")
+        logger.info(f"Authorized Email: {AUTHORIZED_EMAIL}")
+        
+        app.run(
+            host='0.0.0.0', 
+            port=auth_port, 
+            debug=os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+        )

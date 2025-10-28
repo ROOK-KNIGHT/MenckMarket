@@ -3,6 +3,18 @@
     "trading_enabled": true,
     "sandbox_trading": false
   },
+  "session_management_settings": {
+    "enable_auto_timeout": true,
+    "inactactivity_timeout": 15,
+    "current_session": "logged_in",
+    "last_updated": "2025-10-28T07:37:05.480099",
+    "updated_by": "web_interface"
+  },
+  "transaction_handler_lookback": {
+    "lookback_period_days": 1,
+    "last_updated": "2025-10-28T11:22:12.756282",
+    "updated_by": "analytics_manager"
+  },
   "emergency_controls": {
     "emergency_stop_trading": false,
     "pause_new_positions": false,
@@ -10,25 +22,26 @@
   },
   "risk_management": {
     "account_limits": {
-      "daily_loss_limit": 2.5,
-      "max_account_risk": 26,
-      "equity_buffer": 2000,
-      "max_positions": 10
+      "daily_loss_limit": 5,
+      "max_account_risk": 25,
+      "equity_buffer": 10000,
+      "max_positions": 10,
+      "max_target_daily_profit_percent": 0.45,
+      "min_target_daily_profit_percent": 0.25,
+      "last_updated": "2025-10-27T22:23:48.458479",
+      "updated_by": "web_interface"
     },
     "parameter_states": {
       "enable_max_account_risk": true,
       "enable_daily_loss_limit": true,
       "enable_equity_buffer": true,
       "enable_max_positions": true,
-      "enable_max_position_size": false,
-      "enable_stop_loss": false,
-      "enable_stop_loss_value": false,
-      "enable_risk_reward_ratio": false
+      "enable_target_daily_profit": true
     },
     "metadata": {
       "updated_by": "web_interface",
       "version": "1.1.0",
-      "last_updated": "2025-10-22T22:51:27.996442"
+      "last_updated": "2025-10-27T22:23:48.458503"
     }
   },
   "strategies": {
@@ -36,16 +49,16 @@
       "market_config": {
         "market_open": "09:35",
         "market_close": "15:55",
-        "last_updated": "2025-10-23T21:53:28.044554",
+        "last_updated": "2025-10-27T21:44:14.562317",
         "updated_by": "strategy_manager",
         "market_hours_only": true
       },
       "running_state": {
-        "is_running": false,
-        "last_updated": "2025-10-24T12:56:17.835237",
-        "updated_by": "auto_timer_monitor"
+        "is_running": true,
+        "last_updated": "2025-10-28T11:39:03.745593",
+        "updated_by": "websocket_control_handler"
       },
-      "auto_approve": false,
+      "auto_approve": true,
       "risk_management": {
         "strategy_allocation": 100,
         "position_size": 20,
@@ -61,7 +74,7 @@
         "AMD",
         "PLTR"
       ],
-      "auto_timer": true
+      "auto_timer": false
     },
     "iron_condor": {
       "market_config": {
@@ -69,11 +82,11 @@
         "market_close": "16:00"
       },
       "running_state": {
-        "is_running": true,
-        "last_updated": "2025-10-24T06:30:21.954425",
+        "is_running": false,
+        "last_updated": "2025-10-28T11:50:56.133917",
         "updated_by": "auto_timer_monitor"
       },
-      "auto_approve": true,
+      "auto_approve": false,
       "risk_management": {
         "strategy_allocation": 10,
         "position_size": 25,
@@ -91,8 +104,8 @@
         "market_close": "16:00"
       },
       "running_state": {
-        "is_running": true,
-        "last_updated": "2025-10-22T20:58:42.597722",
+        "is_running": false,
+        "last_updated": "2025-10-27T21:44:26.345639",
         "updated_by": "websocket_control_handler"
       },
       "auto_approve": false,

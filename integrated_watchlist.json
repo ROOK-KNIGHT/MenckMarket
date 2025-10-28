@@ -1,98 +1,88 @@
 {
   "strategy_name": "Integrated_Watchlist",
-  "last_updated": "2025-10-22T23:04:02.085874",
+  "last_updated": "2025-10-28T11:52:22.653144",
   "total_symbols": 7,
   "watchlist_data": {
-    "PLTR": {
-      "symbol": "PLTR",
-      "current_price": 174.84,
-      "price_change": -6.67,
-      "price_change_percent": -3.67472867,
-      "volume": 58263102,
+    "TSLA": {
+      "symbol": "TSLA",
+      "current_price": 461.34,
+      "price_change": 8.92,
+      "price_change_percent": 1.97161929,
+      "volume": 67793352,
       "market_cap": null,
-      "last_updated": "2025-10-22T23:04:02.084294",
-      "source": [
-        "trading_strategies"
-      ]
-    },
-    "AMD": {
-      "symbol": "AMD",
-      "current_price": 229.33,
-      "price_change": -8.7,
-      "price_change_percent": -3.65500147,
-      "volume": 59668778,
-      "market_cap": null,
-      "last_updated": "2025-10-22T23:04:02.084389",
-      "source": [
-        "current_positions"
-      ],
-      "position_details": {
-        "quantity": -50.0,
-        "market_value": -11526.5,
-        "cost_basis": 0.0,
-        "unrealized_pl": -51.5,
-        "unrealized_pl_percent": 3.64,
-        "account": "74680244",
-        "position_type": "SHORT",
-        "instrument_type": "EQUITY"
-      }
-    },
-    "NVDA": {
-      "symbol": "NVDA",
-      "current_price": 179.7,
-      "price_change": -1.46,
-      "price_change_percent": -0.80591742,
-      "volume": 162249552,
-      "market_cap": null,
-      "last_updated": "2025-10-22T23:04:02.084433",
-      "source": [
-        "trading_strategies"
-      ]
-    },
-    "AMZN": {
-      "symbol": "AMZN",
-      "current_price": 218.13,
-      "price_change": -3.9,
-      "price_change_percent": -1.75651939,
-      "volume": 44308538,
-      "market_cap": null,
-      "last_updated": "2025-10-22T23:04:02.084466",
+      "last_updated": "2025-10-28T11:52:22.650317",
       "source": [
         "trading_strategies"
       ]
     },
     "INTC": {
       "symbol": "INTC",
-      "current_price": 36.5788,
-      "price_change": -1.5412,
-      "price_change_percent": -4.04302204,
-      "volume": 87099905,
+      "current_price": 41.985,
+      "price_change": 2.445,
+      "price_change_percent": 6.18361153,
+      "volume": 148706595,
       "market_cap": null,
-      "last_updated": "2025-10-22T23:04:02.084494",
-      "source": [
-        "trading_strategies"
-      ]
-    },
-    "TSLA": {
-      "symbol": "TSLA",
-      "current_price": 422.38,
-      "price_change": -20.22,
-      "price_change_percent": -4.56845911,
-      "volume": 84023458,
-      "market_cap": null,
-      "last_updated": "2025-10-22T23:04:02.084522",
+      "last_updated": "2025-10-28T11:52:22.650369",
       "source": [
         "trading_strategies"
       ]
     },
     "AAPL": {
       "symbol": "AAPL",
-      "current_price": 258.78,
-      "price_change": -3.99,
-      "price_change_percent": -1.51843818,
-      "volume": 45015254,
+      "current_price": 269.11,
+      "price_change": 0.3,
+      "price_change_percent": 0.11160299,
+      "volume": 26093230,
       "market_cap": null,
-      "last_updated": "2025-10-22T23:04:02.084675",
+      "last_updated": "2025-10-28T11:52:22.650396",
+      "source": [
+        "trading_strategies"
+      ]
+    },
+    "AMD": {
+      "symbol": "AMD",
+      "current_price": 260.03,
+      "price_change": 0.36,
+      "price_change_percent": 0.1386375,
+      "volume": 38951534,
+      "market_cap": null,
+      "last_updated": "2025-10-28T11:52:22.650416",
+      "source": [
+        "trading_strategies"
+      ]
+    },
+    "AMZN": {
+      "symbol": "AMZN",
+      "current_price": 230.29,
+      "price_change": 3.32,
+      "price_change_percent": 1.46274838,
+      "volume": 34985259,
+      "market_cap": null,
+      "last_updated": "2025-10-28T11:52:22.650436",
+      "source": [
+        "trading_strategies"
+      ]
+    },
+    "NVDA": {
+      "symbol": "NVDA",
+      "current_price": 199.58,
+      "price_change": 8.09,
+      "price_change_percent": 4.2247637,
+      "volume": 192686216,
+      "market_cap": null,
+      "last_updated": "2025-10-28T11:52:22.650483",
+      "source": [
+        "trading_strategies"
+      ]
+    },
+    "PLTR": {
+      "symbol": "PLTR",
+      "current_price": 190.74,
+      "price_change": 1.56,
+      "price_change_percent": 0.82461148,
+      "volume": 30200910,
+      "market_cap": null,
+      "last_updated": "2025-10-28T11:52:22.650545",
       "source": [
         "trading_strategies"
       ]
@@ -103,11 +93,11 @@
       "current_positions.json",
       "trading_config_live.json"
     ],
-    "position_symbols": 1,
-    "strategy_symbols": 6,
+    "position_symbols": 0,
+    "strategy_symbols": 7,
     "total_integrated_symbols": 7,
     "update_source": "symbols_monitor_handler",
     "market_data_source": "schwab_quotes_api",
-    "creation_date": "2025-10-22T23:04:02.085885"
+    "creation_date": "2025-10-28T11:52:22.653149"
   }
 }

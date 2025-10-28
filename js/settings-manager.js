@@ -426,6 +426,25 @@ class SettingsManager {
         }
         
         try {
+            // Get session token from localStorage
+            const sessionToken = localStorage.getItem('volflow_session');
+            
+            // Send logout request to auth server
+            if (sessionToken) {
+                const response = await fetch('/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_token: sessionToken
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Auth server logout response:', result);
+            }
+            
             // Send logout request via WebSocket
             if (window.volflowApp?.modules?.websocket?.isConnected) {
                 const message = {
@@ -438,20 +457,28 @@ class SettingsManager {
                 console.log('📡 Logout request sent via WebSocket');
             }
             
-            // Clear local storage
+            // Clear all local storage
             localStorage.clear();
+            sessionStorage.clear();
             
-            // Redirect to login page or show logout message
+            // Show logout message
             this.showToast('Logged out successfully', 'success');
             
-            // Simulate redirect (in a real app, this would redirect to login page)
+            // Redirect to login page (root path which shows login)
             setTimeout(() => {
-                window.location.reload();
-            }, 2000);
+                window.location.href = '/';
+            }, 1000);
             
         } catch (error) {
             console.error('Error during logout:', error);
             this.showToast('Error during logout', 'error');
+            
+            // Even if there's an error, clear storage and redirect
+            localStorage.clear();
+            sessionStorage.clear();
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
         }
     }
     
@@ -757,9 +784,12 @@ class SettingsManager {
         if (data.logout_response) {
             console.log('👋 Logout successful');
             this.showToast('Logout successful', 'success');
+            // Clear storage and redirect to login
+            localStorage.clear();
+            sessionStorage.clear();
             setTimeout(() => {
-                window.location.reload();
-            }, 2000);
+                window.location.href = '/';
+            }, 1000);
         }
         
         // Session Management WebSocket responses
